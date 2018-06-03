@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -35,6 +34,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.io.FilenameFilter;
 
 /**
  *
@@ -69,13 +70,25 @@ public class ProfilesManager extends javax.swing.JPanel {
         int[] rows = table.getSelectedRows();
         
         
+        
         JsonArray json2 = new JsonArray();
         List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
+        
+        File[] files = f.listFiles(new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+                if(name.toLowerCase().endsWith(".bb")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
             
         if(!f.exists())
             System.out.println("No File/Dir");
         if(f.isDirectory()){// a directory!
-            for(File file :f.listFiles()){
+            for(File file :files){
                 for(Integer row: rows){
                     String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
@@ -116,11 +129,21 @@ public class ProfilesManager extends javax.swing.JPanel {
         
         JsonArray json2 = new JsonArray();
         List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
-            
+        
+        File[] files = f.listFiles(new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+                if(name.toLowerCase().endsWith(".bb")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
         if(!f.exists())
             System.out.println("No File/Dir");
         if(f.isDirectory()){// a directory!
-            for(File file :f.listFiles()){
+            for(File file :files){
                 for(Integer row: rows){
                     String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
@@ -134,7 +157,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                         if(i.getName().equals(pname)){
                             String fjson = "";
                             i.setActive(true);
-                            table.getModel().setValueAt("yes", row, 1);
+                            table.getModel().setValueAt("Yes", row, 1);
                             newjson.clear();
                             newjson.add(i);
                             FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
