@@ -92,7 +92,7 @@ So, the vulnerabilities identified so far, from which you can make personalized 
 
 #### For example videos please visit our youtube channel:
 
-* [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ)
+* [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
 
