@@ -310,7 +310,7 @@ public class ActiveScan {
                     }
                 }
                            
-
+                
                 for(String grep: greps){
                     for(String payload: payloads){
                         if(payload.length() >= 2){
@@ -344,6 +344,7 @@ public class ActiveScan {
                         }
                     }
                 }
+                
             }
             if (issues.size() > 0){
                 return issues;

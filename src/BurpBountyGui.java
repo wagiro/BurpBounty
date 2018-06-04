@@ -378,6 +378,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
             writer.write(json);
             writer.close();
+            fileStream.close();
             
         } catch (IOException e){
             e.printStackTrace();
@@ -403,6 +404,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     
     public JsonArray initJson(){
         //Init json form filename
+        FileReader fr;
         try{
             JsonArray data = new JsonArray();
             File f = new File(filename);
@@ -411,13 +413,19 @@ public class BurpBountyGui extends javax.swing.JPanel {
             if(f.isDirectory()){// a directory!
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        fr =  new FileReader(file.getAbsolutePath());
+                        JsonReader json = new JsonReader((fr));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
+                        fr.close();
                     }
+                    
                 }
             }
             return data;
+            
+            
+            
 
         }catch (Exception e) {
             System.out.println(e.getClass());
@@ -456,10 +464,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
             filename = fileload.getAbsolutePath()+"/";
-            text11.setText(filename);
+            text11.setText(fileload.getAbsolutePath());
             initJson();
             initCombo();
-        }
+           }
     }
         
     
@@ -483,6 +491,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     List.addElement(line);
                     line = bufferreader.readLine();
                 }
+                bufferreader.close();
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
             } catch (IOException ex) {
