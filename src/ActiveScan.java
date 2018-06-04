@@ -311,37 +311,38 @@ public class ActiveScan {
                 }
                            
                 
-                for(String grep: greps){
-                    for(String payload: payloads){
-                        if(payload.length() >= 2){
-                                IHttpRequestResponse response = this.callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
-                                if(response.getResponse() == null){return null;}
-                                IScanIssue matches;
-                                IResponseInfo r = helpers.analyzeResponse(response.getResponse());
+                for(String payload: payloads){
+                    IScanIssue matches = null;
+                    if(payload.length() >= 2){
+                        IHttpRequestResponse response = this.callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
+                        if(response.getResponse() == null){return null;}
                                 
-                                if (isresponsecode && notResponseCode(responsecode, r.getStatusCode()) || iscontenttype && notContentType(contenttype,r)){
-                                    matches = null;
-                                }else{
-                                    matches = getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
-                                            issueseverity,issueconfidence,notresponse,notcookie,casesensitive, urlencode);
-                                }
-
-                                if (matches != null) issues.add(matches);
+                        IResponseInfo r = helpers.analyzeResponse(response.getResponse());
+                                
+                        if (isresponsecode && notResponseCode(responsecode, r.getStatusCode()) || iscontenttype && notContentType(contenttype,r)){
+                            matches = null;
                         }else{
-                            IHttpRequestResponse response = this.callbacks.makeHttpRequest(httpService,insertionPoint.buildRequest(helpers.stringToBytes(payload)));
-                            if(response.getResponse() == null){return null;}
-                            IResponseInfo r = helpers.analyzeResponse(response.getResponse());
-                            IScanIssue matches;
+                            for(String grep: greps){
+                                matches = getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
+                                        issueseverity,issueconfidence,notresponse,notcookie,casesensitive, urlencode);
+                                if (matches != null) issues.add(matches);
+                            }
+                        }
+                    }else{
+                        IHttpRequestResponse response = this.callbacks.makeHttpRequest(httpService,insertionPoint.buildRequest(helpers.stringToBytes(payload)));
+                        if(response.getResponse() == null){return null;}
+                        IResponseInfo r = helpers.analyzeResponse(response.getResponse());
 
-                            if (isresponsecode && notResponseCode(responsecode, r.getStatusCode()) || iscontenttype && notContentType(contenttype,r)){
-                                matches = null;
-                            }else{  
+                        if (isresponsecode && notResponseCode(responsecode, r.getStatusCode()) || iscontenttype && notContentType(contenttype,r)){
+                            matches = null;
+                        }else{
+                            for(String grep: greps){
                                 matches = getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
                                         issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode);
+                                if (matches != null) issues.add(matches);
                             }
-                            
-                            if (matches != null) issues.add(matches);
                         }
+                            
                     }
                 }
                 

@@ -78,6 +78,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         JsonArray data = new JsonArray();
         filename = panel.getFilename();
+        FileReader fr;
 
         try{
             File f = new File(filename);
@@ -86,7 +87,8 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
             if(f.isDirectory()){// a directory!
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        fr =  new FileReader(file.getAbsolutePath());
+                        JsonReader json = new JsonReader(fr);
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                     }
@@ -112,6 +114,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         
         JsonArray data = new JsonArray();
         filename = panel.getFilename();
+        FileReader fr;
 
         try{
             File f = new File(filename);
@@ -120,7 +123,8 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
             if(f.isDirectory()){// a directory!
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        fr =  new FileReader(file.getAbsolutePath());
+                        JsonReader json = new JsonReader(fr);
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                     }
