@@ -15,6 +15,7 @@ limitations under the License.
 */
 package burpbounty;
 
+import burp.IBurpExtenderCallbacks;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -48,7 +49,7 @@ import javax.swing.JOptionPane;
  *
  * @author eduardogarcia
  */
-public class BurpBountyGui extends javax.swing.JPanel {
+public class BurpBountyGui extends javax.swing.JPanel{
     
     /**
      * Creates new form BurpBountyGui
@@ -80,8 +81,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
     DefaultListModel encoder = new DefaultListModel();
     String responsecode;
     String contenttype;
-
-
+    private IBurpExtenderCallbacks callbacks;
+    
+   
     public void clear(){
         text1.setText("");
 
@@ -405,6 +407,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     public JsonArray initJson(){
         //Init json form filename
         FileReader fr;
+        
         try{
             JsonArray data = new JsonArray();
             File f = new File(filename);
@@ -465,8 +468,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
             File fileload = fileChooser.getSelectedFile();
             filename = fileload.getAbsolutePath()+"/";
             text11.setText(fileload.getAbsolutePath());
+            
             initJson();
-            initCombo();
+            initCombo();            
+            this.callbacks.saveExtensionSetting("filename", filename);
+            
            }
     }
         
@@ -513,12 +519,16 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
     
     
-    public BurpBountyGui() {
+    public BurpBountyGui(IBurpExtenderCallbacks callbacks) {
+        this.callbacks = callbacks;
+        if (callbacks.loadExtensionSetting("filename") != null) {
+            filename = callbacks.loadExtensionSetting("filename");
+        }
         
        //main
        initComponents();
        initCombo();
-        
+
     }
  
     /**

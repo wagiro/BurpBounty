@@ -60,18 +60,22 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
 
         callbacks.setExtensionName("Burp Bounty");
         callbacks.registerScannerCheck(this);
+        
 
         SwingUtilities.invokeLater(() -> {
-            panel = new BurpBountyGui();
+            panel = new BurpBountyGui(callbacks);
 
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
             callbacks.addSuiteTab(BurpBountyExtension.this);
+            
+            
             callbacks.printOutput("- Loaded BurpBounty v1.0");
             callbacks.printOutput("- For bugs please email me: burpbounty@gmail.com");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
        });
     }
+    
     
        
     @Override
