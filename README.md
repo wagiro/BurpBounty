@@ -1,4 +1,4 @@
-# Burp Bounty
+# Burp Bounty - Scan Check Builder (BApps Store)
 
 Download releases:
 
