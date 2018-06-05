@@ -93,9 +93,12 @@ public class ActiveScan {
                     List responseMarkers = new ArrayList(1);
                     responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).indexOf(m.group()),
                     helpers.bytesToString(requestResponse.getResponse()).indexOf(m.group()) + m.group().length()});
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
 
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, responseMarkers) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, responseMarkers) }, 
                         "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
@@ -107,9 +110,12 @@ public class ActiveScan {
                     List responseMarkers = new ArrayList(1);
                     responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(m.group()),
                     helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(m.group()) + m.group().length()});
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
 
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, responseMarkers) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, responseMarkers) }, 
                         "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
@@ -117,9 +123,12 @@ public class ActiveScan {
             }else if(casesensitive && notresponse && !notcookie){
                 Pattern p = Pattern.compile(grep);
                 Matcher m = p.matcher(helpers.bytesToString(requestResponse.getResponse()));
+                List requestMarkers = new ArrayList(1);
+                requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                 if(!m.find()){
                         return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                         "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
@@ -128,9 +137,12 @@ public class ActiveScan {
             }else if(!casesensitive && notresponse && !notcookie){
                 Pattern p = Pattern.compile(grep.toUpperCase());
                 Matcher m = p.matcher(helpers.bytesToString(requestResponse.getResponse()).toUpperCase());
+                List requestMarkers = new ArrayList(1);
+                requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                 if(!m.find()){
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                         "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
@@ -149,8 +161,11 @@ public class ActiveScan {
                     }
                 }
                 if (!cookies.isEmpty()) {
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                    return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                     "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", cookies.toString()) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground); 
                 }else{
                     return null;
@@ -169,8 +184,11 @@ public class ActiveScan {
                     }
                 }
                 if (!cookies.isEmpty()) {
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                    return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                     "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", cookies.toString()) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground); 
                 }else{
                     return null;
@@ -186,8 +204,12 @@ public class ActiveScan {
                     List responseMarkers = new ArrayList(1);
                     responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).indexOf(grep),
                     helpers.bytesToString(requestResponse.getResponse()).indexOf(grep) + grep.length()});
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
+                                
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                            new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, responseMarkers) }, 
+                            new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, responseMarkers) }, 
                             "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
@@ -197,43 +219,60 @@ public class ActiveScan {
                     List responseMarkers = new ArrayList(1);
                     responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep.toUpperCase()),
                     helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep.toUpperCase()) + grep.length()});
+                    
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
+                    
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                            new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, responseMarkers) }, 
+                            new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, responseMarkers) }, 
                             "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
                 }
             }else if(!casesensitive && notresponse && !notcookie){
                 if(!helpers.bytesToString(requestResponse.getResponse()).toUpperCase().contains(grep.toUpperCase())){
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                     "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
                 }
             }else if(casesensitive && notresponse && !notcookie){
                 if(!helpers.bytesToString(requestResponse.getResponse()).contains(grep)){
+                    List requestMarkers = new ArrayList(1);
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                    new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                     "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                 }else{
                     return null;
                 }
             }else if(!casesensitive && !notresponse && notcookie){
                 List<String> headers =response.getHeaders();
+                List requestMarkers = new ArrayList(1);
+                requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                 for (String header: headers) { 
                     if (header.toUpperCase().contains("SET-COOKIE") && !header.toUpperCase().contains(grep.toUpperCase())){
                         return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                         "BurpBounty - "+issuename,issuedetail,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
                     }
                 }   
             }else if(casesensitive && !notresponse && notcookie){
                 List<String> headers =response.getHeaders();
+                List requestMarkers = new ArrayList(1);
+                requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
+                helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                 for (String header: headers) {
                     if (header.toUpperCase().contains("SET-COOKIE") && !header.contains(grep)){
                         return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
-                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, null, null) }, 
+                        new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                         "BurpBounty - "+issuename,issuedetail,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground); 
                     }else{
                         return null;
