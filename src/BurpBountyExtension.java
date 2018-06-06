@@ -58,7 +58,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         this.callbacks = callbacks;
         helpers = callbacks.getHelpers();
 
-        callbacks.setExtensionName("Burp Bounty");
+        callbacks.setExtensionName("Scan Check Builder");
         callbacks.registerScannerCheck(this);
         
 
@@ -166,7 +166,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
      
     @Override
     public String getTabCaption() {
-        return "Burp Bounty";
+        return "Scan Check Builder";
     }
 
     
