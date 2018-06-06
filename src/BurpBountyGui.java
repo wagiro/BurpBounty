@@ -33,9 +33,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -406,7 +410,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     
     public JsonArray initJson(){
         //Init json form filename
-        FileReader fr;
+        Reader fr;
         
         try{
             JsonArray data = new JsonArray();
@@ -416,7 +420,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
             if(f.isDirectory()){// a directory!
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
-                        fr =  new FileReader(file.getAbsolutePath());
+                        fr = new InputStreamReader(new FileInputStream(file.getAbsolutePath()), StandardCharsets.UTF_8);
                         JsonReader json = new JsonReader((fr));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());

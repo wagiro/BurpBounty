@@ -25,6 +25,10 @@ import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Reader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -36,6 +40,8 @@ import java.util.stream.IntStream;
 import javax.swing.table.DefaultTableModel;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.charset.StandardCharsets;
+
 
 /**
  *
@@ -93,7 +99,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                     String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
                         JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        JsonReader json = new JsonReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "utf-8"));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                         
@@ -148,7 +154,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                     String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
                         JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        JsonReader json = new JsonReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "utf-8"));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                         
