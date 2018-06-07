@@ -70,7 +70,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
             callbacks.addSuiteTab(BurpBountyExtension.this);
             
             
-            callbacks.printOutput("- Loaded BurpBounty v1.0");
+            callbacks.printOutput("- Loaded BurpBounty v1.2");
             callbacks.printOutput("- For bugs please email me: burpbounty@gmail.com");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
        });

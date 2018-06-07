@@ -115,6 +115,21 @@ So, the vulnerabilities identified so far, from which you can make personalized 
 * Add option to insert new headers in the requests.
 
 
+##  Changelog
+**1.2 20180607**
+ - Solved bug with payload space
+ - Add "Exclude HTTP Headers" feature
+ - Add "Only in HTTP Headers" feature
+ 
+**1.1 20180606**
+ - Some improvements for integrate with the BApps Store
+ 
+**1.0 20180531**
+ - First public release
+
+
+
+
 ### Contributions and feature requests are welcome!
 
 ### If you want that I upload your profile example video, send it to me and I upload in my youtube channel.
