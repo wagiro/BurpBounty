@@ -105,7 +105,7 @@ public class ActiveScan {
                     return null;
                 }
             }else if(casesensitive && !notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
@@ -114,8 +114,8 @@ public class ActiveScan {
                 Matcher m = p.matcher(helpers.bytesToString(body));
                 if(m.find()){
                     List responseMarkers = new ArrayList(1);
-                    responseMarkers.add(new int[]{helpers.bytesToString(body).indexOf(m.group()),
-                    helpers.bytesToString(body).indexOf(m.group()) + m.group().length()});
+                    responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).indexOf(m.group()),
+                    helpers.bytesToString(requestResponse.getResponse()).indexOf(m.group()) + m.group().length()});
                     List requestMarkers = new ArrayList(1);
                     requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
                     helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
@@ -172,7 +172,7 @@ public class ActiveScan {
                     return null;
                 }
             }else if(!casesensitive && !notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
@@ -180,8 +180,8 @@ public class ActiveScan {
                 Matcher m = p.matcher(helpers.bytesToString(body).toUpperCase());
                 if(m.find()){
                     List responseMarkers = new ArrayList(1);
-                    responseMarkers.add(new int[]{helpers.bytesToString(body).toUpperCase().indexOf(m.group()),
-                    helpers.bytesToString(body).toUpperCase().indexOf(m.group()) + m.group().length()});
+                    responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(m.group()),
+                    helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(m.group()) + m.group().length()});
                     List requestMarkers = new ArrayList(1);
                     requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
                     helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
@@ -234,7 +234,7 @@ public class ActiveScan {
                 }
                 
             }else if(casesensitive && notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
@@ -287,7 +287,7 @@ public class ActiveScan {
                     return null;
                 }
             }else if(!casesensitive && notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
@@ -438,14 +438,14 @@ public class ActiveScan {
                     return null;
                 }
             }else if(casesensitive && !notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
                 
                 if(helpers.bytesToString(body).contains(grep)){
                     List responseMarkers = new ArrayList(1);
-                    responseMarkers.add(new int[]{helpers.bytesToString(body).indexOf(grep),helpers.bytesToString(body).indexOf(grep) + grep.length()});
+                    responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).indexOf(grep),helpers.bytesToString(requestResponse.getResponse()).indexOf(grep) + grep.length()});
                     List requestMarkers = new ArrayList(1);
                     requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
                     helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
@@ -494,19 +494,20 @@ public class ActiveScan {
                     return null;
                 }
             }else if(!casesensitive && !notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
-
+                String a = helpers.bytesToString(body);
+                
                 if(helpers.bytesToString(body).toUpperCase().contains(grep.toUpperCase())){
-                    List responseMarkers = new ArrayList(1);
-                    responseMarkers.add(new int[]{helpers.bytesToString(body).toUpperCase().indexOf(grep.toUpperCase()),
-                    helpers.bytesToString(body).toUpperCase().indexOf(grep.toUpperCase()) + grep.length()});
-                    
                     List requestMarkers = new ArrayList(1);
                     requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()),
                     helpers.bytesToString(requestResponse.getRequest()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
+                    
+                    List responseMarkers = new ArrayList(1);
+                    responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep.toUpperCase()) + grep.length()});
                     
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
                             new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, responseMarkers) }, 
@@ -549,7 +550,7 @@ public class ActiveScan {
                     return null;
                 }
             }else if(!casesensitive && notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
@@ -594,14 +595,14 @@ public class ActiveScan {
                     return null;
                 }
             }else if(casesensitive && notresponse && !notcookie && excludeHTTP && !onlyHTTP){
-                byte[] req = requestResponse.getRequest();
+                byte[] req = requestResponse.getResponse();
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
                 if(!helpers.bytesToString(body).contains(grep)){
                     List requestMarkers = new ArrayList(1);
-                    requestMarkers.add(new int[]{helpers.bytesToString(body).toUpperCase().indexOf(payload.toUpperCase()),
-                    helpers.bytesToString(body).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
+                    requestMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(payload.toUpperCase()),
+                    helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(payload.toUpperCase()) + payload.length()});
                     return new CustomScanIssue(requestResponse.getHttpService(),helpers.analyzeRequest(requestResponse).getUrl(), 
                     new IHttpRequestResponse[] { callbacks.applyMarkers(requestResponse, requestMarkers, null) }, 
                     "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", payload) ,issueseverity,issueconfidence,remediationdetail,issuebackground,remediationbackground);
