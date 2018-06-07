@@ -498,7 +498,6 @@ public class ActiveScan {
                 int len = req.length - response.getBodyOffset();
                 byte[] body = new byte[len];
                 System.arraycopy(req, response.getBodyOffset(), body, 0, len);
-                String a = helpers.bytesToString(body);
                 
                 if(helpers.bytesToString(body).toUpperCase().contains(grep.toUpperCase())){
                     List requestMarkers = new ArrayList(1);
