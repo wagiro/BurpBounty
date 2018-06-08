@@ -7,53 +7,56 @@ Download releases:
 
 This extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty_v1.0.png)
+![GitHub Logo](images/BurpBounty-v1.2.png)
 
 
-## - Usage:
+## Usage:
 
-#### 1. Config section
+### Config section
 
-* Profile Manager: you can manage the profiles, enable, disable o remove any of them.
-* Select Profile: you can choose any profile, for modify it and save. 
-* Profiles reload: you can reload the profiles directory, for example, when you add new external profile to directory.
-* Profile Directory: you choose the profiles directory path.
+* **Profile Manager**: you can manage the profiles, enable, disable o remove any of them.
+* **New Profile**: you can create new profile.
+* **Select Profile**: you can choose any profile, for modify it and save. 
+* **Profiles reload**: you can reload the profiles directory, for example, when you add new external profile to directory.
+* **Profile Directory**: you choose the profiles directory path.
 
 ![GitHub Logo2](images/ProfileManager.png)
 
 
 
-#### 2. Payloads
+### Payloads
 * You can add many payloads as you want.
 * Each payload of this secction will be sent at each entry point (Insertion points provided by the burp api)
 * You can choos multiple Enocders. For example, if you want encode the string alert(1), many times (in descendent order):
-  1. Plain text: alert(1)
-  2. HTML-encode all characters: &#x61\;&#x6c\;&#x65\;&#x72\;&#x74\;&#x28\;&#x31\;&#x29\;
-  3. URL-encode all characters: %26%23%78%36%31%3b%26%23%78%36%63%3b%26%23%78%36%35%3b%26%23%78%37%32%3b%26%23%78%37%34%3b%26%23%78%32%38%3b%26%23%78%33%31%3b%26%23%78%32%39%3b
+  1. **Plain text**: alert(1)
+  2. **HTML-encode all characters**: &#x61\;&#x6c\;&#x65\;&#x72\;&#x74\;&#x28\;&#x31\;&#x29\;
+  3. **URL-encode all characters**: %26%23%78%36%31%3b%26%23%78%36%63%3b%26%23%78%36%35%3b%26%23%78%37%32%3b%26%23%78%37%34%3b%26%23%78%32%38%3b%26%23%78%33%31%3b%26%23%78%32%39%3b
   
-  4. Base64-encode: JTI2JTIzJTc4JTM2JTMxJTNiJTI2JTIzJTc4JTM2JTYzJTNiJTI2JTIzJTc4JTM2JTM1JTNiJTI2JTIzJTc4JTM3JTMyJTNiJTI2JTIzJTc4JTM3JTM0JTNiJTI2JTIzJTc4JTMyJTM4JTNiJTI2JTIzJTc4JTMzJTMxJTNiJTI2JTIzJTc4JTMyJTM5JTNi
+  4. **Base64-encode**: JTI2JTIzJTc4JTM2JTMxJTNiJTI2JTIzJTc4JTM2JTYzJTNiJTI2JTIzJTc4JTM2JTM1JTNiJTI2JTIzJTc4JTM3JTMyJTNiJTI2JTIzJTc4JTM3JTM0JTNiJTI2JTIzJTc4JTMyJTM4JTNiJTI2JTIzJTc4JTMzJTMxJTNiJTI2JTIzJTc4JTMyJTM5JTNi
 
-* If you choose "URL-Encode these characters" option, you can put all characters that you want encode with URL.
+* If you choose "**URL-Encode these characters**" option, you can put all characters that you want encode with URL.
 
 
 
-#### 3. Grep - Match
+### Grep - Match
 * For each payload response, each string, regex or payload (depending of you choose) will be searched with the specific Grep Options.
 * Grep Type:
-  * Simple String: search for a simple string or strings
-  * Regex: search for regular expression
-  * Payload: search for payloads sended
-  * Payload without encode: if you encode the payload, and you want find for original payload, you should choose this
+  * **Simple String**: search for a simple string or strings
+  * **Regex**: search for regular expression
+  * **Payload**: search for payloads sended
+  * **Payload without encode**: if you encode the payload, and you want find for original payload, you should choose this
 
 * Grep Options:
-  * Negative match: if you want find if string, regex or payload is not present in response
-  * Case sensitive: Only match if case sensitive
-  * Not in cookie: if you want find if any cookie attribute is not present
-  * Content type: you can specify one or multiple (separated by comma) content type to search the string, regex or payload. For example: text/plain, text/html, ...
-  * Response Code: you can specify one or multiple (separated by coma) HTTP response code to find string, regex or payload. For example. 300, 302, 400, ...
+  * **Negative match**: if you want find if string, regex or payload is not present in response
+  * **Case sensitive**: Only match if case sensitive
+  * **Not in cookie**: if you want find if any cookie attribute is not present when cookie is set
+  * **Exclude HTTP Headers**: Only match if it's in the body request
+  * **Only in HTTP Headers**: Only match if it's in HTTP headers
+  * **Content type**: you can specify one or multiple (separated by comma) content type to search the string, regex or payload. For example: text/plain, text/html, ...
+  * **Response Code**: you can specify one or multiple (separated by coma) HTTP response code to find string, regex or payload. For example. 300, 302, 400, ...
 
 
-#### 4. Write an Issue
+### Write an Issue
 * In this section you can specify the issue that will be show if the condition match with the options specified.
 * Issue Name
 * Severity
@@ -63,12 +66,12 @@ This extension allows you, in a quick and simple way, to improve the active and 
 
 
 
-## - Examples
+## Examples
 
-So, the vulnerabilities identified so far, from which you can make personalized improvements are:
+So, the vulnerabilities identified, from which you can make personalized improvements are:
 
 
-#### 1- Active Scan
+#### Active Scan:
 
 * XSS reflected and Stored
 * SQL Injection error based
@@ -85,7 +88,7 @@ So, the vulnerabilities identified so far, from which you can make personalized 
 * XPath Injection
 * etc
 
-#### 2- Passive Scan
+#### Passive Scan
 
 * Security Headers
 * Cookies attributes
@@ -101,7 +104,7 @@ So, the vulnerabilities identified so far, from which you can make personalized 
 
 
 
-## - Improvements for version 2.0:
+## Improvements for version 2.0:
 
 
 * Add the burpcollaborator, to find blind vulnerabilities
@@ -113,6 +116,21 @@ So, the vulnerabilities identified so far, from which you can make personalized 
 * Search only in HTTP Headers
 * Exclude HTTP headers from the search
 * Add option to insert new headers in the requests.
+
+
+##  Changelog
+**1.2 20180607**
+ - Solved bug with payload space
+ - Add "Exclude HTTP Headers" feature
+ - Add "Only in HTTP Headers" feature
+ 
+**1.1 20180606**
+ - Some improvements for integrate with the BApps Store
+ 
+**1.0 20180531**
+ - First public release
+
+
 
 
 ### Contributions and feature requests are welcome!

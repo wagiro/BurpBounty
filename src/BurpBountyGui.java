@@ -75,6 +75,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
     boolean notresponse; 
     boolean casesensitive;
     boolean notcookie;
+    boolean excludeHTTP;
+    boolean onlyHTTP;
     boolean payloadenc;
     boolean urlencode;
     boolean isresponsecode;
@@ -106,6 +108,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
         check55.setSelected(false);
         check71.setSelected(false);
         check72.setSelected(false);
+        excludehttp.setSelected(false);
+        onlyhttp.setSelected(false);
         text4.setText("");
         textarea1.setText("");
         textarea2.setText("");
@@ -162,6 +166,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             isresponsecode = i.getIsResponseCode();
             contenttype = i.getContentType();
             responsecode = i.getResponseCode();
+            excludeHTTP = i.getExcludeHTTP();
+            onlyHTTP = i.getOnlyHTTP();
             
             
             if(name.length() >= 35){
@@ -203,6 +209,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             
             check8.setSelected(urlencode);
             text5.setText(charstourlencode);
+            excludehttp.setSelected(excludeHTTP);
+            onlyhttp.setSelected(onlyHTTP);
             
             switch (matchtype) {
                 case 1:
@@ -316,6 +324,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newfile.setEncoder(encoders);
             newfile.setCharsToUrlEncode(text5.getText());
             newfile.setUrlEncode(check8.isSelected());
+            newfile.setExcludeHTTP(excludehttp.isSelected());
+            newfile.setOnlyHTTP(onlyhttp.isSelected());
 
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
@@ -373,8 +383,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newjson.add(newfile);
             
             String json = gson.toJson(newjson);          
+            
             //Write JSON String to file
             FileOutputStream fileStream;
+            
             if(text1.getText().length() >= 35){
                 fileStream = new FileOutputStream(new File(text11.getText()+"/"+text1.getText().substring(0, 34)+".bb"));
             }else{
@@ -550,6 +562,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
+        buttonGroup7 = new javax.swing.ButtonGroup();
         combo1 = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         text1 = new javax.swing.JTextField();
@@ -621,6 +634,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
         text72 = new javax.swing.JTextField();
         check55 = new javax.swing.JCheckBox();
         jPanel8 = new javax.swing.JPanel();
+        excludehttp = new javax.swing.JCheckBox();
+        onlyhttp = new javax.swing.JCheckBox();
         jPanel7 = new javax.swing.JPanel();
         text5 = new javax.swing.JTextField();
         check8 = new javax.swing.JCheckBox();
@@ -807,7 +822,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(radio7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radio8)))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         tab5.addTab("Issue Properties", jPanel1);
@@ -1000,6 +1015,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
             .addGap(0, 70, Short.MAX_VALUE)
         );
 
+        excludehttp.setText("Exclude HTTP headers");
+
+        onlyhttp.setText("Only in HTTP headers");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -1009,20 +1028,29 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(check72)
-                            .addComponent(check71))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(text72, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
-                            .addComponent(text71)))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(check4)
                             .addComponent(check1)
                             .addComponent(check55))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 133, Short.MAX_VALUE)
-                        .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(30, 30, 30))
+                        .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(check72)
+                                    .addComponent(check71))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(text72)
+                                    .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(excludehttp)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(onlyhttp)
+                                .addGap(222, 222, 222)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1036,6 +1064,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(check55))
                     .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(excludehttp)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(onlyhttp)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check71)
                     .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1043,7 +1075,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check72)
                     .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 75, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Payload Encoder Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Lucida Grande", 0, 14))); // NOI18N
@@ -1125,7 +1157,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         buttonGroup4.add(radio22);
@@ -1298,30 +1330,26 @@ public class BurpBountyGui extends javax.swing.JPanel{
                                 .addComponent(button4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(button5)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(button6)
-                            .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(25, 25, 25)
-                        .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(button11)
-                            .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(25, 25, 25)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(button6)
+                        .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(button11)
+                        .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(tab5, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                .addComponent(tab5)
                 .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jScrollPane2, jScrollPane3});
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {textfield1, textfield2});
-
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jPanel6, jPanel7});
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1486,6 +1514,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
+    private javax.swing.ButtonGroup buttonGroup7;
     private javax.swing.JCheckBox check1;
     private javax.swing.JCheckBox check4;
     private javax.swing.JCheckBox check55;
@@ -1494,6 +1523,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     public javax.swing.JCheckBox check8;
     public javax.swing.JComboBox<String> combo1;
     private javax.swing.JComboBox<String> combo2;
+    private javax.swing.JCheckBox excludehttp;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -1533,6 +1563,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JList<String> list1;
     private javax.swing.JList<String> list2;
     public javax.swing.JList<String> list3;
+    private javax.swing.JCheckBox onlyhttp;
     private javax.swing.JRadioButton radio1;
     private javax.swing.JRadioButton radio10;
     private javax.swing.JRadioButton radio11;

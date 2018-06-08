@@ -34,6 +34,8 @@ public class Issue {
     private boolean NotResponse;
     private boolean NotCookie;
     private boolean CaseSensitive;
+    private boolean ExcludeHTTP;
+    private boolean OnlyHTTP;
     private boolean IsContentType;
     private String ContentType;
     private boolean IsResponseCode;
@@ -54,7 +56,7 @@ public class Issue {
     {
         super();
     }
-    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode, boolean payloadresponse, boolean notresponse, boolean notcookie, boolean iscontenttype, String contenttype, boolean isresponsecode, String responsecode, int matchtype, String issuetype, String issuename, String issueseverity, String issueconfidence, String issuedetail, String issuebackground, String remediationdetail, String remediationbackground)
+    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode, boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype, boolean isresponsecode, String responsecode, int matchtype, String issuetype, String issuename, String issueseverity, String issueconfidence, String issuedetail, String issuebackground, String remediationdetail, String remediationbackground)
     {
         super();
         Name = name;
@@ -67,6 +69,8 @@ public class Issue {
         PayloadResponse = payloadresponse;
         NotResponse = notresponse;
         NotCookie = notcookie;
+        ExcludeHTTP = excludeHTTP;
+        OnlyHTTP = onlyHTTP;
         IsContentType = iscontenttype;
         ContentType = contenttype;
         IsResponseCode = isresponsecode;
@@ -138,6 +142,16 @@ public class Issue {
     public boolean getNotCookie()
     {
         return NotCookie;
+    }
+    
+    public boolean getExcludeHTTP()
+    {
+        return ExcludeHTTP;
+    }
+    
+    public boolean getOnlyHTTP()
+    {
+        return OnlyHTTP;
     }
     
     public boolean getIsContentType()
@@ -267,6 +281,16 @@ public class Issue {
     public void setNotCookie(boolean notcookie)
     {
         NotCookie = notcookie;
+    }
+    
+    public void setOnlyHTTP(boolean onlyHTTP)
+    {
+        OnlyHTTP = onlyHTTP;
+    }
+    
+    public void setExcludeHTTP(boolean excludeHTTP)
+    {
+        ExcludeHTTP = excludeHTTP;
     }
     
     public void setIsContentType(boolean iscontenttype)
