@@ -17,6 +17,7 @@ package burpbounty;
 
 import burp.IBurpExtenderCallbacks;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,8 +37,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel; 
@@ -54,8 +53,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
     /**
      * Creates new form BurpBountyGui
      */
-    //Define global variables
-    String filename = System.getenv("HOME") + "/.BurpSuite/BurpBounty/profiles/";
+    private IBurpExtenderCallbacks callbacks;
+    String filename = "";
     String name;
     String issuetype;
     String issuename;
@@ -68,6 +67,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
     int matchtype;
     String issueseverity;
     String issueconfidence;
+    String responsecode;
+    String contenttype;
+    boolean negativect;
+    boolean negativerc;
     boolean notresponse; 
     boolean casesensitive;
     boolean notcookie;
@@ -77,20 +80,23 @@ public class BurpBountyGui extends javax.swing.JPanel{
     boolean urlencode;
     boolean isresponsecode;
     boolean iscontenttype;
+    int redirtype;
+    boolean rCookies;
+    boolean spaceEncode;
+    String sEncode;
+    int maxRedir;
+    int payloadPosition;
+    String payloadsfile;
+    String grepsfile;
     List<String> items = new ArrayList();
     DefaultListModel payload = new DefaultListModel();
     DefaultListModel grep = new DefaultListModel();
     DefaultListModel encoder = new DefaultListModel();
-    String responsecode;
-    String contenttype;
-    private IBurpExtenderCallbacks callbacks;
     
-   
+ 
+
     public void clear(){
         text1.setText("");
-
-        buttonGroup1.setSelected(radio1.getModel(), false);
-        buttonGroup1.setSelected(radio2.getModel(), false);
         grep.removeAllElements();
         payload.removeAllElements();
         encoder.removeAllElements();
@@ -98,7 +104,13 @@ public class BurpBountyGui extends javax.swing.JPanel{
         text72.setText("");
         check8.setSelected(false);
         text5.setText("");
+        buttonGroup1.clearSelection();
         buttonGroup4.clearSelection();
+        buttonGroup2.clearSelection();
+        buttonGroup3.clearSelection();
+        buttonGroup5.clearSelection();
+        buttonGroup8.clearSelection();
+        buttonGroup9.clearSelection();
         check1.setSelected(false);
         check4.setSelected(false);
         check55.setSelected(false);
@@ -106,22 +118,18 @@ public class BurpBountyGui extends javax.swing.JPanel{
         check72.setSelected(false);
         excludehttp.setSelected(false);
         onlyhttp.setSelected(false);
+        negativeCT.setSelected(false);
+        negativeRC.setSelected(false);
         text4.setText("");
         textarea1.setText("");
         textarea2.setText("");
         textarea3.setText("");
         textarea4.setText("");
-        buttonGroup2.setSelected(radio5.getModel(), false);
-        buttonGroup2.setSelected(radio6.getModel(), false);
-        buttonGroup2.setSelected(radio7.getModel(), false);
-        buttonGroup2.setSelected(radio8.getModel(), false);
-        buttonGroup3.setSelected(radio9.getModel(), false);
-        buttonGroup3.setSelected(radio10.getModel(), false);
-        buttonGroup3.setSelected(radio11.getModel(), false);
-        buttonGroup4.setSelected(radio4.getModel(), false);
-        buttonGroup4.setSelected(radio3.getModel(), false);
-        buttonGroup4.setSelected(radio12.getModel(), false);
-        buttonGroup4.setSelected(radio22.getModel(), false);
+        sp1.setValue(0);
+        textpayloads.setText("");
+        textgreps.setText("");
+        check22.setSelected(false);
+        text22.setText("");
     }
     
     
@@ -164,6 +172,26 @@ public class BurpBountyGui extends javax.swing.JPanel{
             responsecode = i.getResponseCode();
             excludeHTTP = i.getExcludeHTTP();
             onlyHTTP = i.getOnlyHTTP();
+            negativect = i.getNegativeCT();
+            negativerc = i.getNegativeRC();
+            redirtype = i.getRedirection();
+            rCookies = i.getRCookies();
+            maxRedir = i.getMaxRedir();
+            payloadsfile = i.getpayloadsFile();
+            grepsfile = i.getgrepsFile();
+            spaceEncode = i.getSpaceEncode();
+            sEncode = i.getSEncode();
+            payloadPosition = i.getPayloadPosition();
+            
+            
+            
+            if(payloadsfile == null){
+                payloadsfile = "";
+            }
+            
+            if(grepsfile == null){
+                grepsfile = "";
+            }
             
             
             if(name.length() >= 35){
@@ -171,28 +199,45 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }else{
                 text1.setText(name);
             }
-            
-            
+                      
             if(scanner == 1){
                 buttonGroup1.setSelected(radio1.getModel(), true);
             }else if (scanner == 2){
                 buttonGroup1.setSelected(radio2.getModel(), true);
-            }            
+            }
             
+            if(payloadPosition == 1){
+                buttonGroup9.setSelected(replace.getModel(), true);
+            }else if (payloadPosition == 2){
+                buttonGroup9.setSelected(append.getModel(), true);
+            }
+       
             grep.removeAllElements();
             payload.removeAllElements();
             encoder.removeAllElements();
+            textpayloads.setText(payloadsfile);
+            textgreps.setText(grepsfile);
             
-            
-            
-            for(String gs : i.getGreps())
-            {
-                grep.addElement(gs);
+            if(!grepsfile.isEmpty()){
+                loadPath(grepsfile,grep);
+                updateGreps(grepsfile,i);
+                
+            }else{
+                for(String gs : i.getGreps())
+                {
+                    grep.addElement(gs);
+                }
             }
             
-            for(String pay : i.getPayloads())
-            {
-                payload.addElement(pay);
+            if(!payloadsfile.isEmpty()){
+                loadPath(payloadsfile,payload);
+                updatePayloads(payloadsfile,i);
+                
+            }else{
+                for(String pay : i.getPayloads())
+                {
+                    payload.addElement(pay);
+                }
             }
             
             for(String enc : i.getEncoder())
@@ -204,6 +249,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             text72.setText(responsecode);
             
             check8.setSelected(urlencode);
+            check22.setSelected(spaceEncode);
+            text22.setText(sEncode);
             text5.setText(charstourlencode);
             excludehttp.setSelected(excludeHTTP);
             onlyhttp.setSelected(onlyHTTP);
@@ -226,17 +273,40 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     break;
             }
             
+            switch (redirtype) {
+                case 1:
+                    buttonGroup8.setSelected(rb1.getModel(), true);
+                    break;
+                case 2:
+                    buttonGroup8.setSelected(rb2.getModel(), true);
+                    break;
+                case 3:
+                    buttonGroup8.setSelected(rb3.getModel(), true);
+                    break;
+                case 4:
+                    buttonGroup8.setSelected(rb4.getModel(), true);
+                    break;
+                default:
+                    buttonGroup8.clearSelection();
+                    break;
+            }
+            
+            
+            
             check1.setSelected(casesensitive);
             check4.setSelected(notresponse);
             check55.setSelected(notcookie);
             check71.setSelected(iscontenttype);
             check72.setSelected(isresponsecode);
+            negativeCT.setSelected(negativect);
+            negativeRC.setSelected(negativerc);
             text4.setText(issuename);
             textarea1.setText(issuedetail);
             textarea2.setText(issuebackground);
             textarea3.setText(remediationdetail);
             textarea4.setText(remediationbackground);
             text11.setText(filename);
+            sp1.setValue(maxRedir);
 
             switch (issueseverity) {
                 case "High":
@@ -274,6 +344,86 @@ public class BurpBountyGui extends javax.swing.JPanel{
     }
     
     
+    public void updatePayloads(String file, Issue issue){
+         
+        //Load file for implement payloads
+        List payloads = new ArrayList();
+        String line;
+        File fileload = new File(file);
+            
+        try {
+            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+            line = bufferreader.readLine();
+
+            while (line != null) {     
+                payloads.add(line);
+                line = bufferreader.readLine();
+            }
+            bufferreader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        issue.setPayloads(payloads);  
+
+        Gson gson = new Gson();            
+        String strJson = gson.toJson(issue);
+        FileWriter writer = null;
+        try {
+          writer = new FileWriter(text11.getText()+"/"+issue.getName()+".bb");
+          writer.write("["+strJson+"]");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }        
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+    
+    public void updateGreps(String file, Issue issue){
+         
+        //Load file for implement payloads
+        List greps = new ArrayList();
+        String line;
+        File fileload = new File(file);
+            
+        try {
+            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+            line = bufferreader.readLine();
+
+            while (line != null) {     
+                greps.add(line);
+                line = bufferreader.readLine();
+            }
+            bufferreader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        issue.setGreps(greps);  
+
+        Gson gson = new Gson();            
+        String strJson = gson.toJson(issue);
+        FileWriter writer = null;
+        try {
+          writer = new FileWriter(text11.getText()+"/"+issue.getName()+".bb");
+          writer.write("["+strJson+"]");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }        
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+    
     public void saveAttackValues(){
         //Save attack with fields values
         try{
@@ -295,18 +445,28 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 newfile.setScanner(0);
             }
             
+            if(replace.isSelected()){
+                newfile.setPayloadPosition(1);
+            }else if(append.isSelected()){
+                newfile.setPayloadPosition(2);
+            }else{
+                newfile.setPayloadPosition(1);
+            }
+            
             newfile.setActive(true);
             List encoders = new ArrayList();
             List payloads = new ArrayList();
             List greps = new ArrayList();
             
-            for (int i = 0; i < list1.getModel().getSize(); i++) {
+           newfile.setPayloadsFile(textpayloads.getText());
+           for (int i = 0; i < list1.getModel().getSize(); i++) {
                 Object item = list1.getModel().getElementAt(i);
                 payloads.add(item);
             }
-            newfile.setPayloads(payloads);
-            
+            newfile.setPayloads(payloads);     
 
+            
+            newfile.setGrepsFile(textgreps.getText());
             for (int i = 0; i < list2.getModel().getSize(); i++) {
                 Object item = list2.getModel().getElementAt(i);
                 greps.add(item);
@@ -322,6 +482,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newfile.setUrlEncode(check8.isSelected());
             newfile.setExcludeHTTP(excludehttp.isSelected());
             newfile.setOnlyHTTP(onlyhttp.isSelected());
+            newfile.setSpaceEncode(check22.isSelected());
+            newfile.setSEncode(text22.getText());
 
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
@@ -342,16 +504,32 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 newfile.setMatchType(0);
             }
             
+            if(rb1.isSelected()){
+                newfile.setRedirType(1);
+            }else if(rb2.isSelected()){
+                newfile.setRedirType(2);
+            }else if(rb3.isSelected()){
+                newfile.setRedirType(3);
+            }else if(rb4.isSelected()){
+                newfile.setRedirType(4);
+            }else{
+                newfile.setRedirType(0);
+            }
+            
             newfile.setCaseSensitive(check1.isSelected());
             newfile.setNotResponse(check4.isSelected());
             newfile.setNotCookie(check55.isSelected());
             newfile.setIsContentType(check71.isSelected());
             newfile.setIsResponseCode(check72.isSelected());
+            newfile.setNegativeCT(negativeCT.isSelected());
+            newfile.setNegativeRC(negativeRC.isSelected());
             newfile.setIssueName(text4.getText());
             newfile.setIssueDetail(textarea1.getText());
             newfile.setIssueBackground(textarea2.getText());
             newfile.setRemediationDetail(textarea3.getText());
             newfile.setRemediationBackground(textarea4.getText());
+            newfile.setMaxRedir((Integer) sp1.getValue());
+            
             
             if(radio5.isSelected()){
                 newfile.setIssueSeverity("High");
@@ -438,10 +616,6 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 }
             }
             return data;
-            
-            
-            
-
         }catch (Exception e) {
             System.out.println(e.getClass());
             return null;
@@ -466,7 +640,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         }
         return result;
     }
-    
+ 
     
     public void loadConfigFile(){
         JFrame parentFrame = new JFrame();
@@ -487,9 +661,32 @@ public class BurpBountyGui extends javax.swing.JPanel{
             
            }
     }
+    
+    
+    public void loadPath(String file, DefaultListModel list){
+        //Load file for implement payloads
+        DefaultListModel List = list;
+        String line;
+        File fileload = new File(file);
+            
+        try {
+            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+            line = bufferreader.readLine();
+
+            while (line != null) {     
+                List.addElement(line);
+                line = bufferreader.readLine();
+            }
+            bufferreader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
         
     
-    public void loadFile(DefaultListModel list){
+    public void loadPayloadsFile(DefaultListModel list){
         //Load file for implement payloads and match load button
         DefaultListModel List = list;
         String line;
@@ -498,9 +695,43 @@ public class BurpBountyGui extends javax.swing.JPanel{
         fileChooser.setDialogTitle("Specify a file to load");
 
         int userSelection = fileChooser.showOpenDialog(parentFrame);
-
+        
+        
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
+            textpayloads.setText(fileload.getAbsolutePath());
+            try {
+                BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+                line = bufferreader.readLine();
+
+                while (line != null) {     
+                    List.addElement(line);
+                    line = bufferreader.readLine();
+                }
+                bufferreader.close();
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    
+    public void loadGrepsFile(DefaultListModel list){
+        //Load file for implement payloads and match load button
+        DefaultListModel List = list;
+        String line;
+        JFrame parentFrame = new JFrame();
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify a file to load");
+
+        int userSelection = fileChooser.showOpenDialog(parentFrame);
+        
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileload = fileChooser.getSelectedFile();
+            textgreps.setText(fileload.getAbsolutePath());
             try {
                 BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
                 line = bufferreader.readLine();
@@ -520,8 +751,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
     
     
     public String getFilename(){
+
         return filename;
     }
+    
     
     private void swap(int a, int b) {
         Object aObject = encoder.getElementAt(a);
@@ -559,6 +792,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         buttonGroup7 = new javax.swing.ButtonGroup();
+        buttonGroup8 = new javax.swing.ButtonGroup();
+        buttonGroup9 = new javax.swing.ButtonGroup();
         combo1 = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         text1 = new javax.swing.JTextField();
@@ -632,6 +867,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel8 = new javax.swing.JPanel();
         excludehttp = new javax.swing.JCheckBox();
         onlyhttp = new javax.swing.JCheckBox();
+        negativeCT = new javax.swing.JCheckBox();
+        negativeRC = new javax.swing.JCheckBox();
         jPanel7 = new javax.swing.JPanel();
         text5 = new javax.swing.JTextField();
         check8 = new javax.swing.JCheckBox();
@@ -642,9 +879,24 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jButton9 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         list3 = new javax.swing.JList<>();
+        append = new javax.swing.JRadioButton();
+        replace = new javax.swing.JRadioButton();
+        jLabel10 = new javax.swing.JLabel();
+        check22 = new javax.swing.JCheckBox();
+        text22 = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
         radio22 = new javax.swing.JRadioButton();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jPanel9 = new javax.swing.JPanel();
+        rb1 = new javax.swing.JRadioButton();
+        rb2 = new javax.swing.JRadioButton();
+        rb3 = new javax.swing.JRadioButton();
+        rb4 = new javax.swing.JRadioButton();
+        sp1 = new javax.swing.JSpinner();
+        jLabel2 = new javax.swing.JLabel();
+        textpayloads = new javax.swing.JTextField();
+        textgreps = new javax.swing.JTextField();
 
         combo1.setModel(new javax.swing.DefaultComboBoxModel<>());
         combo1.setSize(new java.awt.Dimension(52, 27));
@@ -789,7 +1041,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(text4, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(628, Short.MAX_VALUE))
+                .addContainerGap(685, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -818,7 +1070,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(radio7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radio8)))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tab5.addTab("Issue Properties", jPanel1);
@@ -838,7 +1090,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addComponent(jLabel9)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 612, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(534, Short.MAX_VALUE))
+                .addContainerGap(591, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -867,7 +1119,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addComponent(jLabel13)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 612, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(534, Short.MAX_VALUE))
+                .addContainerGap(591, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -896,7 +1148,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addComponent(jLabel15)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 612, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(534, Short.MAX_VALUE))
+                .addContainerGap(591, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -925,7 +1177,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addComponent(jLabel14)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 612, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(534, Short.MAX_VALUE))
+                .addContainerGap(591, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -988,7 +1240,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
         });
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Grep Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Lucida Grande", 0, 14))); // NOI18N
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Grep Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 14))); // NOI18N
+        jPanel6.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
 
         check4.setText("Negative match");
 
@@ -1015,6 +1268,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         onlyhttp.setText("Only in HTTP headers");
 
+        negativeCT.setText("Negative match");
+
+        negativeRC.setText("Negative match");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -1027,7 +1284,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                             .addComponent(check4)
                             .addComponent(check1)
                             .addComponent(check55))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 133, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE)
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(30, 30, 30))
                     .addGroup(jPanel6Layout.createSequentialGroup()
@@ -1037,16 +1294,19 @@ public class BurpBountyGui extends javax.swing.JPanel{
                                     .addComponent(check72)
                                     .addComponent(check71))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(text72)
-                                    .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(text71)
+                                    .addComponent(text72))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(negativeCT, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(negativeRC, javax.swing.GroupLayout.Alignment.TRAILING)))
                             .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addComponent(excludehttp)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addComponent(onlyhttp)
-                                .addGap(222, 222, 222)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(excludehttp)
+                                    .addComponent(onlyhttp))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1066,15 +1326,18 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check71)
-                    .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(negativeCT))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check72)
-                    .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(negativeRC))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Payload Encoder Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Lucida Grande", 0, 14))); // NOI18N
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Payload Encoder Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 14))); // NOI18N
+        jPanel7.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
 
         check8.setText("URL-Encode these characters:");
 
@@ -1111,32 +1374,75 @@ public class BurpBountyGui extends javax.swing.JPanel{
         list3.setModel(encoder);
         jScrollPane4.setViewportView(list3);
 
+        buttonGroup9.add(append);
+        append.setText("Append");
+
+        buttonGroup9.add(replace);
+        replace.setText("Replace");
+
+        jLabel10.setText("Payload position:");
+
+        check22.setText("Space encode:");
+
+        text22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                text22ActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setText("\"+\" by default");
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(12, 12, 12)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                            .addComponent(combo2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(check8)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel7Layout.createSequentialGroup()
+                            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jButton9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(12, 12, 12)
+                            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane4)
+                                .addComponent(combo2, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel7Layout.createSequentialGroup()
+                            .addComponent(check8)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel7Layout.createSequentialGroup()
+                        .addComponent(check22)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(text22, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(text5)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(0, 26, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel10)
+                .addGap(19, 19, 19)
+                .addComponent(replace)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(append)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addContainerGap(17, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(append)
+                    .addComponent(replace)
+                    .addComponent(jLabel10))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(check22)
+                    .addComponent(text22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(jButton9)
@@ -1153,7 +1459,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addGap(17, 17, 17))
         );
 
         buttonGroup4.add(radio22);
@@ -1173,6 +1479,61 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
         });
 
+        jPanel9.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Follow redirections", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 0, 14))); // NOI18N
+        jPanel9.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+
+        buttonGroup8.add(rb1);
+        rb1.setText("Never");
+
+        buttonGroup8.add(rb2);
+        rb2.setText("On-site only");
+
+        buttonGroup8.add(rb3);
+        rb3.setText("In-scope only");
+
+        buttonGroup8.add(rb4);
+        rb4.setText("Always");
+
+        jLabel2.setText("Max redirections");
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rb1)
+                            .addComponent(rb2)
+                            .addComponent(rb3)
+                            .addComponent(rb4))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                        .addComponent(sp1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(rb1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rb2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rb3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rb4)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sp1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -1180,78 +1541,83 @@ public class BurpBountyGui extends javax.swing.JPanel{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(tab5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .addGap(12, 12, 12))
+                    .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(tab5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(button44)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton3)
+                        .addGap(54, 54, 54)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
+                        .addGap(58, 58, 58)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(button44)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton3)
-                                .addGap(54, 54, 54)
-                                .addComponent(jLabel1)
+                                .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton2)
-                                .addGap(58, 58, 58)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(12, 12, 12)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel5)
-                                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(12, 12, 12))
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(button7, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(button8)
-                                    .addComponent(button9, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(button10, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(button11))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel6)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(radio1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(radio2))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(radio22)
-                                            .addComponent(radio12)
-                                            .addComponent(radio3)
-                                            .addComponent(radio4))))))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                            .addComponent(button3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                                    .addComponent(textpayloads, javax.swing.GroupLayout.Alignment.TRAILING))))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(button7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(button8)
+                            .addComponent(button9, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(button10, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(button11))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(radio1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(radio2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(textgreps, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(radio22)
+                                    .addComponent(radio12)
+                                    .addComponent(radio3)
+                                    .addComponent(radio4))))))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {button10, button11, button7, button8, button9});
@@ -1279,53 +1645,53 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(60, 60, 60)
-                                .addComponent(button7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button10))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel8)
-                                    .addComponent(radio1)
-                                    .addComponent(radio2))
-                                .addGap(16, 16, 16)
-                                .addComponent(jLabel6)
-                                .addGap(1, 1, 1)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(radio4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(radio3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(radio12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(radio22))
-                                    .addComponent(jScrollPane2)))))
+                        .addGap(23, 23, 23)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(radio1)
+                            .addComponent(radio2))
+                        .addGap(28, 28, 28)
+                        .addComponent(jLabel6))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(25, 25, 25)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel12))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(button2)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel12))
+                                .addGap(23, 23, 23)
+                                .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button5)))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(textpayloads, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(button3)
+                                    .addComponent(button8))
+                                .addGap(25, 25, 25)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane3)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(button2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button5))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(button7)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button10))))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(radio4)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(radio3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(radio12)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(radio22))
+                                .addComponent(jScrollPane2)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -1335,11 +1701,12 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(button11)
                         .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(tab5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(tab5, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -1347,6 +1714,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {textfield1, textfield2});
 
+        jPanel9.getAccessibleContext().setAccessibleName("");
     }// </editor-fold>//GEN-END:initComponents
 
     private void selectAttack(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectAttack
@@ -1418,12 +1786,12 @@ public class BurpBountyGui extends javax.swing.JPanel{
     }//GEN-LAST:event_pasteGrep
 
     private void loadPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPayloads
-        loadFile(payload);
+        loadPayloadsFile(payload);
         
     }//GEN-LAST:event_loadPayloads
 
     private void loadGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGrep
-        loadFile(grep);
+        loadGrepsFile(grep);
     }//GEN-LAST:event_loadGrep
 
     private void saveAttack(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAttack
@@ -1491,8 +1859,13 @@ public class BurpBountyGui extends javax.swing.JPanel{
         clear();
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void text22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text22ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_text22ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton append;
     private javax.swing.JButton button10;
     private javax.swing.JButton button11;
     private javax.swing.JButton button2;
@@ -1511,7 +1884,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
     private javax.swing.ButtonGroup buttonGroup7;
+    private javax.swing.ButtonGroup buttonGroup8;
+    private javax.swing.ButtonGroup buttonGroup9;
     private javax.swing.JCheckBox check1;
+    private javax.swing.JCheckBox check22;
     private javax.swing.JCheckBox check4;
     private javax.swing.JCheckBox check55;
     private javax.swing.JCheckBox check71;
@@ -1529,10 +1905,13 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1548,6 +1927,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1559,6 +1939,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JList<String> list1;
     private javax.swing.JList<String> list2;
     public javax.swing.JList<String> list3;
+    private javax.swing.JCheckBox negativeCT;
+    private javax.swing.JCheckBox negativeRC;
     private javax.swing.JCheckBox onlyhttp;
     private javax.swing.JRadioButton radio1;
     private javax.swing.JRadioButton radio10;
@@ -1573,9 +1955,16 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JRadioButton radio7;
     private javax.swing.JRadioButton radio8;
     private javax.swing.JRadioButton radio9;
+    private javax.swing.JRadioButton rb1;
+    private javax.swing.JRadioButton rb2;
+    private javax.swing.JRadioButton rb3;
+    private javax.swing.JRadioButton rb4;
+    private javax.swing.JRadioButton replace;
+    private javax.swing.JSpinner sp1;
     private javax.swing.JTabbedPane tab5;
     private javax.swing.JTextField text1;
     private javax.swing.JTextField text11;
+    private javax.swing.JTextField text22;
     private javax.swing.JTextField text4;
     private javax.swing.JTextField text5;
     private javax.swing.JTextField text71;
@@ -1586,5 +1975,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JTextArea textarea4;
     private javax.swing.JTextField textfield1;
     private javax.swing.JTextField textfield2;
+    private javax.swing.JTextField textgreps;
+    private javax.swing.JTextField textpayloads;
     // End of variables declaration//GEN-END:variables
 } 

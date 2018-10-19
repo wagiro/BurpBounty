@@ -38,9 +38,19 @@ public class Issue {
     private boolean OnlyHTTP;
     private boolean IsContentType;
     private String ContentType;
+    private boolean NegativeCT;
     private boolean IsResponseCode;
     private String ResponseCode;
+    private boolean NegativeRC;
     private int MatchType;
+    private int RedirType;
+    private int MaxRedir;
+    private boolean rCookies;
+    private boolean spaceEncode;
+    private int payloadPosition;
+    private String sEncode;
+    private String payloadsFile;
+    private String grepsFile;
     private String IssueName;
     private String IssueType;
     private String IssueSeverity;
@@ -50,13 +60,19 @@ public class Issue {
     private String IssueBackground;
     private String RemediationBackground;
     
+    
+    
 
     
     public Issue()
     {
         super();
     }
-    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode, boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype, boolean isresponsecode, String responsecode, int matchtype, String issuetype, String issuename, String issueseverity, String issueconfidence, String issuedetail, String issuebackground, String remediationdetail, String remediationbackground)
+    
+    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode,
+            boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
+            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode,int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, 
+            String issuename, String issueseverity, String issueconfidence, String issuedetail, String issuebackground, String remediationdetail, String remediationbackground)
     {
         super();
         Name = name;
@@ -73,8 +89,10 @@ public class Issue {
         OnlyHTTP = onlyHTTP;
         IsContentType = iscontenttype;
         ContentType = contenttype;
+        NegativeCT = negativect;
         IsResponseCode = isresponsecode;
         ResponseCode = responsecode;
+        NegativeRC = negativerc;
         MatchType = matchtype;
         IssueType = issuetype;
         IssueName = issuename;
@@ -86,6 +104,14 @@ public class Issue {
         RemediationBackground = remediationbackground;
         UrlEncode = urlencode;
         CharsToUrlEncode = charstourlencode;
+        RedirType = redirtype;
+        rCookies = rcookies;
+        spaceEncode = spaceencode;
+        sEncode = sencode;
+        payloadsFile = payloadsfile;
+        grepsFile = grepsfile;
+        MaxRedir = maxredir;
+        payloadPosition = payloadposition;
         
     }
 
@@ -104,6 +130,11 @@ public class Issue {
         return Scanner;
     }
     
+    public int getPayloadPosition()
+    {
+        return payloadPosition;
+    }
+    
     public List<String> getPayloads()
     {
         return Payloads;
@@ -117,6 +148,16 @@ public class Issue {
     public String getCharsToUrlEncode()
     {
         return CharsToUrlEncode;
+    }
+    
+    public String getpayloadsFile()
+    {
+        return payloadsFile;
+    }
+    
+    public String getgrepsFile()
+    {
+        return grepsFile;
     }
         
     public List<String> getGreps()
@@ -144,6 +185,11 @@ public class Issue {
         return NotCookie;
     }
     
+    public boolean getSpaceEncode()
+    {
+        return spaceEncode;
+    }
+    
     public boolean getExcludeHTTP()
     {
         return ExcludeHTTP;
@@ -164,6 +210,16 @@ public class Issue {
         return ContentType;
     }
     
+    public String getSEncode()
+    {
+        return sEncode;
+    }
+    
+    public boolean getNegativeCT()
+    {
+        return NegativeCT;
+    }
+    
     public boolean getIsResponseCode()
     {
         return IsResponseCode;
@@ -174,6 +230,11 @@ public class Issue {
         return ResponseCode;
     }
     
+    public boolean getNegativeRC()
+    {
+        return NegativeRC;
+    }
+    
     public boolean getUrlEncode()
     {
         return UrlEncode;
@@ -182,6 +243,22 @@ public class Issue {
     public int getMatchType()
     {
         return MatchType;
+    }
+    
+    public int getRedirection()
+    {
+        return RedirType;
+    }   
+    
+    
+    public boolean getRCookies()
+    {
+        return rCookies;
+    }
+    
+    public int getMaxRedir()
+    {
+        return MaxRedir;
     }
     
     public String getIssueType()
@@ -242,6 +319,11 @@ public class Issue {
         Scanner = scanner;
     }
     
+    public void setPayloadPosition(int payloadposition)
+    {
+        payloadPosition = payloadposition;
+    }
+    
     public void setPayloads(List<String> payloads)
     {
         Payloads = payloads;
@@ -257,12 +339,21 @@ public class Issue {
          CharsToUrlEncode = charstourlencode;
     }
     
+    public void setPayloadsFile(String payloadsfile)
+    {
+         payloadsFile = payloadsfile;
+    }
+    
+    public void setGrepsFile(String grepsfile)
+    {
+         grepsFile = grepsfile;
+    }
+    
     public void setGreps(List<String> grep)
     {
         Grep = grep;
     }
-    
-    
+       
     public void setCaseSensitive(boolean casesensitive)
     {
         CaseSensitive = casesensitive;
@@ -303,6 +394,16 @@ public class Issue {
         ContentType = contenttype;
     }
     
+    public void setSEncode(String sencode)
+    {
+        sEncode = sencode;
+    }
+    
+    public void setNegativeCT(boolean negativect)
+    {
+        NegativeCT = negativect;
+    }
+    
     public void setIsResponseCode(boolean isresponsecode)
     {
         IsResponseCode = isresponsecode;
@@ -313,6 +414,11 @@ public class Issue {
         ResponseCode = responsecode;
     }
     
+    public void setNegativeRC(boolean negativerc)
+    {
+        NegativeRC = negativerc;
+    }
+    
     public void setUrlEncode(boolean urlencode)
     {
         UrlEncode = urlencode;
@@ -321,6 +427,26 @@ public class Issue {
     public void setMatchType(int matchtype)
     {
         MatchType = matchtype;
+    }
+    
+    public void setRedirType(int redirtype)
+    {
+        RedirType = redirtype;
+    }
+        
+    public void setRCookies(boolean rcookies)
+    {
+        rCookies = rcookies;
+    }
+    
+    public void setSpaceEncode(boolean spaceencode)
+    {
+        spaceEncode = spaceencode;
+    }
+    
+    public void setMaxRedir(int maxredir)
+    {
+        MaxRedir = maxredir;
     }
     
     public void setIssueType(String issuetype)
