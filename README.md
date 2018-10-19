@@ -17,8 +17,8 @@ Go to [Usage Wiki](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
 ##  Changelog
 **2.0 20181020**
-* Add the burpcollaborator
-* Follow redirects and how many to follow.
+* Add the burpcollaborator support
+* Follow redirects and how many to follow
 * Payload append or replace
 * Space encoding choose
 * Response codes to avoid
