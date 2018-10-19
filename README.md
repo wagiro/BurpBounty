@@ -7,7 +7,7 @@ Download releases:
 
 This extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty-v2.0.png)
+![GitHub Logo](images/BurpBounty_v2.0.png)
 
 
 ## Usage:
