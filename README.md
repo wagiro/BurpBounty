@@ -24,12 +24,6 @@ Go to [Usage Wiki](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 * Response codes to avoid
 * Content type to avoid
  
-**1.1 20180606**
- - Some improvements for integrate with the BApps Store
- 
-**1.0 20180531**
- - First public release
-
 
 **1.2 20180607**
  - Solved bug with payload space
