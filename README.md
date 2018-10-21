@@ -10,15 +10,13 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ![GitHub Logo](images/BurpBounty_v2.0.png)
 
 
-## Usage:
+## Usage
 
 * Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
-## Profile Examples
+## Profiles
 
-* [Generic](https://github.com/wagiro/BurpBounty/tree/master/profile_examples/)
-
-## Original profiles from authors
+* [Generic Examples](https://github.com/wagiro/BurpBounty/tree/master/profile_examples/)
 
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
