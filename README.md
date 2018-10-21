@@ -20,7 +20,7 @@ Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
 ## Original profiles from authors
 
-* Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in your [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
+* Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
 ##  Changelog
 **2.0 20181020**
