@@ -16,7 +16,7 @@ Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
 ## Profile Examples
 
-* [Generic](https://github.com/wagiro/BurpBounty/profile_examples/)
+* [Generic](https://github.com/wagiro/BurpBounty/tree/master/profile_examples/)
 
 ## Original profiles from authors
 
