@@ -12,7 +12,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 ## Usage:
 
-Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
+* Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
 ## Profile Examples
 
