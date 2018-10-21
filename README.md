@@ -12,8 +12,15 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 ## Usage:
 
-Go to [Usage Wiki](https://github.com/wagiro/BurpBounty/wiki/usage) section.
+Go to [Usage](https://github.com/wagiro/BurpBounty/wiki/usage) section.
 
+## Profile Examples
+
+* [Generic](https://github.com/wagiro/BurpBounty/profile_examples/)
+
+## Original profiles from authors
+
+* Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in your [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
 ##  Changelog
 **2.0 20181020**
