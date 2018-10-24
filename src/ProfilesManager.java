@@ -22,17 +22,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
 import javax.swing.table.DefaultTableModel;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -52,7 +46,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         public boolean isCellEditable(int row, int column) {
            //all cells false
            return false;
-        }
+        }   
     };
     private final BurpBountyGui BBG;
     
@@ -63,11 +57,12 @@ public class ProfilesManager extends javax.swing.JPanel {
     }
     
     
+    
     public void setDisableProfile(BurpBountyGui bbg){ 
         
         Gson gson = new Gson();
         File f = new File(bbg.filename);
-        int[] rows = table.getSelectedRows();
+        
         
         
         
@@ -84,13 +79,16 @@ public class ProfilesManager extends javax.swing.JPanel {
                 }
             }
         });
-            
+                
+        
+        
+        int[] rows = table.getSelectedRows();
         if(!f.exists())
             System.out.println("No File/Dir");
         if(f.isDirectory()){// a directory!
             for(File file :files){
                 for(Integer row: rows){
-                    String pname = table.getModel().getValueAt(row, 0).toString();
+                    //String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
                         JsonArray data = new JsonArray();
                         JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
@@ -99,6 +97,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                         
                         Object idata = data.get(0);                      
                         Issue i = gson.fromJson(idata.toString(), Issue.class);
+                        String pname = table.getModel().getValueAt(row, 0).toString();
                         if(i.getName().equals(pname)){
                             i.setActive(false);
                             table.getModel().setValueAt("No", row, 1);
@@ -124,7 +123,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         
         Gson gson = new Gson();
         File f = new File(bbg.filename);
-        int[] rows = table.getSelectedRows();
+        
         
         
         JsonArray json2 = new JsonArray();
@@ -140,12 +139,14 @@ public class ProfilesManager extends javax.swing.JPanel {
                 }
             }
         });
+        
+        int[] rows = table.getSelectedRows();
         if(!f.exists())
             System.out.println("No File/Dir");
         if(f.isDirectory()){// a directory!
             for(File file :files){
                 for(Integer row: rows){
-                    String pname = table.getModel().getValueAt(row, 0).toString();
+                    //String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
                         JsonArray data = new JsonArray();
                         JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
@@ -154,6 +155,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                         
                         Object idata = data.get(0);                      
                         Issue i = gson.fromJson(idata.toString(), Issue.class);
+                        String pname = table.getModel().getValueAt(row, 0).toString();
                         if(i.getName().equals(pname)){
                             String fjson = "";
                             i.setActive(true);
@@ -177,7 +179,6 @@ public class ProfilesManager extends javax.swing.JPanel {
     
         
     public void showProfiles(BurpBountyGui bbg){        
-        Gson gson = new Gson();
         JsonArray json = bbg.initJson();
         model.setNumRows(0);
         model.setColumnCount(0);
@@ -248,6 +249,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         table.setAutoCreateRowSorter(true);
         table.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         table.setModel(model);
+        table.setRowSorter(null);
         table.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(table);
 
