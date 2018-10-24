@@ -23,8 +23,8 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ##  Changelog
 **2.1 20181024**
 * Replace strings in payloads
-* Field to put the author's twitter (or any information)
-* Timeout option for blind vulns (BlindSQLi time based, Blind RCE,etc)
+* Field to put the author's information
+* Timeout option for blind vulns
 * Multiple lines bb json file
 
 
