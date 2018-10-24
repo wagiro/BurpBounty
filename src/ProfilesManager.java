@@ -108,7 +108,7 @@ public class ProfilesManager extends javax.swing.JPanel {
                             String fjson = "";
                             fjson = gson.toJson(newjson);
                             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                            writer.write(fjson);
+                            writer.write(fjson.replace(",", ",\n"));
                             writer.close();
                             break;
                         }
