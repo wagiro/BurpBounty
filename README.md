@@ -49,7 +49,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
  - First public release
 
 
-### For example videos please visit our youtube channel (Examples for version 1.2, soon examples for version 2.0):
+### For example videos please visit our youtube channel (Examples for version 1.2):
 
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
