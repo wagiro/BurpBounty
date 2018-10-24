@@ -70,6 +70,11 @@ public class GenericScan {
     boolean spaceencode;
     String sencode;
     int payloadposition;
+    int timeout;
+    boolean istime;
+    boolean isreplace;
+    String replace1;
+    String replace2;
     List<String> payloads = new ArrayList();
     List<String> payloadsEncoded = new ArrayList();
     List<String> payloadsenc = new ArrayList();
@@ -139,7 +144,11 @@ public class GenericScan {
                 spaceencode = issue.getSpaceEncode();
                 sencode = issue.getSEncode();
                 payloadposition = issue.getPayloadPosition();
-                
+                timeout = issue.getTime();
+                istime = issue.getIsTime();
+                isreplace = issue.getIsReplace();
+                replace1 = issue.getReplace1();
+                replace2 = issue.getReplace2();
 
                 //If encoders exist...
                 if(!encoders.isEmpty()){
@@ -182,6 +191,11 @@ public class GenericScan {
                 
                                 
                 for(String payload: payloads){
+                    
+                    if(isreplace){
+                        payload = payload.replaceAll(replace1, replace2);
+                    } 
+                    
                     payload = payload.replaceAll(" ", sencode);
                     
                     if(payloadposition == 2){
@@ -193,144 +207,180 @@ public class GenericScan {
                         String bchost = bc.generatePayload(true);
                         payload = payload.replaceAll("\\{BC\\}", bchost);
                         
-                        
-                        IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
+                        if(istime){
+                            long startTime = System.currentTimeMillis();
+                            IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
+                            long endTime = System.currentTimeMillis();
+                            long duration = (endTime - startTime);
+                            if(duration >= timeout*1000){
+                                matches = new CustomScanIssue(response.getHttpService(),helpers.analyzeRequest(response).getUrl(), 
+                                          new IHttpRequestResponse[] { callbacks.applyMarkers(response, null, null) }, 
+                                          "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", helpers.urlEncode(payload)) ,issueseverity,
+                                          issueconfidence,remediationdetail,issuebackground,remediationbackground);
+                            }else{
+                                matches = null;
+                            }
+                            
+                        }else{
+                            IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
 
-                        if(response.getResponse() == null){
-                            return null;
+                            if(response.getResponse() == null){
+                                return null;
+                            }
+
+                            bcheck bcheck = new bcheck(callbacks);
+                            matches = bcheck.getMatches(response,bchost,bc,payload,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,issueseverity,issueconfidence);
                         }
-                        
-                        bcheck bcheck = new bcheck(callbacks);
-                        matches = bcheck.getMatches(response,bchost,bc,payload,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,issueseverity,issueconfidence);
                         
                         if (matches != null){
                             issues.add(matches);
-                         }
-    
+                        }
+                        
                     }else{
-                        IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
-
-                        if(response.getResponse() == null){
-                            return null;
-                        }
-
-                        IResponseInfo r = helpers.analyzeResponse(response.getResponse());
-                        Integer responseCode = new Integer(r.getStatusCode());
-                        Integer loop = 0;
-
-                        if(maxredirect > 50){
-                            maxredirect = 50;
-                        }
-
-                        if(redirtype != 1){
-                            while(loop != maxredirect+1){
-                                if(responseCodes.contains(responseCode)){
-
-                                    if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
-                                        matches = null;
-                                    }else{
-                                        for(String grep: greps){
-                                            matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
-                                                  issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
-
-
-                                            if (matches != null){
-                                                issues.add(matches);
-                                            }
-                                        }
-                                    }
-
-                                    URL url = getLocation(httpService,response);
-                                    if(redirtype == 2){
-                                        if(url.getHost().contains(httpService.getHost())){
-                                            byte[] checkRequest = helpers.buildHttpRequest(url);
-                                            boolean https = false;
-
-                                            if(url.getProtocol().equals("https")){
-                                                https = true;                                
-                                            }
-
-                                            Integer port = 0;
-                                            if(url.getPort() == -1){
-                                                port = url.getDefaultPort();
-                                            }
-
-                                            IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
-                                            response = callbacks.makeHttpRequest(newrequest, checkRequest);
-
-                                            r = helpers.analyzeResponse(response.getResponse());
-                                            responseCode = new Integer(r.getStatusCode());
-                                        }
-                                    }else if(redirtype == 3){
-                                        boolean isurl = callbacks.isInScope(url);
-                                        if(isurl){
-                                            byte[] checkRequest = helpers.buildHttpRequest(url);
-                                            boolean https = false;
-
-                                            if(url.getProtocol().equals("https")){
-                                                https = true;                                
-                                            }
-
-                                            Integer port = 0;
-                                            if(url.getPort() == -1){
-                                                port = url.getDefaultPort();
-                                            }
-
-                                            IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
-                                            response = callbacks.makeHttpRequest(newrequest, checkRequest);
-
-                                            r = helpers.analyzeResponse(response.getResponse());
-                                            responseCode = new Integer(r.getStatusCode());
-                                         }
-
-                                    }else{
-                                        byte[] checkRequest = helpers.buildHttpRequest(url);
-                                        boolean https = false;
-
-                                        if(url.getProtocol().equals("https")){
-                                            https = true;                                
-                                        }
-
-                                        Integer port = 0;
-                                        if(url.getPort() == -1){
-                                            port = url.getDefaultPort();
-                                        }
-
-                                        IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
-                                        response = callbacks.makeHttpRequest(newrequest, checkRequest);
-
-                                        r = helpers.analyzeResponse(response.getResponse());
-                                        responseCode = new Integer(r.getStatusCode());
-
-                                    }
-                                    loop = loop + 1;
-                                }else{
-
-                                    if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
-                                        matches = null;
-                                    }else{
-                                        for(String grep: greps){
-                                            matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
-                                                  issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
-
-                                            if (matches != null){
-                                                issues.add(matches);
-                                            }
-                                        }
-                                    }
-                                break;
-                                }
-                            }
-                        }else{
-                            if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
-                                matches = null;
+                        if(istime){
+                            long startTime = System.currentTimeMillis();
+                            IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
+                            long endTime = System.currentTimeMillis();
+                            long duration = (endTime - startTime);
+                            if(duration >= timeout*1000){
+                                matches = new CustomScanIssue(response.getHttpService(),helpers.analyzeRequest(response).getUrl(), 
+                                          new IHttpRequestResponse[] { callbacks.applyMarkers(response, null, null) }, 
+                                          "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", helpers.urlEncode(payload)) ,issueseverity,
+                                          issueconfidence,remediationdetail,issuebackground,remediationbackground);
                             }else{
-                                for(String grep: greps){
-                                    matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
-                                    issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
+                                matches = null;
+                            }
+                            if (matches != null){
+                                issues.add(matches);
+                            }
+                            
+                        }else{
+                        
+                        
+                            IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
 
-                                    if (matches != null){
-                                        issues.add(matches);
+                            if(response.getResponse() == null){
+                                return null;
+                            }
+
+                            IResponseInfo r = helpers.analyzeResponse(response.getResponse());
+                            Integer responseCode = new Integer(r.getStatusCode());
+                            Integer loop = 0;
+
+                            if(maxredirect > 50){
+                                maxredirect = 50;
+                            }
+
+                            if(redirtype != 1){
+                                while(loop != maxredirect+1){
+                                    if(responseCodes.contains(responseCode)){
+
+                                        if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
+                                            matches = null;
+                                        }else{
+                                            for(String grep: greps){
+                                                matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
+                                                      issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
+
+
+                                                if (matches != null){
+                                                    issues.add(matches);
+                                                }
+                                            }
+                                        }
+
+                                        URL url = getLocation(httpService,response);
+                                        if(redirtype == 2){
+                                            if(url.getHost().contains(httpService.getHost())){
+                                                byte[] checkRequest = helpers.buildHttpRequest(url);
+                                                boolean https = false;
+
+                                                if(url.getProtocol().equals("https")){
+                                                    https = true;                                
+                                                }
+
+                                                Integer port = 0;
+                                                if(url.getPort() == -1){
+                                                    port = url.getDefaultPort();
+                                                }
+
+                                                IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
+                                                response = callbacks.makeHttpRequest(newrequest, checkRequest);
+
+                                                r = helpers.analyzeResponse(response.getResponse());
+                                                responseCode = new Integer(r.getStatusCode());
+                                            }
+                                        }else if(redirtype == 3){
+                                            boolean isurl = callbacks.isInScope(url);
+                                            if(isurl){
+                                                byte[] checkRequest = helpers.buildHttpRequest(url);
+                                                boolean https = false;
+
+                                                if(url.getProtocol().equals("https")){
+                                                    https = true;                                
+                                                }
+
+                                                Integer port = 0;
+                                                if(url.getPort() == -1){
+                                                    port = url.getDefaultPort();
+                                                }
+
+                                                IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
+                                                response = callbacks.makeHttpRequest(newrequest, checkRequest);
+
+                                                r = helpers.analyzeResponse(response.getResponse());
+                                                responseCode = new Integer(r.getStatusCode());
+                                             }
+
+                                        }else{
+                                            byte[] checkRequest = helpers.buildHttpRequest(url);
+                                            boolean https = false;
+
+                                            if(url.getProtocol().equals("https")){
+                                                https = true;                                
+                                            }
+
+                                            Integer port = 0;
+                                            if(url.getPort() == -1){
+                                                port = url.getDefaultPort();
+                                            }
+
+                                            IHttpService newrequest = helpers.buildHttpService(url.getHost(),port,https);
+                                            response = callbacks.makeHttpRequest(newrequest, checkRequest);
+
+                                            r = helpers.analyzeResponse(response.getResponse());
+                                            responseCode = new Integer(r.getStatusCode());
+
+                                        }
+                                        loop = loop + 1;
+                                    }else{
+
+                                        if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
+                                            matches = null;
+                                        }else{
+                                            for(String grep: greps){
+                                                matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
+                                                      issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
+
+                                                if (matches != null){
+                                                    issues.add(matches);
+                                                }
+                                            }
+                                        }
+                                    break;
+                                    }
+                                }
+                            }else{
+                                if (isresponsecode && notResponseCode(responsecode, negativerc, r.getStatusCode()) || iscontenttype && notContentType(contenttype, negativect, r)){
+                                    matches = null;
+                                }else{
+                                    for(String grep: greps){
+                                        matches = gm.getMatches(response, payload,grep,name,issuename,issuedetail,issuebackground,remediationdetail,remediationbackground,charstourlencode,matchtype,
+                                        issueseverity,issueconfidence,notresponse,notcookie,casesensitive,urlencode,excludeHTTP,onlyHTTP);
+
+                                        if (matches != null){
+                                            issues.add(matches);
+                                        }
                                     }
                                 }
                             }

@@ -25,6 +25,7 @@ public class Issue {
     private String Name;
     private boolean Active;
     private int Scanner;
+    private String Author;
     private List<String> Payloads;
     private List<String> Encoder;
     private boolean UrlEncode;
@@ -33,7 +34,12 @@ public class Issue {
     private boolean PayloadResponse;
     private boolean NotResponse;
     private boolean NotCookie;
+    private int TimeOut;
+    private boolean isTime;
     private boolean CaseSensitive;
+    private boolean isReplace;
+    private String Replace1;
+    private String Replace2;
     private boolean ExcludeHTTP;
     private boolean OnlyHTTP;
     private boolean IsContentType;
@@ -71,13 +77,15 @@ public class Issue {
     
     public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode,
             boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
-            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode,int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, 
-            String issuename, String issueseverity, String issueconfidence, String issuedetail, String issuebackground, String remediationdetail, String remediationbackground)
+            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode, int timeout,
+            boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
+            String issuedetail,String issuebackground, String remediationdetail, String remediationbackground)
     {
         super();
         Name = name;
         Active = active;
         Scanner = scanner;
+        Author = author;
         Payloads = payloads;
         Encoder = encoder;
         Grep = grep;
@@ -92,6 +100,9 @@ public class Issue {
         NegativeCT = negativect;
         IsResponseCode = isresponsecode;
         ResponseCode = responsecode;
+        isReplace = isreplace;
+        Replace1 = replace1;
+        Replace2 = replace2;
         NegativeRC = negativerc;
         MatchType = matchtype;
         IssueType = issuetype;
@@ -112,12 +123,19 @@ public class Issue {
         grepsFile = grepsfile;
         MaxRedir = maxredir;
         payloadPosition = payloadposition;
+        TimeOut = timeout;
+        isTime = istime;
         
     }
 
     public String getName()
     {
         return Name;
+    }
+    
+    public String getAuthor()
+    {
+        return Author;
     }
     
     public boolean getActive()
@@ -158,6 +176,21 @@ public class Issue {
     public String getgrepsFile()
     {
         return grepsFile;
+    }
+    
+    public boolean getIsReplace()
+    {
+        return isReplace;
+    }
+    
+    public String getReplace1()
+    {
+        return Replace1;
+    }
+    
+    public String getReplace2()
+    {
+        return Replace2;
     }
         
     public List<String> getGreps()
@@ -213,6 +246,16 @@ public class Issue {
     public String getSEncode()
     {
         return sEncode;
+    }
+    
+    public int getTime()
+    {
+        return TimeOut;
+    }
+    
+    public boolean getIsTime()
+    {
+        return isTime;
     }
     
     public boolean getNegativeCT()
@@ -309,6 +352,11 @@ public class Issue {
          Name = name;
     }
     
+    public void setAuthor(String author)
+    {
+         Author = author;
+    }
+    
     public void setActive(boolean active)
     {
          Active = active;
@@ -359,6 +407,21 @@ public class Issue {
         CaseSensitive = casesensitive;
     }
     
+    public void setisReplace(boolean isreplace)
+    {
+        isReplace = isreplace;
+    }
+    
+    public void setReplace1(String replace1)
+    {
+         Replace1 = replace1;
+    }
+    
+    public void setReplace2(String replace2)
+    {
+         Replace2 = replace2;
+    }
+       
     public void setPayloadResponse(boolean payloadresponse)
     {
         PayloadResponse = payloadresponse;
@@ -387,6 +450,16 @@ public class Issue {
     public void setIsContentType(boolean iscontenttype)
     {
         IsContentType = iscontenttype;
+    }
+    
+    public void setTime(int timeout)
+    {
+         TimeOut = timeout;
+    }
+    
+    public void setIsTime(boolean istime)
+    {
+         isTime = istime;
     }
     
     public void setContentType(String contenttype)
