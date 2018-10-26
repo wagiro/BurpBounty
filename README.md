@@ -30,7 +30,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 ##  Changelog
 **2.2 20181026**
-* Fix some minor problems
+* Fixed some minor problems
 
 **2.1 20181024**
 * Replace strings in payloads
