@@ -284,7 +284,12 @@ public class BurpBountyGui extends javax.swing.JPanel{
             text5.setText(charstourlencode);
             excludehttp.setSelected(excludeHTTP);
             onlyhttp.setSelected(onlyHTTP);
-            texttime.setText(Integer.toString(timeOut));
+            if(timeOut == 0){
+                texttime.setText("");
+            }else{
+                texttime.setText(Integer.toString(timeOut));
+            }
+            
             checktime.setSelected(isTime);
             checkreplace.setSelected(isReplace);
             textreplace1.setText(Replace1);
@@ -531,7 +536,11 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newfile.setReplace2(textreplace2.getText());
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
-            newfile.setTime(Integer.parseInt(texttime.getText()));
+            if(texttime.getText().isEmpty()){
+                newfile.setTime(0);
+            }else{
+                newfile.setTime(Integer.parseInt(texttime.getText()));
+            }
             newfile.setIsTime(checktime.isSelected());
             
             
