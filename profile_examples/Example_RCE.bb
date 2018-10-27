@@ -1,5 +1,5 @@
 [{"Name":"Example_RCE",
-"Active":true,
+"Active":false,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":["ping -c 2 {BC}",
