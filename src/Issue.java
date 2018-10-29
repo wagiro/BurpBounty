@@ -34,7 +34,7 @@ public class Issue {
     private boolean PayloadResponse;
     private boolean NotResponse;
     private boolean NotCookie;
-    private int TimeOut;
+    private String TimeOut;
     private boolean isTime;
     private boolean CaseSensitive;
     private boolean isReplace;
@@ -77,7 +77,7 @@ public class Issue {
     
     public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode,
             boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
-            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode, int timeout,
+            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode, String timeout,
             boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
             String issuedetail,String issuebackground, String remediationdetail, String remediationbackground)
     {
@@ -248,7 +248,7 @@ public class Issue {
         return sEncode;
     }
     
-    public int getTime()
+    public String getTime()
     {
         return TimeOut;
     }
@@ -452,7 +452,7 @@ public class Issue {
         IsContentType = iscontenttype;
     }
     
-    public void setTime(int timeout)
+    public void setTime(String timeout)
     {
          TimeOut = timeout;
     }

@@ -70,7 +70,7 @@ public class GenericScan {
     boolean spaceencode;
     String sencode;
     int payloadposition;
-    int timeout;
+    String timeout;
     boolean istime;
     boolean isreplace;
     String replace1;
@@ -212,7 +212,7 @@ public class GenericScan {
                                 IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
                                 long endTime = System.currentTimeMillis();
                                 long duration = (endTime - startTime);
-                                if(duration >= timeout*1000){
+                                if(duration >= Integer.getInteger(timeout)*1000){
                                     matches = new CustomScanIssue(response.getHttpService(),helpers.analyzeRequest(response).getUrl(), 
                                               new IHttpRequestResponse[] { callbacks.applyMarkers(response, null, null) }, 
                                               "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", helpers.urlEncode(payload)) ,issueseverity,
@@ -242,7 +242,7 @@ public class GenericScan {
                                 IHttpRequestResponse response = callbacks.makeHttpRequest(httpService,new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload)));
                                 long endTime = System.currentTimeMillis();
                                 long duration = (endTime - startTime);
-                                if(duration >= timeout*1000){
+                                if(duration >= Integer.getInteger(timeout)*1000){
                                     matches = new CustomScanIssue(response.getHttpService(),helpers.analyzeRequest(response).getUrl(), 
                                               new IHttpRequestResponse[] { callbacks.applyMarkers(response, null, null) }, 
                                               "BurpBounty - "+issuename, issuedetail.replaceAll("<grep>", helpers.urlEncode(payload)) ,issueseverity,

@@ -35,7 +35,7 @@
 "sEncode":"",
 "payloadsFile":"",
 "grepsFile":"",
-"IssueName":"HttpOnly",
+"IssueName":"CookieAttributes",
 "IssueSeverity":"Low",
 "IssueConfidence":"Certain",
 "IssueDetail":"",

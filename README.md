@@ -29,6 +29,10 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**2.3 20181029**
+* Improved profile manager
+* Fixed some minor problems
+
 **2.2 20181026**
 * Fixed some minor problems
 

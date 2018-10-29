@@ -17,7 +17,6 @@ package burpbounty;
 
 import burp.IBurpExtenderCallbacks;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -88,7 +87,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     int payloadPosition;
     String payloadsfile;
     String grepsfile;
-    int timeOut;
+    String timeOut;
     boolean isTime;
     String Author;
     boolean isReplace;
@@ -284,10 +283,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
             text5.setText(charstourlencode);
             excludehttp.setSelected(excludeHTTP);
             onlyhttp.setSelected(onlyHTTP);
-            if(timeOut == 0){
+            if(timeOut.equals("0")){
                 texttime.setText("");
             }else{
-                texttime.setText(Integer.toString(timeOut));
+                texttime.setText(timeOut);
             }
             
             checktime.setSelected(isTime);
@@ -537,9 +536,9 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
             if(texttime.getText().isEmpty()){
-                newfile.setTime(0);
+                newfile.setTime("0");
             }else{
-                newfile.setTime(Integer.parseInt(texttime.getText()));
+                newfile.setTime(texttime.getText());
             }
             newfile.setIsTime(checktime.isSelected());
             
