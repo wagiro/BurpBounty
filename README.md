@@ -18,6 +18,8 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 * [Generic Examples](https://github.com/wagiro/BurpBounty/tree/master/profile_examples/)
 
+* [Advanced Profiles](https://github.com/wagiro/BurpBounty/tree/master/advanced_profiles/)
+
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
 
