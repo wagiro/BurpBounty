@@ -70,8 +70,8 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
             callbacks.addSuiteTab(BurpBountyExtension.this);
             
             
-            callbacks.printOutput("- Loaded BurpBounty v1.2");
-            callbacks.printOutput("- For bugs please email me: burpbounty@gmail.com");
+            callbacks.printOutput("- BurpBounty v2.2");
+            callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
        });
     }
@@ -86,9 +86,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
 
         try{
             File f = new File(filename);
-            if(!f.exists())
-                System.out.println("No File/Dir");
-            if(f.isDirectory()){// a directory!
+            if(f.exists() && f.isDirectory()){
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
                         fr =  new FileReader(file.getAbsolutePath());
@@ -103,14 +101,15 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         }        
 
             
-            ActiveScan as = new ActiveScan(callbacks,data);   
+        GenericScan as = new GenericScan(callbacks,data);   
         try {
-            return as.doAScan(baseRequestResponse, insertionPoint);
+            return as.runAScan(baseRequestResponse, insertionPoint);
         } catch (Exception ex) {
             Logger.getLogger(BurpBountyExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
+    
     
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse)
@@ -122,9 +121,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
 
         try{
             File f = new File(filename);
-            if(!f.exists())
-                System.out.println("No File/Dir");
-            if(f.isDirectory()){// a directory!
+            if(f.exists() && f.isDirectory()){
                 for(File file :f.listFiles()){
                     if(file.getName().endsWith("bb")){
                         fr =  new FileReader(file.getAbsolutePath());
@@ -139,15 +136,16 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         }        
 
             
-            PassiveScan ps = new PassiveScan(callbacks,data);   
+        GenericScan ps = new GenericScan(callbacks,data);   
         try {
-            return ps.doPScan(baseRequestResponse);
+            return ps.runPScan(baseRequestResponse);
         } catch (Exception ex) {
             Logger.getLogger(BurpBountyExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
      
+    
     @Override
     public int consolidateDuplicateIssues(IScanIssue existingIssue, IScanIssue newIssue)
     {
@@ -164,6 +162,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         else return 0;
     }
      
+    
     @Override
     public String getTabCaption() {
         return "Scan Check Builder";

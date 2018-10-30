@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileInputStream;
@@ -31,17 +30,15 @@ import java.io.Reader;
 import java.io.Reader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
 import javax.swing.table.DefaultTableModel;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.nio.charset.StandardCharsets;
-
+import java.util.ArrayList;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -58,7 +55,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         public boolean isCellEditable(int row, int column) {
            //all cells false
            return false;
-        }
+        }   
     };
     private final BurpBountyGui BBG;
     
@@ -68,15 +65,12 @@ public class ProfilesManager extends javax.swing.JPanel {
         showProfiles(this.BBG);
     }
     
-    
-    public void setDisableProfile(BurpBountyGui bbg){ 
+
+    public void setEnableDisableProfile(BurpBountyGui bbg, String enable){ 
         
         Gson gson = new Gson();
         File f = new File(bbg.filename);
-        int[] rows = table.getSelectedRows();
-        
-        
-        
+
         JsonArray json2 = new JsonArray();
         List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
         
@@ -90,68 +84,13 @@ public class ProfilesManager extends javax.swing.JPanel {
                 }
             }
         });
-            
-        if(!f.exists())
-            System.out.println("No File/Dir");
-        if(f.isDirectory()){// a directory!
-            for(File file :files){
-                for(Integer row: rows){
-                    String pname = table.getModel().getValueAt(row, 0).toString();
-                    try{
-                        JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "utf-8"));
-                        JsonParser parser = new JsonParser();
-                        data.addAll(parser.parse(json).getAsJsonArray());
-                        
-                        Object idata = data.get(0);                      
-                        Issue i = gson.fromJson(idata.toString(), Issue.class);
-                        if(i.getName().equals(pname)){
-                            i.setActive(false);
-                            table.getModel().setValueAt("No", row, 1);
-                            newjson.clear();
-                            newjson.add(i);
-                            FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
-                            String fjson = "";
-                            fjson = gson.toJson(newjson);
-                            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                            writer.write(fjson);
-                            writer.close();
-                            break;
-                        }
-                    } catch (IOException e){
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }      
-            
-    public void setActiveProfiles(BurpBountyGui bbg){ 
+                
         
-        Gson gson = new Gson();
-        File f = new File(bbg.filename);
+        
         int[] rows = table.getSelectedRows();
-        
-        
-        JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
-        
-        File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
-        if(!f.exists())
-            System.out.println("No File/Dir");
-        if(f.isDirectory()){// a directory!
+        if(f.exists() && f.isDirectory()){
             for(File file :files){
                 for(Integer row: rows){
-                    String pname = table.getModel().getValueAt(row, 0).toString();
                     try{
                         JsonArray data = new JsonArray();
                         JsonReader json = new JsonReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "utf-8"));
@@ -160,18 +99,23 @@ public class ProfilesManager extends javax.swing.JPanel {
                         
                         Object idata = data.get(0);                      
                         Issue i = gson.fromJson(idata.toString(), Issue.class);
-                        if(i.getName().equals(pname)){
-                            String fjson = "";
-                            i.setActive(true);
-                            table.getModel().setValueAt("Yes", row, 1);
+                        String pname = table.getValueAt(row, 0).toString();
+                        
+                        if(pname.contains(i.getName())){
+                            if(enable.contains("Yes")){
+                                i.setActive(true);
+                                table.setValueAt("Yes", row, 1);
+                            }else{
+                                i.setActive(false);
+                                table.setValueAt("No", row, 1);
+                            }
                             newjson.clear();
                             newjson.add(i);
                             FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
-                            fjson = gson.toJson(newjson);
+                            String fjson = gson.toJson(newjson);
                             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                            writer.write(fjson);
+                            writer.write(fjson.replace(",", ",\n"));
                             writer.close();
-                            break;
                         }
                     } catch (IOException e){
                         e.printStackTrace();
@@ -179,40 +123,87 @@ public class ProfilesManager extends javax.swing.JPanel {
                 }
             }
         }
-    }
+    }  
     
         
     public void showProfiles(BurpBountyGui bbg){        
-        Gson gson = new Gson();
         JsonArray json = bbg.initJson();
         model.setNumRows(0);
         model.setColumnCount(0);
         model.addColumn("Profile");
         model.addColumn("Active");
+        model.addColumn("Authors Twitter");
        
+        table.getColumnModel().getColumn(0).setPreferredWidth(220);
+        table.getColumnModel().getColumn(1).setPreferredWidth(5);
+        table.getColumnModel().getColumn(2).setPreferredWidth(70);
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+       
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
+        
         if (json != null){
             for (JsonElement pa : json) {
                 JsonObject bbObj  = pa.getAsJsonObject();
                 if(bbObj.get("Active").getAsBoolean()){
-                    model.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes"});    
+                    model.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", bbObj.get("Author").getAsString()});    
                 }else{
-                    model.addRow(new Object[]{bbObj.get("Name").getAsString(), "No"});
+                    model.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", bbObj.get("Author").getAsString()});
                 }
             }   
         }
     }
     
-    public void deleteItem(BurpBountyGui bbg){
+
+    public void deleteProfile(BurpBountyGui bbg){ 
+        
+        Gson gson = new Gson();
+        File f = new File(bbg.filename);
+        
+        File[] files = f.listFiles(new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+                if(name.toLowerCase().endsWith(".bb")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+                
+        
         
         int[] rows = table.getSelectedRows();
-        
-        for(Integer row: rows){
-            String pname = model.getValueAt(row, 0).toString();
-            File file = new File(bbg.filename+pname+".bb");
-            file.delete();
-        }
-        showProfiles(bbg);
-    }
+        if(f.exists() && f.isDirectory()){
+            for(File file :files){
+                for(Integer row: rows){
+                    try{
+                        JsonArray data = new JsonArray();
+                        JsonReader json = new JsonReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "utf-8"));
+                        JsonParser parser = new JsonParser();
+                        data.addAll(parser.parse(json).getAsJsonArray());
+                        
+                        Object idata = data.get(0);                      
+                        Issue i = gson.fromJson(idata.toString(), Issue.class);
+                        String pname = table.getValueAt(row, 0).toString();
+                        
+                        if(pname.contains(i.getName())){
+                            file.delete();
+                        }
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }showProfiles(bbg);
+    }  
+    
+    
+    
+    
     
     
     /**
@@ -233,7 +224,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         button3.setText("Remove");
         button3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DeleteItem(evt);
+                RemoveEvent(evt);
             }
         });
 
@@ -254,6 +245,7 @@ public class ProfilesManager extends javax.swing.JPanel {
         table.setAutoCreateRowSorter(true);
         table.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         table.setModel(model);
+        table.setRowSorter(null);
         table.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(table);
 
@@ -288,17 +280,17 @@ public class ProfilesManager extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void setProfileEnable(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setProfileEnable
-        setActiveProfiles(this.BBG);
+        setEnableDisableProfile(this.BBG,"Yes");
         
     }//GEN-LAST:event_setProfileEnable
 
     private void SetDisableProfiles(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetDisableProfiles
-        setDisableProfile(this.BBG);
+        setEnableDisableProfile(this.BBG,"No");
     }//GEN-LAST:event_SetDisableProfiles
 
-    private void DeleteItem(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteItem
-        deleteItem(this.BBG);
-    }//GEN-LAST:event_DeleteItem
+    private void RemoveEvent(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveEvent
+        deleteProfile(this.BBG);
+    }//GEN-LAST:event_RemoveEvent
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
