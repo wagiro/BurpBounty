@@ -34,7 +34,7 @@
 "RedirType":4,
 "MaxRedir":0,
 "spaceEncode":false,
-"payloadPosition":1,
+"payloadPosition":2,
 "sEncode":"",
 "payloadsFile":"",
 "grepsFile":"",
