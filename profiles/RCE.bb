@@ -38,10 +38,10 @@
 "sEncode":"",
 "payloadsFile":"",
 "grepsFile":"",
-"IssueName":"BlindRCE",
+"IssueName":"RCE",
 "IssueSeverity":"High",
 "IssueConfidence":"Tentative",
-"IssueDetail":"Blind RCE with el payload:   \u003cgrep\u003e",
+"IssueDetail":"RCE with el payload:   \u003cgrep\u003e",
 "RemediationDetail":"",
 "IssueBackground":"",
 "RemediationBackground":""}]
