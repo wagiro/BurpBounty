@@ -1,0 +1,13 @@
+Collaborator
+PathTraversal
+RCE
+SQLi
+CookieAttributes
+SecurityHeaders
+XSS
+JWT
+CMS
+CVE
+Errors
+InformationDisclosure
+API

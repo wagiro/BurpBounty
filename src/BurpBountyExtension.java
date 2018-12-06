@@ -16,22 +16,26 @@ limitations under the License.
 
 package burpbounty;
 
+import burp.IBurpCollaboratorClientContext;
 import burp.IBurpExtender;
 import burp.IBurpExtenderCallbacks;
-import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IScanIssue;
 import burp.IScannerCheck;
 import burp.IScannerInsertionPoint;
 import burp.ITab;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import java.awt.Component;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
@@ -43,41 +47,69 @@ import javax.swing.SwingUtilities;
  */
 public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
 
-    private static IBurpExtenderCallbacks callbacks;
-    private static IExtensionHelpers helpers;
-    private static PrintWriter stderr;
+    public static IBurpExtenderCallbacks callbacks;
+    List<IBurpCollaboratorClientContext> CollaboratorClientContext = new ArrayList();
+    Properties issueProperties = new Properties();
     private JScrollPane optionsTab; 
     private BurpBountyGui panel; 
     Issue issue;
     String filename = "";
+    public boolean doStop = false;
+    BurpCollaboratorThread BurpCollaborator;
     
     
     
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
-        helpers = callbacks.getHelpers();
-
-        callbacks.setExtensionName("Scan Check Builder");
-        callbacks.registerScannerCheck(this);
+        this.callbacks.setExtensionName("Burp Bounty");
+        this.callbacks.registerScannerCheck(this);
         
-
         SwingUtilities.invokeLater(() -> {
-            panel = new BurpBountyGui(callbacks);
-
+            panel = new BurpBountyGui(this);
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-            callbacks.addSuiteTab(BurpBountyExtension.this);
+            this.callbacks.addSuiteTab(this);
             
             
-            callbacks.printOutput("- BurpBounty v2.2");
-            callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
-            callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
+            this.callbacks.printOutput("- BurpBounty v3.0.0beta");
+            this.callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
+            this.callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
        });
+        
+    }
+    
+    public void startBCollaborator(){
+        BurpCollaborator = new BurpCollaboratorThread(this);
+        Thread thread = new Thread(BurpCollaborator);
+        thread.start();
     }
     
     
-       
+    public void setCollaboratorClientContext(IBurpCollaboratorClientContext bccc){
+        BurpCollaborator.CollaboratorClientContext.add(bccc);
+        
+    }
+    
+    
+    public void setIssueProperties(IHttpRequestResponse requestResponse, String bchost, String issuename,String issuedetail, String issueseverity, String issueconfidence,
+        String issuebackground, String remediationdetail, String remediationbackground){
+        issueProperties.put("issuename", issuename);
+        issueProperties.put("issuedetail", issuedetail);
+        issueProperties.put("issueseverity", issueseverity);
+        issueProperties.put("issueconfidence", issueconfidence);
+        issueProperties.put("issuebackground", issuebackground);
+        issueProperties.put("remediationdetail", remediationdetail);
+        issueProperties.put("remediationbackground", remediationbackground);
+        BurpCollaborator.issues.put(bchost, issueProperties);
+        BurpCollaborator.ccrequestResponse.put(bchost, requestResponse);
+    }
+    
+        
+    public void doStop() {
+        BurpCollaborator.doStop();
+    }
+
+    
     @Override
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         JsonArray data = new JsonArray();
@@ -96,12 +128,12 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
                     }
                 }
             }
-        }catch (Exception e) {
+        }catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             System.out.println(e.getClass());
         }        
 
             
-        GenericScan as = new GenericScan(callbacks,data);   
+        GenericScan as = new GenericScan(this,data);   
         try {
             return as.runAScan(baseRequestResponse, insertionPoint);
         } catch (Exception ex) {
@@ -131,12 +163,12 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
                     }
                 }
             }
-        }catch (Exception e) {
+        }catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             System.out.println(e.getClass());
         }        
 
             
-        GenericScan ps = new GenericScan(callbacks,data);   
+        GenericScan ps = new GenericScan(this,data);   
         try {
             return ps.runPScan(baseRequestResponse);
         } catch (Exception ex) {
@@ -172,7 +204,5 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
     @Override
     public Component getUiComponent() {
         return optionsTab;
-    }
-
-    
+    }  
 }

@@ -7,7 +7,7 @@ Download releases:
 
 This BurpSuite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty_v2.1.png)
+![GitHub Logo](images/BurpBounty_v3.0.0beta.png)
 
 
 ## Usage
@@ -16,9 +16,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 ## Profiles
 
-* [Generic Examples](https://github.com/wagiro/BurpBounty/tree/master/profile_examples/)
-
-* [Advanced Profiles](https://github.com/wagiro/BurpBounty/tree/master/advanced_profiles/)
+* Profiles from [egarme](https://twitter.com/egarme) in [Github](https://github.com/wagiro/BurpBounty/tree/master/profiles/)
 
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
@@ -31,6 +29,16 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**3.0.0beta 20181204**
+* New multi-tab look and feel
+* Passive scanner for requests 
+* Content-length comparer (for blindSQLi, etc.)
+* Tags system for organize your profiles
+* New BurpCollaborator Interaction
+* New Profile Manager 
+* Deleted “not in cookie” functionality
+* Some minor improvements
+
 **2.3 20181029**
 * Improved profile manager
 * Fixed some minor problems

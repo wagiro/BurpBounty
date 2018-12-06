@@ -31,11 +31,13 @@ public class Issue {
     private boolean UrlEncode;
     private String CharsToUrlEncode;
     private List<String> Grep;
+    private List<String> Tags;
     private boolean PayloadResponse;
     private boolean NotResponse;
-    private boolean NotCookie;
     private String TimeOut;
     private boolean isTime;
+    private String contentLength;
+    private boolean iscontentLength;
     private boolean CaseSensitive;
     private boolean isReplace;
     private String Replace1;
@@ -51,7 +53,6 @@ public class Issue {
     private int MatchType;
     private int RedirType;
     private int MaxRedir;
-    private boolean rCookies;
     private boolean spaceEncode;
     private int payloadPosition;
     private String sEncode;
@@ -75,11 +76,11 @@ public class Issue {
         super();
     }
     
-    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, boolean casesensitive,boolean urlencode,
-            boolean payloadresponse, boolean notresponse, boolean notcookie, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
-            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean rcookies, boolean spaceencode, String sencode, String timeout,
+    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, List tags, boolean casesensitive,boolean urlencode,
+            boolean payloadresponse, boolean notresponse, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
+            boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean spaceencode, String sencode, String timeout,
             boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
-            String issuedetail,String issuebackground, String remediationdetail, String remediationbackground)
+            String issuedetail,String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength)
     {
         super();
         Name = name;
@@ -89,10 +90,10 @@ public class Issue {
         Payloads = payloads;
         Encoder = encoder;
         Grep = grep;
+        Tags = tags;
         CaseSensitive = casesensitive;
         PayloadResponse = payloadresponse;
         NotResponse = notresponse;
-        NotCookie = notcookie;
         ExcludeHTTP = excludeHTTP;
         OnlyHTTP = onlyHTTP;
         IsContentType = iscontenttype;
@@ -116,7 +117,6 @@ public class Issue {
         UrlEncode = urlencode;
         CharsToUrlEncode = charstourlencode;
         RedirType = redirtype;
-        rCookies = rcookies;
         spaceEncode = spaceencode;
         sEncode = sencode;
         payloadsFile = payloadsfile;
@@ -125,6 +125,8 @@ public class Issue {
         payloadPosition = payloadposition;
         TimeOut = timeout;
         isTime = istime;
+        contentLength = contentlength;
+        iscontentLength = iscontentlength;
         
     }
 
@@ -198,6 +200,11 @@ public class Issue {
         return Grep;
     }
     
+    public List<String> getTags()
+    {
+        return Tags;
+    }
+    
     public boolean getCaseSensitive()
     {
         return CaseSensitive;
@@ -211,11 +218,6 @@ public class Issue {
     public boolean getNotResponse()
     {
         return NotResponse;
-    }
-    
-    public boolean getNotCookie()
-    {
-        return NotCookie;
     }
     
     public boolean getSpaceEncode()
@@ -258,6 +260,16 @@ public class Issue {
         return isTime;
     }
     
+    public String getContentLength()
+    {
+        return contentLength;
+    }
+    
+    public boolean getIsContentLength()
+    {
+        return iscontentLength;
+    }
+    
     public boolean getNegativeCT()
     {
         return NegativeCT;
@@ -292,12 +304,7 @@ public class Issue {
     {
         return RedirType;
     }   
-    
-    
-    public boolean getRCookies()
-    {
-        return rCookies;
-    }
+
     
     public int getMaxRedir()
     {
@@ -401,6 +408,11 @@ public class Issue {
     {
         Grep = grep;
     }
+    
+    public void setTags(List<String> tags)
+    {
+        Tags = tags;
+    }
        
     public void setCaseSensitive(boolean casesensitive)
     {
@@ -432,10 +444,6 @@ public class Issue {
         NotResponse = notresponse;
     }
     
-    public void setNotCookie(boolean notcookie)
-    {
-        NotCookie = notcookie;
-    }
     
     public void setOnlyHTTP(boolean onlyHTTP)
     {
@@ -460,6 +468,17 @@ public class Issue {
     public void setIsTime(boolean istime)
     {
          isTime = istime;
+    }
+    
+    
+    public void setContentLength(String contentlength)
+    {
+         contentLength = contentlength;
+    }
+    
+    public void setIsContentLength(boolean iscontentlength)
+    {
+         iscontentLength = iscontentlength;
     }
     
     public void setContentType(String contenttype)
@@ -507,10 +526,6 @@ public class Issue {
         RedirType = redirtype;
     }
         
-    public void setRCookies(boolean rcookies)
-    {
-        rCookies = rcookies;
-    }
     
     public void setSpaceEncode(boolean spaceencode)
     {
