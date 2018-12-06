@@ -21,7 +21,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
 
 
-### For example videos please visit our youtube channel (Examples for version 1.2):
+### For example videos please visit our youtube channel:
 
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
