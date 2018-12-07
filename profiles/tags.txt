@@ -11,3 +11,4 @@ CVE
 Errors
 InformationDisclosure
 API
+SQLi
