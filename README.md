@@ -29,6 +29,10 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**3.0.1beta 20181207**
+* Fixed error with timeout
+
+
 **3.0.0beta 20181204**
 * New multi-tab look and feel
 * Passive scanner for requests 
