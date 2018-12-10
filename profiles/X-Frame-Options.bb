@@ -1,5 +1,5 @@
 [{"Name":"X-Frame-Options",
-"Active":true,
+"Active":false,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],

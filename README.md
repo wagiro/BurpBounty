@@ -19,9 +19,9 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * Profiles from [egarme](https://twitter.com/egarme) in [Github](https://github.com/wagiro/BurpBounty/tree/master/profiles/)
 
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
+  
 
-
-### For example videos please visit our youtube channel (Examples for version 1.2):
+### For example videos please visit our youtube channel:
 
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
@@ -29,6 +29,10 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**3.0.1beta 20181207**
+* Fixed error with timeout
+
+
 **3.0.0beta 20181204**
 * New multi-tab look and feel
 * Passive scanner for requests 
