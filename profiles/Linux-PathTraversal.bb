@@ -1,5 +1,5 @@
 [{"Name":"Linux-PathTraversal",
-"Active":true,
+"Active":false,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":["/../etc/passwd",

@@ -1,5 +1,5 @@
 [{"Name":"ErrorPages-JobApps",
-"Active":true,
+"Active":false,
 "Scanner":3,
 "Author":"@egarme",
 "Payloads":[],
@@ -38,7 +38,7 @@
 "IssueSeverity":"Information",
 "IssueConfidence":"Tentative",
 "IssueDetail":"Find error pages for job applications,
-\n\n sometimes can contain juicy information:\n\nhttps://www.exploit-db.com/ghdb/5033/",
+\n\n\n sometimes can contain juicy information:\n\nhttps://www.exploit-db.com/ghdb/5033/",
 "RemediationDetail":"",
 "IssueBackground":"",
 "RemediationBackground":""}]

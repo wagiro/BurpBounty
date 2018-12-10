@@ -1,5 +1,5 @@
 [{"Name":"JoomlaSQLi-com_artforms ",
-"Active":true,
+"Active":false,
 "Scanner":3,
 "Author":"@egarme",
 "Payloads":[],

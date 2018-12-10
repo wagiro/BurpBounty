@@ -12,3 +12,4 @@ Errors
 InformationDisclosure
 API
 SQLi
+XXE

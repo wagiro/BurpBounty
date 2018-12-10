@@ -1,5 +1,5 @@
 [{"Name":"AuthorizationBearerToken",
-"Active":true,
+"Active":false,
 "Scanner":3,
 "Author":"@egarme",
 "Payloads":[],
