@@ -1,5 +1,5 @@
 [{"Name":"ApiKeyRequest",
-"Active":false,
+"Active":true,
 "Scanner":3,
 "Author":"@egarme",
 "Payloads":[],

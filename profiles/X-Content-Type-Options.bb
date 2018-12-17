@@ -1,5 +1,5 @@
 [{"Name":"X-Content-Type-Options",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],

@@ -1,5 +1,5 @@
 [{"Name":"OAuth2",
-"Active":false,
+"Active":true,
 "Scanner":3,
 "Author":"@egarme",
 "Payloads":[],

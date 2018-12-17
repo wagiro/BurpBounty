@@ -1,5 +1,5 @@
 [{"Name":"BlindSQLi-ContentLength",
-"Active":false,
+"Active":true,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":[" or 1\u003d2",

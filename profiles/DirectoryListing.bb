@@ -1,5 +1,5 @@
 [{"Name":"DirectoryListing",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":["ping -c 2 {BC}",

@@ -1,5 +1,5 @@
 [{"Name":"X-XSS-Protection",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],

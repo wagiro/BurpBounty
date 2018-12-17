@@ -1,5 +1,5 @@
 [{"Name":"BlindRCE",
-"Active":false,
+"Active":true,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":[" || ping -c 2 {BC}",

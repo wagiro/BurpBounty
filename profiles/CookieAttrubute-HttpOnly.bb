@@ -1,5 +1,5 @@
 [{"Name":"CookieAttrubute-HttpOnly",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],

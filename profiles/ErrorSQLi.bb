@@ -1,5 +1,5 @@
 [{"Name":"ErrorSQLi",
-"Active":false,
+"Active":true,
 "Scanner":1,
 "Author":"@egarme",
 "Payloads":["\u0027-\u0027",

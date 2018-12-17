@@ -1,5 +1,5 @@
 [{"Name":"Content-Security-Policy",
-"Active":false,
+"Active":true,
 "Scanner":2,
 "Author":"@egarme",
 "Payloads":[],
