@@ -708,7 +708,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
             
             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-            writer.write(json.replace(",", ",\n"));
+            writer.write(json);
             writer.close();
             fileStream.close();
             
@@ -997,7 +997,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                             FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                             String fjson = gson.toJson(newjson);
                             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                            writer.write(fjson.replace(",", ",\n"));
+                            writer.write(fjson);
                             writer.close();
                         }
                     } catch (IOException e){
@@ -1049,7 +1049,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                    writer.write(fjson.replace(",", ",\n"));
+                    writer.write(fjson);
                     writer.close();
                 } catch (IOException e){
                     e.printStackTrace();
@@ -1105,7 +1105,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
-                    writer.write(fjson.replace(",", ",\n"));
+                    writer.write(fjson);
                     writer.close();
                 } catch (IOException e){
                     e.printStackTrace();
