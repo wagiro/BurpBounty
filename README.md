@@ -29,6 +29,9 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**3.0.2beta 20181217**
+* Fixed error with comma separated
+
 **3.0.1beta 20181207**
 * Fixed error with timeout
 

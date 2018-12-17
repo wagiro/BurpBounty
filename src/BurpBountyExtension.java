@@ -71,7 +71,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
             this.callbacks.addSuiteTab(this);
             
             
-            this.callbacks.printOutput("- BurpBounty v3.0.1beta");
+            this.callbacks.printOutput("- BurpBounty v3.0.2beta");
             this.callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             this.callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
        });
