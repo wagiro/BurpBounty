@@ -2,8 +2,8 @@ Uuid: 618f0b2489564607825e93eeed8b9e0a
 ExtensionType: 1
 Name: Scan Check Builder
 RepoName: scan-check-builder
-ScreenVersion: 3.0.1
-SerialVersion: 7
+ScreenVersion: 3.0.2
+SerialVersion: 8
 MinPlatformVersion: 0
 ProOnly: True
 Author: Eduardo Garcia
