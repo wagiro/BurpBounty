@@ -38,7 +38,7 @@
 "IssueSeverity":"Information",
 "IssueConfidence":"Tentative",
 "IssueDetail":"Find error pages for job applications,
-\n\n\n sometimes can contain juicy information:\n\nhttps://www.exploit-db.com/ghdb/5033/",
+\n\n\n\n\n sometimes can contain juicy information:\n\nhttps://www.exploit-db.com/ghdb/5033/",
 "RemediationDetail":"",
 "IssueBackground":"",
 "RemediationBackground":""}]
