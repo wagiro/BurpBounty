@@ -12,24 +12,16 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 package burpbounty;
 
-/**
- *
- * @author eduardogarcia
- */
 public class NewTag extends javax.swing.JPanel {
 
-    private final BurpBountyGui BBG;
-     
-    public NewTag(BurpBountyGui bbg) {
-        this.BBG = bbg;
+    public NewTag() {
         initComponents();
 
     }
 
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

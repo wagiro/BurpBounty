@@ -19,6 +19,8 @@ package burpbounty;
 import burp.IBurpCollaboratorClientContext;
 import burp.IBurpExtender;
 import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IExtensionStateListener;
 import burp.IHttpRequestResponse;
 import burp.IScanIssue;
 import burp.IScannerCheck;
@@ -35,86 +37,71 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-/**
- *
- * @author eduardogarcia
- */
-public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
+
+
+public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, IExtensionStateListener {
 
     public static IBurpExtenderCallbacks callbacks;
-    List<IBurpCollaboratorClientContext> CollaboratorClientContext = new ArrayList();
-    Properties issueProperties = new Properties();
+    private IExtensionHelpers helpers;
+    List<IBurpCollaboratorClientContext> CollaboratorClientContext;
     private JScrollPane optionsTab; 
     private BurpBountyGui panel; 
     Issue issue;
-    String filename = "";
-    public boolean doStop = false;
+    String filename;
     BurpCollaboratorThread BurpCollaborator;
+    BurpCollaboratorThread bct;
+    CollaboratorData burpCollaboratorData;
+    
     
     
     
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
-        this.callbacks.setExtensionName("Burp Bounty");
-        this.callbacks.registerScannerCheck(this);
+        this.helpers = callbacks.getHelpers();
+        callbacks.setExtensionName("Burp Bounty");
+        callbacks.registerScannerCheck(this);
+        callbacks.registerExtensionStateListener(this);
+        CollaboratorClientContext = new ArrayList();
+        burpCollaboratorData = new CollaboratorData(helpers);
+        bct = new BurpCollaboratorThread(callbacks,burpCollaboratorData);
+        filename = "";
+        
         
         SwingUtilities.invokeLater(() -> {
             panel = new BurpBountyGui(this);
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            this.callbacks.addSuiteTab(this);
+            callbacks.addSuiteTab(this);
             
             
-            this.callbacks.printOutput("- BurpBounty v3.0.2beta");
-            this.callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
-            this.callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
+            callbacks.printOutput("- Burp Bounty v3.0.3beta");
+            callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
+            callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
+            bct.start();
+ 
        });
         
+    }   
+    
+    @Override
+    public void extensionUnloaded()
+    {
+        bct.doStop();
+        callbacks.printOutput("- Burp Bounty extension was unloaded");
     }
-    
-    public void startBCollaborator(){
-        BurpCollaborator = new BurpCollaboratorThread(this);
-        Thread thread = new Thread(BurpCollaborator);
-        thread.start();
-    }
-    
-    
-    public void setCollaboratorClientContext(IBurpCollaboratorClientContext bccc){
-        BurpCollaborator.CollaboratorClientContext.add(bccc);
-        
-    }
-    
-    
-    public void setIssueProperties(IHttpRequestResponse requestResponse, String bchost, String issuename,String issuedetail, String issueseverity, String issueconfidence,
-        String issuebackground, String remediationdetail, String remediationbackground){
-        issueProperties.put("issuename", issuename);
-        issueProperties.put("issuedetail", issuedetail);
-        issueProperties.put("issueseverity", issueseverity);
-        issueProperties.put("issueconfidence", issueconfidence);
-        issueProperties.put("issuebackground", issuebackground);
-        issueProperties.put("remediationdetail", remediationdetail);
-        issueProperties.put("remediationbackground", remediationbackground);
-        BurpCollaborator.issues.put(bchost, issueProperties);
-        BurpCollaborator.ccrequestResponse.put(bchost, requestResponse);
-    }
-    
-        
-    public void doStop() {
-        BurpCollaborator.doStop();
-    }
-
+       
     
     @Override
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         JsonArray data = new JsonArray();
         filename = panel.getFilename();
         FileReader fr;
+        
 
         try{
             File f = new File(filename);
@@ -133,7 +120,8 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         }        
 
             
-        GenericScan as = new GenericScan(this,data);   
+        GenericScan as = new GenericScan(callbacks,data,burpCollaboratorData);
+        
         try {
             return as.runAScan(baseRequestResponse, insertionPoint);
         } catch (Exception ex) {
@@ -168,7 +156,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
         }        
 
             
-        GenericScan ps = new GenericScan(this,data);   
+        GenericScan ps = new GenericScan(callbacks,data,burpCollaboratorData);   
         try {
             return ps.runPScan(baseRequestResponse);
         } catch (Exception ex) {
@@ -181,14 +169,6 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck {
     @Override
     public int consolidateDuplicateIssues(IScanIssue existingIssue, IScanIssue newIssue)
     {
-        // This method is called when multiple issues are reported for the same URL 
-        // path by the same extension-provided check. The value we return from this 
-        // method determines how/whether Burp consolidates the multiple issues
-        // to prevent duplication
-        //
-        // Since the issue name is sufficient to identify our issues as different,
-        // if both issues have the same name, only report the existing issue
-        // otherwise report both issues
         if (existingIssue.getIssueName().equals(newIssue.getIssueName()))
             return -1;
         else return 0;

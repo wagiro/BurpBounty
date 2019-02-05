@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 package burpbounty;
 
 import burp.IBurpExtenderCallbacks;
@@ -40,10 +40,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.swing.DefaultListModel; 
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -54,69 +57,137 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-/**
- *
- * @author eduardogarcia
- */
-public class BurpBountyGui extends javax.swing.JPanel{
-    
-    /**
-     * Creates new form BurpBountyGui
-     */
-    private IBurpExtenderCallbacks callbacks;
-    private String filename = "";
-    private String name = "";
-    private String issuetype = "";
-    private String issuename = "";
-    private String issuedetail = "";
-    private String issuebackground = "";
-    private String remediationdetail = "";
-    private String remediationbackground = "";
-    private String charstourlencode = "";
-    private int scanner = 0;
-    private int matchtype = 0;
-    private String issueseverity = "";
-    private String issueconfidence = "";
-    private String responsecode = "";
-    private String contenttype = "";
-    private boolean negativect = false;
-    private boolean negativerc = false;
-    private boolean notresponse = false;
-    private boolean casesensitive = false;
-    private boolean excludeHTTP = false;
-    private boolean onlyHTTP = false;
-    private boolean urlencode = false;
-    private boolean isresponsecode = false;
-    private boolean iscontenttype = false;
-    private int redirtype = 0;
-    private boolean spaceEncode = false;
-    private String sEncode = "";
-    private int maxRedir = 0;
-    private int payloadPosition = 0;
-    private String payloadsfile = "";
-    private String grepsfile = "";
-    private String timeOut = "";
-    private String contentLength = "";
-    private String Author = "";
-    private boolean isReplace = false;
-    private String Replace1 = "";
-    private String Replace2 = "";
-    private DefaultListModel payload = new DefaultListModel();
-    private DefaultListModel grep = new DefaultListModel();
-    private DefaultListModel encoder = new DefaultListModel();   
-    private DefaultListModel tag = new DefaultListModel();
-    private DefaultListModel tagmanager = new DefaultListModel();
-    private BurpBountyExtension parent;
-    
- 
+public class BurpBountyGui extends javax.swing.JPanel {
 
-    public void clear(){
+    private IBurpExtenderCallbacks callbacks;
+    private String filename;
+    private String name;
+    private String issuename;
+    private String issuedetail;
+    private String issuebackground;
+    private String remediationdetail;
+    private String remediationbackground;
+    private String charstourlencode;
+    private int scanner;
+    private int matchtype;
+    private String issueseverity;
+    private String issueconfidence;
+    private String responsecode;
+    private String contenttype;
+    private boolean negativect;
+    private boolean negativerc;
+    private boolean notresponse;
+    private boolean casesensitive;
+    private boolean excludeHTTP;
+    private boolean onlyHTTP;
+    private boolean urlencode;
+    private boolean isresponsecode;
+    private boolean iscontenttype;
+    private int redirtype;
+    private int maxRedir;
+    private int payloadPosition;
+    private String payloadsfile;
+    private String grepsfile;
+    private String timeOut;
+    private String contentLength;
+    private String Author;
+    private DefaultListModel payload;
+    private DefaultListModel grep;
+    private DefaultListModel encoder;
+    private DefaultListModel tag;
+    private DefaultListModel tagmanager;
+    private List<Headers> Header;
+    DefaultTableModel model;
+    DefaultTableModel model1;
+    DefaultTableModel model2;
+    DefaultTableModel model4;
+
+    public BurpBountyGui(BurpBountyExtension parent) {
+        this.callbacks = parent.callbacks;
+        filename = "";
+        name = "";
+        issuename = "";
+        issuedetail = "";
+        issuebackground = "";
+        remediationdetail = "";
+        remediationbackground = "";
+        charstourlencode = "";
+        scanner = 0;
+        matchtype = 0;
+        issueseverity = "";
+        issueconfidence = "";
+        responsecode = "";
+        contenttype = "";
+        negativect = false;
+        negativerc = false;
+        notresponse = false;
+        casesensitive = false;
+        excludeHTTP = false;
+        onlyHTTP = false;
+        urlencode = false;
+        isresponsecode = false;
+        iscontenttype = false;
+        redirtype = 0;
+        maxRedir = 0;
+        payloadPosition = 0;
+        payloadsfile = "";
+        grepsfile = "";
+        timeOut = "";
+        contentLength = "";
+        Author = "";
+        payload = new DefaultListModel();
+        grep = new DefaultListModel();
+        encoder = new DefaultListModel();
+        tag = new DefaultListModel();
+        tagmanager = new DefaultListModel();
+        model4 = new DefaultTableModel();
+        Header = new ArrayList();
+
+        if (callbacks.loadExtensionSetting("filename") != null) {
+            filename = callbacks.loadExtensionSetting("filename");
+        }
+        model = new DefaultTableModel() {
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+
+        model1 = new DefaultTableModel() {
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+
+        model2 = new DefaultTableModel() {
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+
+        //main
+        initComponents();
+        initCombo();
+        makeTagsFile();
+        showProfiles("All");
+        showHeaders(Header);
+    }
+
+    public void clear() {
         text1.setText("");
         grep.removeAllElements();
         payload.removeAllElements();
         encoder.removeAllElements();
         tag.removeAllElements();
-        text71.setText("");  
+        text71.setText("");
         text72.setText("");
         check8.setSelected(false);
         text5.setText("");
@@ -143,40 +214,34 @@ public class BurpBountyGui extends javax.swing.JPanel{
         sp1.setValue(0);
         textpayloads.setText("");
         textgreps.setText("");
-        check22.setSelected(false);
-        text22.setText("");
         texttime.setText("");
         textauthor.setText("");
-        checkreplace.setSelected(false);
-        textreplace1.setText("");
-        textreplace2.setText("");
         textcl.setText("");
+
     }
-    
-    
-    public void setAttackValues(String issue){
+
+    public void setAttackValues(String issue) {
         //Set Attack values when select from main combobox
-        try{       
+        try {
             Gson gson = new Gson();
             JsonArray json = initJson();
             Issue i = new Issue();
-            
-            if (json != null){
+
+            if (json != null) {
                 for (JsonElement pa : json) {
-                    JsonObject bbObj  = pa.getAsJsonObject();
-                    if(bbObj.get("Name").getAsString().equals(issue)){
+                    JsonObject bbObj = pa.getAsJsonObject();
+                    if (bbObj.get("Name").getAsString().equals(issue)) {
                         i = gson.fromJson(bbObj.toString(), Issue.class);
                     }
 
                 }
-            }       
-            
+            }
+
             name = i.getName();
             scanner = i.getScanner();
             casesensitive = i.getCaseSensitive();
             notresponse = i.getNotResponse();
             matchtype = i.getMatchType();
-            issuetype = i.getIssueType();
             issuename = i.getIssueName();
             issueseverity = i.getIssueSeverity();
             issueconfidence = i.getIssueConfidence();
@@ -198,164 +263,146 @@ public class BurpBountyGui extends javax.swing.JPanel{
             maxRedir = i.getMaxRedir();
             payloadsfile = i.getpayloadsFile();
             grepsfile = i.getgrepsFile();
-            spaceEncode = i.getSpaceEncode();
-            sEncode = i.getSEncode();
             payloadPosition = i.getPayloadPosition();
             timeOut = i.getTime();
             Author = i.getAuthor();
-            isReplace = i.getIsReplace();
-            Replace1 = i.getReplace1();
-            Replace2 = i.getReplace2();
             contentLength = i.getContentLength();
-            
-            
-            //If some variable is null
-            if(payloadsfile == null){
+            Header = i.getHeader();
+
+            if (payloadsfile == null) {
                 payloadsfile = "";
             }
-            if(grepsfile == null){
+            if (grepsfile == null) {
                 grepsfile = "";
             }
-            if(Author == null){
+            if (Author == null) {
                 Author = "";
             }
-            if(contentLength == null){
+            if (contentLength == null) {
                 contentLength = "";
-            }if(name == null){
-                name = "";
-            }if(issuetype == null){
-                issuetype = "";
-            }if(issuename == null){
-                issuename = "";
-            }if(issuedetail == null){
-                issuedetail = "";
-            }if(issuebackground == null){
-                issuebackground = "";
-            }if(remediationdetail == null){
-                remediationdetail = "";
-            }if(remediationbackground == null){
-                remediationbackground = "";
-            }if(charstourlencode == null){
-                charstourlencode = "";
-            }if(issueseverity == null){
-                issueseverity = "";
-            }if(issueconfidence == null){
-                issueconfidence = "";
-            }if(responsecode == null){
-                responsecode = "";
-            }if(contenttype == null){
-                contenttype = "";
-            }if(sEncode == null){
-                sEncode = "";
-            }if(timeOut == null){
-                timeOut = "";
-            }if(Replace1 == null){
-                Replace1 = "";
-            }if(Replace2 == null){
-                Replace2 = "";
             }
-            
-            
-            
-            
-            
-            
-            if(Author.length() >= 35){
+            if (name == null) {
+                name = "";
+            }
+            if (issuename == null) {
+                issuename = "";
+            }
+            if (issuedetail == null) {
+                issuedetail = "";
+            }
+            if (issuebackground == null) {
+                issuebackground = "";
+            }
+            if (remediationdetail == null) {
+                remediationdetail = "";
+            }
+            if (remediationbackground == null) {
+                remediationbackground = "";
+            }
+            if (charstourlencode == null) {
+                charstourlencode = "";
+            }
+            if (issueseverity == null) {
+                issueseverity = "";
+            }
+            if (issueconfidence == null) {
+                issueconfidence = "";
+            }
+            if (responsecode == null) {
+                responsecode = "";
+            }
+            if (contenttype == null) {
+                contenttype = "";
+            }
+            if (timeOut == null) {
+                timeOut = "";
+            }
+            if (Header == null) {
+                Header = new ArrayList();
+            }
+
+            if (Author.length() >= 35) {
                 textauthor.setText(Author.substring(0, 34));
-            }else{
+            } else {
                 textauthor.setText(Author);
             }
-            
-            if(name.length() >= 35){
+
+            if (name.length() >= 35) {
                 text1.setText(name.substring(0, 34));
-            }else{
+            } else {
                 text1.setText(name);
             }
-                      
-            if(scanner == 1){
+
+            if (scanner == 1) {
                 buttonGroup1.setSelected(radio1.getModel(), true);
-            }else if (scanner == 2){
+            } else if (scanner == 2) {
                 buttonGroup1.setSelected(radio2.getModel(), true);
-            }else if (scanner == 3){
+            } else if (scanner == 3) {
                 buttonGroup1.setSelected(radioPR.getModel(), true);
             }
-            
-            if(payloadPosition == 1){
+
+            if (payloadPosition == 1) {
                 buttonGroup9.setSelected(replace.getModel(), true);
-            }else if (payloadPosition == 2){
+            } else if (payloadPosition == 2) {
                 buttonGroup9.setSelected(append.getModel(), true);
             }
-       
+
             grep.removeAllElements();
             payload.removeAllElements();
             encoder.removeAllElements();
             tag.removeAllElements();
             textpayloads.setText(payloadsfile);
             textgreps.setText(grepsfile);
-            
-            
-            
-            
-            if(!grepsfile.isEmpty()){
-                loadPath(grepsfile,grep);
-                updateGreps(grepsfile,i);
-                
-            }else{
-                for(String gs : i.getGreps())
-                {
+
+            if (!grepsfile.isEmpty()) {
+                loadPath(grepsfile, grep);
+                updateGreps(grepsfile, i);
+
+            } else {
+                for (String gs : i.getGreps()) {
                     grep.addElement(gs);
                 }
             }
-            
-            if(!payloadsfile.isEmpty()){
-                loadPath(payloadsfile,payload);
-                updatePayloads(payloadsfile,i);
-                
-            }else{
-                for(String pay : i.getPayloads())
-                {
+
+            if (!payloadsfile.isEmpty()) {
+                loadPath(payloadsfile, payload);
+                updatePayloads(payloadsfile, i);
+
+            } else {
+                for (String pay : i.getPayloads()) {
                     payload.addElement(pay);
                 }
             }
-            
-            if(i.getTags() != null){
-                for(String t : i.getTags()){
+
+            if (i.getTags() != null) {
+                for (String t : i.getTags()) {
                     tag.addElement(t);
                 }
             }
-            
-            
-            
-            for(String enc : i.getEncoder())
-            {
+
+            for (String enc : i.getEncoder()) {
                 encoder.addElement(enc);
             }
-            
+
             text71.setText(contenttype);
             text72.setText(responsecode);
-            
+
             check8.setSelected(urlencode);
-            check22.setSelected(spaceEncode);
-            text22.setText(sEncode);
             text5.setText(charstourlencode);
             excludehttp.setSelected(excludeHTTP);
             onlyhttp.setSelected(onlyHTTP);
-            if(timeOut.equals("0")){
+            if (timeOut.equals("0")) {
                 texttime.setText("");
-            }else{
+            } else {
                 texttime.setText(timeOut);
             }
-            
-            if(contentLength.equals("0")){
+
+            if (contentLength.equals("0")) {
                 textcl.setText("");
-            }else{
+            } else {
                 textcl.setText(contentLength);
             }
-            
-            checkreplace.setSelected(isReplace);
-            textreplace1.setText(Replace1);
-            textreplace2.setText(Replace2);
-            
+
             switch (matchtype) {
                 case 1:
                     buttonGroup4.setSelected(radio4.getModel(), true);
@@ -379,7 +426,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     buttonGroup4.clearSelection();
                     break;
             }
-            
+
             switch (redirtype) {
                 case 1:
                     buttonGroup8.setSelected(rb1.getModel(), true);
@@ -397,9 +444,9 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     buttonGroup8.clearSelection();
                     break;
             }
-            
-            
-            
+
+            showHeaders(Header);
+
             check1.setSelected(casesensitive);
             check4.setSelected(notresponse);
             check71.setSelected(iscontenttype);
@@ -443,220 +490,133 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     break;
                 default:
                     break;
-            }        
-        }catch (Exception e){
-            System.out.println("aa"+e.getClass());
-        }
-    }
-    
-    
-    public void updatePayloads(String file, Issue issue){
-         
-        //Load file for implement payloads
-        List payloads = new ArrayList();
-        String line;
-        File fileload = new File(file);
-            
-        try {
-            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
-            line = bufferreader.readLine();
-
-            while (line != null) {     
-                payloads.add(line);
-                line = bufferreader.readLine();
             }
-            bufferreader.close();
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getClass());
         }
-        issue.setPayloads(payloads);  
-
-        Gson gson = new Gson();            
-        String strJson = gson.toJson(issue);
-        FileWriter writer = null;
-        try {
-          writer = new FileWriter(text11.getText()+"/"+issue.getName()+".bb");
-          writer.write("["+strJson+"]");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }        
-        try {
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }  
     }
-    
-    
-    public void updateGreps(String file, Issue issue){
-         
-        //Load file for implement payloads
-        List greps = new ArrayList();
-        String line;
-        File fileload = new File(file);
-            
-        try {
-            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
-            line = bufferreader.readLine();
 
-            while (line != null) {     
-                greps.add(line);
-                line = bufferreader.readLine();
-            }
-            bufferreader.close();
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        issue.setGreps(greps);  
-
-        Gson gson = new Gson();            
-        String strJson = gson.toJson(issue);
-        FileWriter writer = null;
-        try {
-          writer = new FileWriter(text11.getText()+"/"+issue.getName()+".bb");
-          writer.write("["+strJson+"]");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }        
-        try {
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }  
-    }
-    
-    
-    public void saveAttackValues(){
+    public void saveAttackValues() {
         //Save attack with fields values
-        try{
+        try {
             //get GUI values
             Issue newfile = new Issue();
 
-            if(text1.getText().length() >= 35){
+            if (text1.getText().length() >= 35) {
                 newfile.setName(text1.getText().substring(0, 34));
-            }else{
+            } else {
                 newfile.setName(text1.getText());
             }
-            
-            if(textauthor.getText().length() >= 35){
+
+            if (textauthor.getText().length() >= 35) {
                 newfile.setAuthor(textauthor.getText().substring(0, 34));
-            }else{
+            } else {
                 newfile.setAuthor(textauthor.getText());
             }
-            
-            
-            
-            if(radio1.isSelected()){
+
+            if (radio1.isSelected()) {
                 newfile.setScanner(1);
-            }else if(radio2.isSelected()){
+            } else if (radio2.isSelected()) {
                 newfile.setScanner(2);
-            }else if(radioPR.isSelected()){
+            } else if (radioPR.isSelected()) {
                 newfile.setScanner(3);
-            }else{
+            } else {
                 newfile.setScanner(0);
             }
-            
-            if(replace.isSelected()){
+
+            if (replace.isSelected()) {
                 newfile.setPayloadPosition(1);
-            }else if(append.isSelected()){
+            } else if (append.isSelected()) {
                 newfile.setPayloadPosition(2);
-            }else{
+            } else {
                 newfile.setPayloadPosition(1);
             }
-            
+
             newfile.setActive(true);
             List encoders = new ArrayList();
             List payloads = new ArrayList();
             List greps = new ArrayList();
             List tags = new ArrayList();
-            
-           newfile.setPayloadsFile(textpayloads.getText());
-           for (int i = 0; i < list1.getModel().getSize(); i++) {
+
+            newfile.setPayloadsFile(textpayloads.getText());
+            for (int i = 0; i < list1.getModel().getSize(); i++) {
                 Object item = list1.getModel().getElementAt(i);
                 payloads.add(item);
             }
-            newfile.setPayloads(payloads);     
+            newfile.setPayloads(payloads);
 
-            
             newfile.setGrepsFile(textgreps.getText());
             for (int i = 0; i < list2.getModel().getSize(); i++) {
                 Object item = list2.getModel().getElementAt(i);
                 greps.add(item);
             }
             newfile.setGreps(greps);
-            
+
+            List<Headers> headers = new ArrayList();
+            for (int row = 0; row < model4.getRowCount(); row++) {
+                headers.add(new Headers((String) model4.getValueAt(row, 0), (String) model4.getValueAt(row, 1), (String) model4.getValueAt(row, 2), (String) model4.getValueAt(row, 3), (String) model4.getValueAt(row, 4)));
+            }
+            newfile.setHeader(headers);
 
             for (int i = 0; i < listtag.getModel().getSize(); i++) {
                 Object item = listtag.getModel().getElementAt(i);
                 tags.add(item);
             }
-            newfile.setTags(tags); 
-            
+            newfile.setTags(tags);
+
             for (int i = 0; i < list3.getModel().getSize(); i++) {
                 Object item = list3.getModel().getElementAt(i);
                 encoders.add(item);
             }
-            
+
             newfile.setEncoder(encoders);
             newfile.setCharsToUrlEncode(text5.getText());
             newfile.setUrlEncode(check8.isSelected());
             newfile.setExcludeHTTP(excludehttp.isSelected());
             newfile.setOnlyHTTP(onlyhttp.isSelected());
-            newfile.setSpaceEncode(check22.isSelected());
-            newfile.setSEncode(text22.getText());
-            newfile.setisReplace(checkreplace.isSelected());
-            newfile.setReplace1(textreplace1.getText());
-            newfile.setReplace2(textreplace2.getText());
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
-            
-            if(texttime.getText().isEmpty()){
+
+            if (texttime.getText().isEmpty()) {
                 newfile.setTime(texttime.getText());
-            }else{
+            } else {
                 newfile.setTime(texttime.getText());
-            }    
-            
-            if(textcl.getText().isEmpty()){
+            }
+
+            if (textcl.getText().isEmpty()) {
                 newfile.setContentLength(textcl.getText());
-            }else{
+            } else {
                 newfile.setContentLength(textcl.getText());
-            }  
-            
-            
-            
-            
-            if(radio4.isSelected()){
+            }
+
+            if (radio4.isSelected()) {
                 newfile.setMatchType(1);
-            }else if(radio3.isSelected()){
+            } else if (radio3.isSelected()) {
                 newfile.setMatchType(2);
-            }else if(radio12.isSelected()){
+            } else if (radio12.isSelected()) {
                 newfile.setMatchType(3);
-            }else if(radio22.isSelected()){
+            } else if (radio22.isSelected()) {
                 newfile.setMatchType(4);
-            }else if(radiotime.isSelected()){
+            } else if (radiotime.isSelected()) {
                 newfile.setMatchType(5);
-            }else if(radiocl.isSelected()){
+            } else if (radiocl.isSelected()) {
                 newfile.setMatchType(6);
-            }else{
+            } else {
                 newfile.setMatchType(0);
             }
-            
-            if(rb1.isSelected()){
+
+            if (rb1.isSelected()) {
                 newfile.setRedirType(1);
-            }else if(rb2.isSelected()){
+            } else if (rb2.isSelected()) {
                 newfile.setRedirType(2);
-            }else if(rb3.isSelected()){
+            } else if (rb3.isSelected()) {
                 newfile.setRedirType(3);
-            }else if(rb4.isSelected()){
+            } else if (rb4.isSelected()) {
                 newfile.setRedirType(4);
-            }else{
+            } else {
                 newfile.setRedirType(0);
             }
-            
+
             newfile.setCaseSensitive(check1.isSelected());
             newfile.setNotResponse(check4.isSelected());
             newfile.setIsContentType(check71.isSelected());
@@ -669,171 +629,239 @@ public class BurpBountyGui extends javax.swing.JPanel{
             newfile.setRemediationDetail(textarea3.getText());
             newfile.setRemediationBackground(textarea4.getText());
             newfile.setMaxRedir((Integer) sp1.getValue());
-            
-            
-            if(radio5.isSelected()){
+
+            if (radio5.isSelected()) {
                 newfile.setIssueSeverity("High");
-            }else if(radio6.isSelected()){
+            } else if (radio6.isSelected()) {
                 newfile.setIssueSeverity("Medium");
-            }else if(radio7.isSelected()){
+            } else if (radio7.isSelected()) {
                 newfile.setIssueSeverity("Low");
-            }else if(radio8.isSelected()){
+            } else if (radio8.isSelected()) {
                 newfile.setIssueSeverity("Information");
             }
-            
-            if(radio9.isSelected()){
+
+            if (radio9.isSelected()) {
                 newfile.setIssueConfidence("Certain");
-            }else if(radio10.isSelected()){
+            } else if (radio10.isSelected()) {
                 newfile.setIssueConfidence("Firm");
-            }else if(radio11.isSelected()){
+            } else if (radio11.isSelected()) {
                 newfile.setIssueConfidence("Tentative");
             }
-                      
+
             //Save start
-            Gson gson = new Gson();            
+            Gson gson = new Gson();
 
             JsonArray ijson = new JsonArray();
-            List<Issue> newjson = gson.fromJson(ijson, new TypeToken<List<Issue>>() {}.getType());
+            List<Issue> newjson = gson.fromJson(ijson, new TypeToken<List<Issue>>() {
+            }.getType());
             newjson.add(newfile);
-            
-            String json = gson.toJson(newjson);          
-            
+
+            String json = gson.toJson(newjson);
+
             //Write JSON String to file
             FileOutputStream fileStream;
-            
-            if(text1.getText().length() >= 35){
-                fileStream = new FileOutputStream(new File(text11.getText()+"/"+text1.getText().substring(0, 34)+".bb"));
-            }else{
-                fileStream = new FileOutputStream(new File(text11.getText()+"/"+text1.getText())+".bb");
+
+            if (text1.getText().length() >= 35) {
+                fileStream = new FileOutputStream(new File(text11.getText() + "/" + text1.getText().substring(0, 34) + ".bb"));
+            } else {
+                fileStream = new FileOutputStream(new File(text11.getText() + "/" + text1.getText()) + ".bb");
             }
-            
-            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
+
+            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
             writer.write(json);
             writer.close();
             fileStream.close();
-            
-        } catch (IOException e){
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-      
-    
-    public void initCombo(){
+
+    public void updatePayloads(String file, Issue issue) {
+
+        //Load file for implement payloads
+        List payloads = new ArrayList();
+        String line;
+        File fileload = new File(file);
+
+        try {
+            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+            line = bufferreader.readLine();
+
+            while (line != null) {
+                payloads.add(line);
+                line = bufferreader.readLine();
+            }
+            bufferreader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        issue.setPayloads(payloads);
+
+        Gson gson = new Gson();
+        String strJson = gson.toJson(issue);
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(text11.getText() + "/" + issue.getName() + ".bb");
+            writer.write("[" + strJson + "]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateGreps(String file, Issue issue) {
+
+        //Load file for implement payloads
+        List greps = new ArrayList();
+        String line;
+        File fileload = new File(file);
+
+        try {
+            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+            line = bufferreader.readLine();
+
+            while (line != null) {
+                greps.add(line);
+                line = bufferreader.readLine();
+            }
+            bufferreader.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        issue.setGreps(greps);
+
+        Gson gson = new Gson();
+        String strJson = gson.toJson(issue);
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(text11.getText() + "/" + issue.getName() + ".bb");
+            writer.write("[" + strJson + "]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void initCombo() {
         //Init main comboBox with file values
         JsonArray json = initJson();
         combo1.removeAllItems();
-        if (json != null){
+        if (json != null) {
             //Names for main combo box
             for (JsonElement pa : json) {
-                JsonObject bbObj  = pa.getAsJsonObject();
-                if(bbObj.get("Active").getAsBoolean()){
+                JsonObject bbObj = pa.getAsJsonObject();
+                if (bbObj.get("Active").getAsBoolean()) {
                     combo1.addItem(bbObj.get("Name").getAsString());
                 }
-            }   
+            }
         }
     }
-    
-    
-    private List<String> readFile(String filename){
-      List<String> records = new ArrayList<String>();
-      try
-      {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-          records.add(line);
+
+    private List<String> readFile(String filename) {
+        List<String> records = new ArrayList<String>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                records.add(line);
+            }
+            reader.close();
+            return records;
+        } catch (Exception e) {
+            System.err.format("Exception occurred trying to read '%s'.", filename);
+            e.printStackTrace();
+            return null;
         }
-        reader.close();
-        return records;
-      }
-      catch (Exception e)
-      {
-        System.err.format("Exception occurred trying to read '%s'.", filename);
-        e.printStackTrace();
-        return null;
-      }
     }
-    
-    
-    public JsonArray initJson(){
+
+    public JsonArray initJson() {
         //Init json form filename
         FileReader fr;
-        
-        try{
+
+        try {
             JsonArray data = new JsonArray();
             File f = new File(filename);
-            if(f.exists() && f.isDirectory()){
-                for(File file :f.listFiles()){
-                    if(file.getName().endsWith("bb")){
-                        fr =  new FileReader(file.getAbsolutePath());
+            if (f.exists() && f.isDirectory()) {
+                for (File file : f.listFiles()) {
+                    if (file.getName().endsWith("bb")) {
+                        fr = new FileReader(file.getAbsolutePath());
                         JsonReader json = new JsonReader((fr));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                         fr.close();
                     }
-                    
+
                 }
             }
             return data;
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getClass());
             return null;
         }
     }
-    
-    
+
     public String getClipboardContents() {
         //Get clipboard contents for implement grep and match paste button
         String result = "";
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable contents = clipboard.getContents(null);
         boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-        
+
         if (hasTransferableText) {
             try {
-                result = (String)contents.getTransferData(DataFlavor.stringFlavor);
-            }catch (UnsupportedFlavorException | IOException ex){
+                result = (String) contents.getTransferData(DataFlavor.stringFlavor);
+            } catch (UnsupportedFlavorException | IOException ex) {
                 System.out.println(ex);
                 ex.printStackTrace();
             }
         }
         return result;
     }
- 
-    
-    public void loadConfigFile(){
+
+    public void loadConfigFile() {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Specify a profiles directory to load"); 
+        fileChooser.setDialogTitle("Specify a profiles directory to load");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int userSelection = fileChooser.showOpenDialog(parentFrame);
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
-            filename = fileload.getAbsolutePath()+"/";
+            filename = fileload.getAbsolutePath() + "/";
             text11.setText(fileload.getAbsolutePath());
-            
+
             initJson();
-            initCombo();            
+            initCombo();
             this.callbacks.saveExtensionSetting("filename", filename);
-            
-           }
+
+        }
     }
-    
-    
-    public void loadPath(String file, DefaultListModel list){
+
+    public void loadPath(String file, DefaultListModel list) {
         //Load file for implement payloads
         DefaultListModel List = list;
         String line;
         File fileload = new File(file);
-            
+
         try {
             BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
             line = bufferreader.readLine();
 
-            while (line != null) {     
+            while (line != null) {
                 List.addElement(line);
                 line = bufferreader.readLine();
             }
@@ -844,9 +872,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             ex.printStackTrace();
         }
     }
-        
-    
-    public void loadPayloadsFile(DefaultListModel list){
+
+    public void loadPayloadsFile(DefaultListModel list) {
         //Load file for implement payloads and match load button
         DefaultListModel List = list;
         String line;
@@ -855,8 +882,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         fileChooser.setDialogTitle("Specify a file to load");
 
         int userSelection = fileChooser.showOpenDialog(parentFrame);
-        
-        
+
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
             textpayloads.setText(fileload.getAbsolutePath());
@@ -864,7 +890,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
                 line = bufferreader.readLine();
 
-                while (line != null) {     
+                while (line != null) {
                     List.addElement(line);
                     line = bufferreader.readLine();
                 }
@@ -876,9 +902,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
         }
     }
-    
-    
-    public void loadGrepsFile(DefaultListModel list){
+
+    public void loadGrepsFile(DefaultListModel list) {
         //Load file for implement payloads and match load button
         DefaultListModel List = list;
         String line;
@@ -887,8 +912,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         fileChooser.setDialogTitle("Specify a file to load");
 
         int userSelection = fileChooser.showOpenDialog(parentFrame);
-        
-        
+
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
             textgreps.setText(fileload.getAbsolutePath());
@@ -896,7 +920,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
                 line = bufferreader.readLine();
 
-                while (line != null) {     
+                while (line != null) {
                     List.addElement(line);
                     line = bufferreader.readLine();
                 }
@@ -908,87 +932,57 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
         }
     }
-    
-    
-    DefaultTableModel model = new DefaultTableModel(){
 
-        @Override
-        public boolean isCellEditable(int row, int column) {
-           //all cells false
-           return false;
-        }   
-    };
-    
-    
-    DefaultTableModel model1 = new DefaultTableModel(){
+    public void setEnableDisableProfile(String enable, int tableIndex) {
 
-        @Override
-        public boolean isCellEditable(int row, int column) {
-           //all cells false
-           return false;
-        }   
-    };
-    
-    
-    DefaultTableModel model2 = new DefaultTableModel(){
-
-    @Override
-    public boolean isCellEditable(int row, int column) {
-           //all cells false
-           return false;
-        }   
-    };
-    
-    
-    public void setEnableDisableProfile(String enable, int tableIndex){ 
-        
         Gson gson = new Gson();
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
-        
+        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        }.getType());
+
         File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
                     return true;
                 } else {
                     return false;
                 }
             }
         });
-                
+
         JTable finalTable = new JTable();
-        
-        if(tableIndex == 0){
+
+        if (tableIndex == 0) {
             finalTable = table;
-        }else if(tableIndex == 1){
+        } else if (tableIndex == 1) {
             finalTable = table1;
-        }else if(tableIndex == 2){
+        } else if (tableIndex == 2) {
             finalTable = table2;
         }
-        
+
         int[] rows = finalTable.getSelectedRows();
-        
-        if(f.exists() && f.isDirectory()){
-            for(File file :files){
-                for(Integer row: rows){
-                    try{
+
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                for (Integer row : rows) {
+                    try {
                         JsonArray data = new JsonArray();
                         JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
-                        
-                        Object idata = data.get(0);                      
+
+                        Object idata = data.get(0);
                         Issue i = gson.fromJson(idata.toString(), Issue.class);
                         String pname = finalTable.getValueAt(row, 0).toString();
-                        
-                        if(pname.equals(i.getName())){
-                            if(enable.contains("Yes")){
+
+                        if (pname.equals(i.getName())) {
+                            if (enable.contains("Yes")) {
                                 i.setActive(true);
                                 finalTable.setValueAt("Yes", row, 1);
-                            }else{
+                            } else {
                                 i.setActive(false);
                                 finalTable.setValueAt("No", row, 1);
                             }
@@ -996,11 +990,11 @@ public class BurpBountyGui extends javax.swing.JPanel{
                             newjson.add(i);
                             FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                             String fjson = gson.toJson(newjson);
-                            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
+                            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                             writer.write(fjson);
                             writer.close();
                         }
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -1008,93 +1002,92 @@ public class BurpBountyGui extends javax.swing.JPanel{
         }
     }
 
+    public void setEnableDisableAllProfiles(String enable) {
 
-    public void setEnableDisableAllProfiles(String enable){ 
-        
         Gson gson = new Gson();
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
-        
+        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        }.getType());
+
         File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
                     return true;
                 } else {
                     return false;
                 }
             }
         });
-                
-              
-        if(f.exists() && f.isDirectory()){
-            for(File file :files){
-                try{
+
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                try {
                     JsonArray data = new JsonArray();
                     JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
                     JsonParser parser = new JsonParser();
                     data.addAll(parser.parse(json).getAsJsonArray());
 
-                    Object idata = data.get(0);                      
+                    Object idata = data.get(0);
                     Issue i = gson.fromJson(idata.toString(), Issue.class);
-                    if(enable.contains("Yes")){
+                    if (enable.contains("Yes")) {
                         i.setActive(true);
-                    }else{
-                       i.setActive(false);
+                    } else {
+                        i.setActive(false);
                     }
                     newjson.clear();
                     newjson.add(i);
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
-                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
+                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                     writer.write(fjson);
                     writer.close();
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
         String name = newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex());
         showProfiles(name);
-    } 
-    
-    public void deleteTagProfiles(String tag){ 
-        
+    }
+
+    public void deleteTagProfiles(String tag) {
+
         Gson gson = new Gson();
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {}.getType());
-        
+        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        }.getType());
+
         File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
                     return true;
                 } else {
                     return false;
                 }
             }
         });
-                
-              
-        if(f.exists() && f.isDirectory()){
-            for(File file :files){
-                try{
+
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                try {
                     JsonArray data = new JsonArray();
                     JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
                     JsonParser parser = new JsonParser();
                     data.addAll(parser.parse(json).getAsJsonArray());
 
-                    Object idata = data.get(0);                      
+                    Object idata = data.get(0);
                     Issue i = gson.fromJson(idata.toString(), Issue.class);
                     List<String> tags = i.getTags();
                     List<String> finaltags = new ArrayList();
-                    if(tags != null){
-                        for(String dtag: tags){
-                            if(!dtag.equals(tag)){
+                    if (tags != null) {
+                        for (String dtag : tags) {
+                            if (!dtag.equals(tag)) {
                                 finaltags.add(dtag);
                             }
                         }
@@ -1104,83 +1097,80 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     newjson.add(i);
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
-                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");  
+                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                     writer.write(fjson);
                     writer.close();
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
         String name = newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex());
         showProfiles(name);
-    } 
-    
-    
-    public void makeTagsFile(){ 
-        
+    }
+
+    public void makeTagsFile() {
+
         Gson gson = new Gson();
         File f = new File(filename);
 
         File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
                     return true;
                 } else {
                     return false;
                 }
             }
         });
-                
-        List<String> tags = new ArrayList();     
-        if(f.exists() && f.isDirectory()){
-            for(File file :files){
-                try{
+
+        List<String> tags = new ArrayList();
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                try {
                     JsonArray data = new JsonArray();
                     JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
                     JsonParser parser = new JsonParser();
                     data.addAll(parser.parse(json).getAsJsonArray());
 
-                    Object idata = data.get(0);                      
+                    Object idata = data.get(0);
                     Issue i = gson.fromJson(idata.toString(), Issue.class);
-                    if(i.getTags() != null){
+                    if (i.getTags() != null) {
                         tags.addAll(i.getTags());
                     }
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
-            
+
             }
         }
         Set<String> singles = new TreeSet<>();
         Set<String> multiples = new TreeSet<>();
 
-        for(String x : tags) {
-            if(!multiples.contains(x)){
-                if(singles.contains(x)){
+        for (String x : tags) {
+            if (!multiples.contains(x)) {
+                if (singles.contains(x)) {
                     singles.remove(x);
                     multiples.add(x);
-                }else{
+                } else {
                     singles.add(x);
                 }
             }
         }
-        
+
         tags.clear();
         tags.addAll(singles);
         tags.addAll(multiples);
-        List<String> existenttags =  readFile(filename+"tags.txt");
-        for(String tag : tags){
-            if(!existenttags.contains(tag)){
+        List<String> existenttags = readFile(filename + "tags.txt");
+        for (String tag : tags) {
+            if (!existenttags.contains(tag)) {
                 addNewTag(tag);
             }
         }
-    } 
-    
-        
-    public void showProfiles(String Tag){        
+    }
+
+    public void showProfiles(String Tag) {
         JsonArray json = initJson();
         //model for active profiles
         model.setNumRows(0);
@@ -1188,92 +1178,91 @@ public class BurpBountyGui extends javax.swing.JPanel{
         model.addColumn("Profile");
         model.addColumn("Enabled");
         model.addColumn("Authors Twitter");
-       
+
         table.getColumnModel().getColumn(0).setPreferredWidth(400);
         table.getColumnModel().getColumn(1).setPreferredWidth(5);
         table.getColumnModel().getColumn(2).setPreferredWidth(70);
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
-       
+
         sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorter.setSortKeys(sortKeys);
         sorter.sort();
-        
+
         //model for passive response
         model1.setNumRows(0);
         model1.setColumnCount(0);
         model1.addColumn("Profile");
         model1.addColumn("Enabled");
         model1.addColumn("Authors Twitter");
-       
+
         table1.getColumnModel().getColumn(0).setPreferredWidth(400);
         table1.getColumnModel().getColumn(1).setPreferredWidth(5);
         table1.getColumnModel().getColumn(2).setPreferredWidth(70);
         TableRowSorter<TableModel> sorter1 = new TableRowSorter<>(table1.getModel());
         table1.setRowSorter(sorter1);
         List<RowSorter.SortKey> sortKeys1 = new ArrayList<>();
-       
+
         sortKeys1.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorter1.setSortKeys(sortKeys1);
         sorter1.sort();
-        
+
         //model for passive request
         model2.setNumRows(0);
         model2.setColumnCount(0);
         model2.addColumn("Profile");
         model2.addColumn("Enabled");
         model2.addColumn("Authors Twitter");
-       
+
         table2.getColumnModel().getColumn(0).setPreferredWidth(400);
         table2.getColumnModel().getColumn(1).setPreferredWidth(5);
         table2.getColumnModel().getColumn(2).setPreferredWidth(70);
         TableRowSorter<TableModel> sorter2 = new TableRowSorter<>(table2.getModel());
         table2.setRowSorter(sorter2);
         List<RowSorter.SortKey> sortKeys2 = new ArrayList<>();
-       
+
         sortKeys2.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorter2.setSortKeys(sortKeys2);
         sorter2.sort();
-        
-        
-        String author = "";      
-        
-        if (json != null){
+
+        String author = "";
+
+        if (json != null) {
             for (JsonElement pa : json) {
-                JsonObject bbObj  = pa.getAsJsonObject();
-                if(bbObj.has("Author")){
-                        author = bbObj.get("Author").getAsString();
+                JsonObject bbObj = pa.getAsJsonObject();
+                if (bbObj.has("Author")) {
+                    author = bbObj.get("Author").getAsString();
                 }
                 JsonArray Tags = new JsonArray();
-                if(bbObj.has("Tags")){
+                if (bbObj.has("Tags")) {
                     Tags = bbObj.get("Tags").getAsJsonArray();
-                    if(!Tags.toString().contains("All")){
+                    if (!Tags.toString().contains("All")) {
                         Tags.add("All");
                     }
-                }else{
+                } else {
                     Tags.add("All");
                 }
-                for(JsonElement t: Tags){
-                    if(t.getAsString().equals(Tag)){
-                        if(bbObj.get("Scanner").getAsInt() == 1){
-                            if(bbObj.get("Active").getAsBoolean()){
-                                model.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});    
-                            }else{
+                for (JsonElement t : Tags) {
+                    if (t.getAsString().equals(Tag)) {
+                        if (bbObj.get("Scanner").getAsInt() == 1) {
+                            if (bbObj.get("Active").getAsBoolean()) {
+                                model.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                            } else {
                                 model.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
                             }
-                            author = "";  
-                        }else if(bbObj.get("Scanner").getAsInt() == 2){
-                            if(bbObj.get("Active").getAsBoolean()){
-                                model1.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});    
-                            }else{
+                            author = "";
+                        } else if (bbObj.get("Scanner").getAsInt() == 2) {
+                            if (bbObj.get("Active").getAsBoolean()) {
+                                model1.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                            } else {
                                 model1.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
                             }
-                            author = "";   
-                        }else if(bbObj.get("Scanner").getAsInt() == 3){
-                            if(bbObj.get("Active").getAsBoolean()){
-                                model2.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});    
-                            }else{
+                            author = "";
+                        } else if (bbObj.get("Scanner").getAsInt() == 3) {
+                            if (bbObj.get("Active").getAsBoolean()) {
+                                model2.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                            } else {
                                 model2.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
                             }
                             author = "";
@@ -1282,90 +1271,121 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     }
                 }
             }
-        }   
+        }
     }
-    
-    
-    public void deleteProfile(int tableIndex){ 
-        
+
+    public void showHeaders(List<Headers> Header) {
+        //model for active profiles
+        model4.setNumRows(0);
+        model4.setColumnCount(0);
+        model4.addColumn("Item");
+        model4.addColumn("Match");
+        model4.addColumn("Replace");
+        model4.addColumn("Type");
+        model4.addColumn("Comment");
+
+        table4.getColumnModel().getColumn(0).setPreferredWidth(140);
+        table4.getColumnModel().getColumn(1).setPreferredWidth(400);
+        table4.getColumnModel().getColumn(2).setPreferredWidth(450);
+        table4.getColumnModel().getColumn(3).setPreferredWidth(120);
+        table4.getColumnModel().getColumn(4).setPreferredWidth(250);
+        JComboBox jcb = new JComboBox();
+        jcb.addItem("Payload");
+        jcb.addItem("Request");
+        JComboBox jcb1 = new JComboBox();
+        jcb1.addItem("String");
+        jcb1.addItem("Regex");
+        table4.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(jcb));
+        table4.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(jcb1));
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table4.getModel());
+        table4.setRowSorter(sorter);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
+
+        for (int i = 0; i < Header.size(); i++) {
+            model4.addRow(new Object[]{Header.get(i).type, Header.get(i).match, Header.get(i).replace, Header.get(i).regex, Header.get(i).comment});
+        }
+    }
+
+    public void deleteProfile(int tableIndex) {
+
         Gson gson = new Gson();
         File f = new File(filename);
-        
+
         File[] files = f.listFiles(new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-                if(name.toLowerCase().endsWith(".bb")){
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
                     return true;
                 } else {
                     return false;
                 }
             }
         });
-        
+
         JTable finalTable = new JTable();
-        
-        if(tableIndex == 0){
+
+        if (tableIndex == 0) {
             finalTable = table;
-        }else if(tableIndex == 1){
+        } else if (tableIndex == 1) {
             finalTable = table1;
-        }else if(tableIndex == 2){
+        } else if (tableIndex == 2) {
             finalTable = table2;
-        }        
-        
-        
+        }
+
         int[] rows = finalTable.getSelectedRows();
-        if(f.exists() && f.isDirectory()){
-            for(File file :files){
-                for(Integer row: rows){
-                    try{
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                for (Integer row : rows) {
+                    try {
                         JsonArray data = new JsonArray();
                         JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
-                        
-                        Object idata = data.get(0);                      
+
+                        Object idata = data.get(0);
                         Issue i = gson.fromJson(idata.toString(), Issue.class);
                         String pname = finalTable.getValueAt(row, 0).toString();
-                        
-                        if(pname.equals(i.getName())){
+
+                        if (pname.equals(i.getName())) {
                             file.delete();
                         }
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        }showProfiles("All");
-    }  
-    
-    
-    public String getFilename(){
+        }
+        showProfiles("All");
+    }
+
+    public String getFilename() {
 
         return filename;
     }
-    
-    
+
     public void swap(int a, int b) {
         Object aObject = encoder.getElementAt(a);
         Object bObject = encoder.getElementAt(b);
         encoder.set(a, bObject);
         encoder.set(b, aObject);
     }
-    
-    
-    public void addNewTag(String str){ 
-        try { 
-            BufferedWriter out = new BufferedWriter(new FileWriter(filename+"tags.txt", true)); 
-            out.write(str+"\n"); 
-            out.close(); 
-        } 
-        catch (IOException e) { 
-            System.out.println("exception occoured" + e); 
-        } 
-    } 
-    
+
+    public void addNewTag(String str) {
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(filename + "tags.txt", true));
+            out.write(str + "\n");
+            out.close();
+        } catch (IOException e) {
+            System.out.println("exception occoured" + e);
+        }
+    }
+
     public void removeTag(String tag) {
-        String file = filename+"tags.txt";
+        String file = filename + "tags.txt";
         try {
 
             File inFile = new File(file);
@@ -1402,47 +1422,30 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
 
             //Rename the new file to the filename the original file had.
-            if (!tempFile.renameTo(inFile))
+            if (!tempFile.renameTo(inFile)) {
                 System.out.println("Could not rename file");
+            }
 
-        }
-        catch (FileNotFoundException ex) {
-          ex.printStackTrace();
-        }
-        catch (IOException ex) {
-          ex.printStackTrace();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
-    
-    
-    public void showTags(){
-        List<String> tags =  readFile(filename+"tags.txt");
+
+    public void showTags() {
+        List<String> tags = readFile(filename + "tags.txt");
         newTagCombo.removeAllItems();
         newTagCombo2.removeAllItems();
         tagmanager.removeAllElements();
         newTagCombo2.addItem("All");
-        for(String tag : tags){
+        for (String tag : tags) {
             newTagCombo.addItem(tag);
             newTagCombo2.addItem(tag);
             tagmanager.addElement(tag);
-        } 
-    }
-    
-    
-    public BurpBountyGui(BurpBountyExtension parent) {
-        this.callbacks = parent.callbacks;
-        if (this.callbacks.loadExtensionSetting("filename") != null) {
-            filename = this.callbacks.loadExtensionSetting("filename");
         }
-        this.parent = parent;
-        
-       //main
-       initComponents();
-       initCombo();
-       makeTagsFile();
-       showProfiles("All");
     }
- 
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1480,7 +1483,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         radio2 = new javax.swing.JRadioButton();
         radioPR = new javax.swing.JRadioButton();
         radio1 = new javax.swing.JRadioButton();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        headerstab = new javax.swing.JTabbedPane();
         jPanel10 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -1493,18 +1496,9 @@ public class BurpBountyGui extends javax.swing.JPanel{
         button6 = new javax.swing.JButton();
         textfield1 = new javax.swing.JTextField();
         jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        check22 = new javax.swing.JCheckBox();
-        text22 = new javax.swing.JTextField();
-        jLabel11 = new javax.swing.JLabel();
-        checkreplace = new javax.swing.JCheckBox();
-        textreplace1 = new javax.swing.JTextField();
-        textreplace2 = new javax.swing.JTextField();
         append = new javax.swing.JRadioButton();
         replace = new javax.swing.JRadioButton();
         jLabel10 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
         check8 = new javax.swing.JCheckBox();
         text5 = new javax.swing.JTextField();
         jScrollPane4 = new javax.swing.JScrollPane();
@@ -1517,7 +1511,16 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jSeparator2 = new javax.swing.JSeparator();
         jLabel22 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
-        jSeparator12 = new javax.swing.JSeparator();
+        jLabel52 = new javax.swing.JLabel();
+        jLabel53 = new javax.swing.JLabel();
+        button18 = new javax.swing.JButton();
+        jScrollPane14 = new javax.swing.JScrollPane();
+        table4 = new javax.swing.JTable();
+        button19 = new javax.swing.JButton();
+        jSeparator3 = new javax.swing.JSeparator();
+        jSeparator4 = new javax.swing.JSeparator();
+        jLabel54 = new javax.swing.JLabel();
+        jLabel55 = new javax.swing.JLabel();
         jPanel11 = new javax.swing.JPanel();
         button8 = new javax.swing.JButton();
         button9 = new javax.swing.JButton();
@@ -1638,7 +1641,6 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jButton13 = new javax.swing.JButton();
         jScrollPane13 = new javax.swing.JScrollPane();
         listtagmanager = new javax.swing.JList<>();
-        burpCollaboratorbutton = new javax.swing.JToggleButton();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -1653,6 +1655,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 loadConfigFile(evt);
             }
         });
+
+        text11.setToolTipText("");
 
         jButton1.setText("Profiles Reload");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -1732,11 +1736,11 @@ public class BurpBountyGui extends javax.swing.JPanel{
             }
         });
 
-        jTabbedPane1.setAutoscrolls(true);
-        jTabbedPane1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        jTabbedPane1.addChangeListener(new javax.swing.event.ChangeListener() {
+        headerstab.setAutoscrolls(true);
+        headerstab.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        headerstab.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jTabbedPane1StateChanged(evt);
+                headerstabStateChanged(evt);
             }
         });
 
@@ -1757,6 +1761,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 pastePayload(evt);
             }
         });
+
+        textpayloads.setToolTipText("");
 
         button3.setText("Load File");
         button3.addActionListener(new java.awt.event.ActionListener() {
@@ -1788,24 +1794,6 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         jLabel19.setText("You can define one or more payloads. Each payload of this section will be sent at each insertion point.");
 
-        jLabel20.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel20.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel20.setText("Payload Options");
-
-        jLabel21.setText("You can define the payload options.");
-
-        check22.setText("Space encode:");
-
-        text22.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                text22ActionPerformed(evt);
-            }
-        });
-
-        jLabel11.setText("\"+\" by default");
-
-        checkreplace.setText("String replace:");
-
         buttonGroup9.add(append);
         append.setText("Append");
 
@@ -1813,8 +1801,6 @@ public class BurpBountyGui extends javax.swing.JPanel{
         replace.setText("Replace");
 
         jLabel10.setText("Payload position:");
-
-        jLabel17.setText("to");
 
         check8.setText("URL-Encode these characters:");
 
@@ -1857,6 +1843,37 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         jLabel23.setText("You can define the encoding of payloads. You can encode each payload multiple times.");
 
+        jLabel52.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel52.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel52.setText("Match and Replace");
+
+        jLabel53.setText("These settings are used to automatically replace part of request when the active scanner run.");
+
+        button18.setText("Remove");
+        button18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeMatchReplace(evt);
+            }
+        });
+
+        table4.setFont(new java.awt.Font("Lucida Grande", 0, 13)); // NOI18N
+        table4.setModel(model4);
+        table4.setShowGrid(false);
+        jScrollPane14.setViewportView(table4);
+
+        button19.setText("Add");
+        button19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addMatchReplace(evt);
+            }
+        });
+
+        jLabel54.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel54.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel54.setText("Payload Options");
+
+        jLabel55.setText("You can define the payload options.");
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
@@ -1864,75 +1881,81 @@ public class BurpBountyGui extends javax.swing.JPanel{
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator2)
-                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel10Layout.createSequentialGroup()
-                            .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel10Layout.createSequentialGroup()
-                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator3)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addGroup(jPanel10Layout.createSequentialGroup()
-                                    .addGap(12, 12, 12)
                                     .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(button4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(button5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGap(18, 18, 18)
-                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(textpayloads)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE))))
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                            .addGap(12, 12, 12)
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(button4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(button5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                            .addContainerGap()
+                                            .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(textpayloads)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)))
+                                .addGroup(jPanel10Layout.createSequentialGroup()
+                                    .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel22)
+                                    .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel54)
+                                    .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel20)
-                            .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(jLabel10)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(append)
-                                    .addComponent(replace)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(button18, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabel53, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel52, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
+                                            .addComponent(check8)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(text5))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(jButton9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGap(12, 12, 12)
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(jScrollPane4)
+                                                .addComponent(combo2, 0, 447, Short.MAX_VALUE)))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE))
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(check22)
-                                    .addComponent(checkreplace))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel10Layout.createSequentialGroup()
-                                        .addComponent(text22, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(27, 27, 27)
+                                        .addComponent(jLabel10)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel10Layout.createSequentialGroup()
-                                        .addComponent(textreplace1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel17)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(textreplace2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addComponent(jLabel22)
-                            .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
-                                    .addComponent(check8)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(text5))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
-                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jButton9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGap(12, 12, 12)
-                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jScrollPane4)
-                                        .addComponent(combo2, 0, 447, Short.MAX_VALUE))))
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jSeparator12))))
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(append)
+                                            .addComponent(replace))))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addComponent(jSeparator4))
                 .addContainerGap())
         );
 
@@ -1941,11 +1964,11 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(19, 19, 19)
                 .addComponent(jLabel5)
                 .addGap(12, 12, 12)
                 .addComponent(jLabel19)
-                .addGap(32, 32, 32)
+                .addGap(27, 27, 27)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textpayloads, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button3))
@@ -1963,12 +1986,12 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     .addComponent(button6)
                     .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addComponent(jLabel20)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel21)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel54)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel55)
+                .addGap(19, 19, 19)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(replace)
@@ -1977,20 +2000,22 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(jLabel10)))
-                .addGap(12, 12, 12)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkreplace)
-                    .addComponent(textreplace1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(textreplace2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel17))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(check22)
-                    .addComponent(text22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel11))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel52)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel53)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(button19)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button18))
+                    .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel22)
                 .addGap(12, 12, 12)
                 .addComponent(jLabel23)
@@ -2011,10 +2036,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(329, Short.MAX_VALUE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("          Payload          ", jPanel10);
+        headerstab.addTab("          Request          ", jPanel10);
 
         jPanel11.setAutoscrolls(true);
 
@@ -2096,7 +2121,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         jLabel27.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel27.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel27.setText("Match type");
+        jLabel27.setText("Match Type");
 
         jLabel28.setText("You can define how your profile handles redirections.");
 
@@ -2153,20 +2178,36 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator11)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel11Layout.createSequentialGroup()
+                                .addComponent(button8, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel11Layout.createSequentialGroup()
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(button7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(button9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(button10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(button11, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(jLabel25)
+                    .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jSeparator5)
+            .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel27)
-                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(radio22)
-                            .addComponent(radio12)
-                            .addComponent(radio3)
-                            .addComponent(radio4))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel31)
                             .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(onlyhttp)
@@ -2188,33 +2229,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                                     .addComponent(negativeCT, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(negativeRC, javax.swing.GroupLayout.Alignment.TRAILING)))
                             .addComponent(jLabel29)
-                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel11Layout.createSequentialGroup()
-                                .addGap(8, 8, 8)
-                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(button8, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(button7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(button9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(button10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(button11, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                            .addComponent(jLabel25)
-                            .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(radiotime))
-                        .addGap(436, 436, 436))))
-            .addComponent(jSeparator11)
-            .addComponent(jSeparator6)
-            .addComponent(jSeparator5)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2229,18 +2244,28 @@ public class BurpBountyGui extends javax.swing.JPanel{
                             .addComponent(sp1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(radiocl)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel27)
+                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(radio22)
+                            .addComponent(radio12)
+                            .addComponent(radio3)
+                            .addComponent(radio4)
+                            .addComponent(radiotime)
                             .addGroup(jPanel11Layout.createSequentialGroup()
-                                .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel11Layout.createSequentialGroup()
-                                .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(radiocl)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel11Layout.createSequentialGroup()
+                                        .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel11Layout.createSequentialGroup()
+                                        .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel11Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jScrollPane2, textfield2, textgreps});
@@ -2250,30 +2275,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel25)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel24)
-                .addGap(32, 32, 32)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button8))
-                .addGap(26, 26, 26)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addComponent(button7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button10))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textfield2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button11))
-                .addGap(18, 18, 18)
-                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(19, 19, 19)
                 .addComponent(jLabel27)
                 .addGap(12, 12, 12)
                 .addComponent(jLabel26)
@@ -2295,7 +2297,30 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     .addComponent(radiocl)
                     .addComponent(jLabel42)
                     .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel25)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel24)
+                .addGap(32, 32, 32)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button8))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(button7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button10))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(textfield2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button11))
+                .addGap(18, 18, 18)
                 .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel31)
@@ -2344,7 +2369,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
         jPanel11Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {textcl, texttime});
 
-        jTabbedPane1.addTab("          Grep          ", jPanel11);
+        headerstab.addTab("          Response          ", jPanel11);
         jPanel11.getAccessibleContext().setAccessibleName("");
 
         jPanel12.setAutoscrolls(true);
@@ -2500,7 +2525,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(19, 19, 19)
                 .addComponent(jLabel33)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel32)
@@ -2568,10 +2593,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel14)
                     .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(136, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("          Issue          ", jPanel12);
+        headerstab.addTab("          Issue          ", jPanel12);
 
         removetag.setText("Remove");
         removetag.addActionListener(new java.awt.event.ActionListener() {
@@ -2621,7 +2646,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jScrollPane11)
                             .addComponent(newTagCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 468, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(372, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addTag, newTagb, removetag});
@@ -2629,7 +2654,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(19, 19, 19)
                 .addComponent(jLabel47)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel46)
@@ -2644,16 +2669,16 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newTagCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(addTag))
-                .addContainerGap(916, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("          Tags          ", jPanel3);
+        headerstab.addTab("          Tags          ", jPanel3);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2680,7 +2705,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                             .addComponent(radio1)
                             .addComponent(radio2)
                             .addComponent(radioPR))))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton2, jButton3});
@@ -2707,8 +2732,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioPR)
                 .addGap(18, 18, 18)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(headerstab)
+                .addContainerGap())
         );
 
         jTabbedPane2.addTab("   Profiles Definition   ", jPanel1);
@@ -2852,7 +2877,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(553, Short.MAX_VALUE))
+                .addContainerGap(644, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Manager   ", jPanel2);
@@ -2924,17 +2949,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
                         .addComponent(jButton12))
                     .addComponent(jButton13)
                     .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(853, Short.MAX_VALUE))
+                .addContainerGap(944, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Tags Manager   ", jPanel4);
-
-        burpCollaboratorbutton.setText("Collaborator is off");
-        burpCollaboratorbutton.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                CollaboratorButton(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -2943,18 +2961,16 @@ public class BurpBountyGui extends javax.swing.JPanel{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTabbedPane2)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
+                        .addGap(92, 92, 92)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(73, 73, 73)
-                        .addComponent(burpCollaboratorbutton)
-                        .addGap(47, 47, 47))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2963,57 +2979,23 @@ public class BurpBountyGui extends javax.swing.JPanel{
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton5)
                     .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1)
-                    .addComponent(burpCollaboratorbutton))
+                    .addComponent(jButton1))
                 .addGap(48, 48, 48)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1276, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void selectAttack(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectAttack
         if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
             String name = combo1.getItemAt(combo1.getSelectedIndex());
-            setAttackValues(name);   
+            setAttackValues(name);
         }
     }//GEN-LAST:event_selectAttack
 
-    private void setToGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToGrep
-        if(!grep.isEmpty() && grep.firstElement().equals(" ")){
-            grep.removeElementAt(0);
-            grep.addElement(textfield2.getText());
-            textfield2.setText("");
-        }else{
-            grep.addElement(textfield2.getText());
-            textfield2.setText("");
-        }
-    }//GEN-LAST:event_setToGrep
-
-    private void removeGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeGrep
-        int selectedIndex = list2.getSelectedIndex();
-        if (selectedIndex != -1) {
-            grep.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_removeGrep
-
-    private void removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllGrep
-        grep.removeAllElements();
-    }//GEN-LAST:event_removeAllGrep
-       
-    private void pasteGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteGrep
-        String element = getClipboardContents();
-        String[] lines = element.split("\n");
-        for(String line: lines){ 
-            grep.addElement(line);
-        }        
-    }//GEN-LAST:event_pasteGrep
-
-    private void loadGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGrep
-        loadGrepsFile(grep);
-    }//GEN-LAST:event_loadGrep
-
     private void saveAttack(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAttack
-             saveAttackValues();
-             initCombo();
+        saveAttackValues();
+        initCombo();
     }//GEN-LAST:event_saveAttack
 
     private void loadConfigFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadConfigFile
@@ -3032,85 +3014,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
         clear();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton6addEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6addEncoder
-        if(!encoder.isEmpty() && encoder.firstElement().equals(" ")){
-            encoder.removeElementAt(0);
-            encoder.addElement(combo2.getSelectedItem().toString());
-        }else{
-            encoder.addElement(combo2.getSelectedItem().toString());
-        }
-    }//GEN-LAST:event_jButton6addEncoder
-
-    private void jButton7downEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7downEncoder
-        int selectedIndex = list3.getSelectedIndex();
-        if (selectedIndex != encoder.getSize() - 1) {
-            swap(selectedIndex,selectedIndex+1);
-            list3.setSelectedIndex(selectedIndex+1);
-            list3.ensureIndexIsVisible(selectedIndex+1);
-
-        }
-    }//GEN-LAST:event_jButton7downEncoder
-
-    private void jButton8upEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8upEncoder
-        int selectedIndex = list3.getSelectedIndex();
-        if (selectedIndex != 0) {
-            swap(selectedIndex,selectedIndex-1);
-            list3.setSelectedIndex(selectedIndex-1);
-            list3.ensureIndexIsVisible(selectedIndex-1);
-
-        }
-    }//GEN-LAST:event_jButton8upEncoder
-
-    private void jButton9removeEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9removeEncoder
-        int selectedIndex = list3.getSelectedIndex();
-        if (selectedIndex != -1) {
-            encoder.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_jButton9removeEncoder
-
-    private void text22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text22ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_text22ActionPerformed
-
-    private void setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToPayload
-        if(!payload.isEmpty() && payload.firstElement().equals(" ")){
-            payload.removeElementAt(0);
-            payload.addElement(textfield1.getText());
-            textfield1.setText("");
-        }else{
-            payload.addElement(textfield1.getText());
-            textfield1.setText("");
-        }
-    }//GEN-LAST:event_setToPayload
-
-    private void removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllPayloads
-        payload.removeAllElements();
-    }//GEN-LAST:event_removeAllPayloads
-
-    private void removePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removePayload
-        int selectedIndex = list1.getSelectedIndex();
-        if (selectedIndex != -1) {
-            payload.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_removePayload
-
-    private void loadPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPayloads
-        loadPayloadsFile(payload);
-    }//GEN-LAST:event_loadPayloads
-
-    private void pastePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pastePayload
-
-        String element = getClipboardContents();
-        String[] lines = element.split("\n");
-        for(String line: lines){
-            payload.addElement(line);
-        }
-    }//GEN-LAST:event_pastePayload
-
     private void SelectPassiveResponse(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_SelectPassiveResponse
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jTabbedPane1.setSelectedIndex(1);
-            jTabbedPane1.setEnabledAt(0, false);
+            headerstab.setSelectedIndex(1);
+            headerstab.setEnabledAt(0, false);
             radio12.setEnabled(false);
             radio22.setEnabled(false);
             radiotime.setEnabled(false);
@@ -3140,7 +3047,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
     private void selectActive(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectActive
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jTabbedPane1.setEnabledAt(0, true);
+            headerstab.setEnabledAt(0, true);
             radio12.setEnabled(true);
             radio22.setEnabled(true);
             radiotime.setEnabled(true);
@@ -3169,8 +3076,8 @@ public class BurpBountyGui extends javax.swing.JPanel{
 
     private void selectPassiveRequest(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectPassiveRequest
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jTabbedPane1.setSelectedIndex(1);
-            jTabbedPane1.setEnabledAt(0, false);
+            headerstab.setSelectedIndex(1);
+            headerstab.setEnabledAt(0, false);
             radio12.setEnabled(false);
             radio22.setEnabled(false);
             radiotime.setEnabled(false);
@@ -3197,73 +3104,138 @@ public class BurpBountyGui extends javax.swing.JPanel{
         }
     }//GEN-LAST:event_selectPassiveRequest
 
-    private void TimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TimeoutSelect
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jLabel31.setEnabled(false);
-            jLabel30.setEnabled(false);
-            check4.setEnabled(false);
-            check1.setEnabled(false);
-            excludehttp.setEnabled(false);
-            onlyhttp.setEnabled(false);
-            check71.setEnabled(false);
-            check72.setEnabled(false);
-            text71.setEnabled(false);
-            text72.setEnabled(false);
-            negativeCT.setEnabled(false);
-            negativeRC.setEnabled(false);
-            rb1.setEnabled(false);
-            rb2.setEnabled(false);
-            rb3.setEnabled(false);
-            rb4.setEnabled(false);
-            jLabel6.setEnabled(false);
-            jLabel2.setEnabled(false);
-            sp1.setEnabled(false);
-            jLabel28.setEnabled(false);
-            jLabel29.setEnabled(false);
-            jLabel25.setEnabled(false);
-            jLabel24.setEnabled(false);
-            button8.setEnabled(false);
-            textgreps.setEnabled(false);
-            button9.setEnabled(false);
-            button10.setEnabled(false);
-            button11.setEnabled(false);
-            button7.setEnabled(false);
-            list2.setEnabled(false);
-            textfield2.setEnabled(false);
-        }else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            jLabel31.setEnabled(true);
-            jLabel30.setEnabled(true);
-            check4.setEnabled(true);
-            check1.setEnabled(true);
-            excludehttp.setEnabled(true);
-            onlyhttp.setEnabled(true);
-            check71.setEnabled(true);
-            check72.setEnabled(true);
-            text71.setEnabled(true);
-            text72.setEnabled(true);
-            negativeCT.setEnabled(true);
-            negativeRC.setEnabled(true);
-            rb1.setEnabled(true);
-            rb2.setEnabled(true);
-            rb3.setEnabled(true);
-            rb4.setEnabled(true);
-            jLabel6.setEnabled(true);
-            jLabel2.setEnabled(true);
-            sp1.setEnabled(true);
-            jLabel28.setEnabled(true);
-            jLabel29.setEnabled(true);
-            jLabel25.setEnabled(true);
-            jLabel24.setEnabled(true);
-            button8.setEnabled(true);
-            textgreps.setEnabled(true);
-            button9.setEnabled(true);
-            button10.setEnabled(true);
-            button11.setEnabled(true);
-            button7.setEnabled(true);
-            list2.setEnabled(true);
-            textfield2.setEnabled(true);
+    private void newTagCombo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagCombo2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_newTagCombo2ActionPerformed
+
+    private void button1setProfileEnable(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1setProfileEnable
+        int activePane = jtabpane.getSelectedIndex();
+
+        if (activePane == 0) {
+            setEnableDisableProfile("Yes", 0);
+        } else if (activePane == 1) {
+            setEnableDisableProfile("Yes", 1);
+        } else if (activePane == 2) {
+            setEnableDisableProfile("Yes", 2);
         }
-    }//GEN-LAST:event_TimeoutSelect
+        initCombo();
+
+    }//GEN-LAST:event_button1setProfileEnable
+
+    private void button12SetDisableProfiles(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button12SetDisableProfiles
+        int activePane = jtabpane.getSelectedIndex();
+
+        if (activePane == 0) {
+            setEnableDisableProfile("No", 0);
+        } else if (activePane == 1) {
+            setEnableDisableProfile("No", 1);
+        } else if (activePane == 2) {
+            setEnableDisableProfile("No", 2);
+        }
+        initCombo();
+    }//GEN-LAST:event_button12SetDisableProfiles
+
+    private void button13DeleteItem(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button13DeleteItem
+        int activePane = jtabpane.getSelectedIndex();
+
+        if (activePane == 0) {
+            deleteProfile(0);
+        } else if (activePane == 1) {
+            deleteProfile(1);
+        } else if (activePane == 2) {
+            deleteProfile(2);
+        }
+        initCombo();
+    }//GEN-LAST:event_button13DeleteItem
+
+    private void showprofiles(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_showprofiles
+        if (jTabbedPane2.isShowing()) {
+            showProfiles("All");
+            showTags();
+        }
+    }//GEN-LAST:event_showprofiles
+
+    private void enableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableAll
+        setEnableDisableAllProfiles("Yes");
+        initCombo();
+    }//GEN-LAST:event_enableAll
+
+    private void selectTag(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectTag
+        if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
+            String name = newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex());
+            showProfiles(name);
+        }
+    }//GEN-LAST:event_selectTag
+
+    private void disableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableAll
+        setEnableDisableAllProfiles("No");
+        initCombo();
+    }//GEN-LAST:event_disableAll
+
+    private void newTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagManager
+        NewTag nt = new NewTag();
+        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+        if (result == JOptionPane.OK_OPTION) {
+            String newTag = nt.newTagtext.getText();
+            addNewTag(newTag);
+            showTags();
+        }
+    }//GEN-LAST:event_newTagManager
+
+    private void removeTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTagManager
+        int selectedIndex = listtagmanager.getSelectedIndex();
+        String tag = "";
+        if (selectedIndex != -1) {
+            tag = tagmanager.get(selectedIndex).toString();
+            tagmanager.remove(selectedIndex);
+        }
+        removeTag(tag);
+        showTags();
+    }//GEN-LAST:event_removeTagManager
+
+    private void deleteTagmanager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTagmanager
+        int selectedIndex = listtagmanager.getSelectedIndex();
+        String tag = "";
+        if (selectedIndex != -1) {
+            tag = tagmanager.get(selectedIndex).toString();
+            tagmanager.remove(selectedIndex);
+        }
+        deleteTagProfiles(tag);
+        removeTag(tag);
+        showTags();
+    }//GEN-LAST:event_deleteTagmanager
+
+    private void headerstabStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_headerstabStateChanged
+        int activePane = headerstab.getSelectedIndex();
+        if (activePane == 3) {
+            showTags();
+        }
+    }//GEN-LAST:event_headerstabStateChanged
+
+    private void newTag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTag
+        NewTag nt = new NewTag();
+        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+        if (result == JOptionPane.OK_OPTION) {
+            String newTag = nt.newTagtext.getText();
+            addNewTag(newTag);
+            showTags();
+        }
+    }//GEN-LAST:event_newTag
+
+    private void addTag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTag
+        tag.addElement(newTagCombo.getSelectedItem());
+    }//GEN-LAST:event_addTag
+
+    private void removetag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removetag
+        int selectedIndex = listtag.getSelectedIndex();
+        if (selectedIndex != -1) {
+            tag.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_removetag
+
+    private void radioclActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioclActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_radioclActionPerformed
 
     private void radioclSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radioclSelect
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
@@ -3298,7 +3270,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
             button7.setEnabled(false);
             list2.setEnabled(false);
             textfield2.setEnabled(false);
-        }else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
             jLabel31.setEnabled(true);
             jLabel30.setEnabled(true);
             check4.setEnabled(true);
@@ -3333,159 +3305,204 @@ public class BurpBountyGui extends javax.swing.JPanel{
         }
     }//GEN-LAST:event_radioclSelect
 
-    private void radioclActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioclActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioclActionPerformed
-
-    private void newTagCombo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagCombo2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_newTagCombo2ActionPerformed
-
-    private void button1setProfileEnable(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1setProfileEnable
-        int activePane = jtabpane.getSelectedIndex();
-
-        if(activePane == 0){
-            setEnableDisableProfile("Yes",0);
-        }else if(activePane == 1){
-            setEnableDisableProfile("Yes",1);
-        }else if(activePane == 2){
-            setEnableDisableProfile("Yes",2);
+    private void TimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TimeoutSelect
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            jLabel31.setEnabled(false);
+            jLabel30.setEnabled(false);
+            check4.setEnabled(false);
+            check1.setEnabled(false);
+            excludehttp.setEnabled(false);
+            onlyhttp.setEnabled(false);
+            check71.setEnabled(false);
+            check72.setEnabled(false);
+            text71.setEnabled(false);
+            text72.setEnabled(false);
+            negativeCT.setEnabled(false);
+            negativeRC.setEnabled(false);
+            rb1.setEnabled(false);
+            rb2.setEnabled(false);
+            rb3.setEnabled(false);
+            rb4.setEnabled(false);
+            jLabel6.setEnabled(false);
+            jLabel2.setEnabled(false);
+            sp1.setEnabled(false);
+            jLabel28.setEnabled(false);
+            jLabel29.setEnabled(false);
+            jLabel25.setEnabled(false);
+            jLabel24.setEnabled(false);
+            button8.setEnabled(false);
+            textgreps.setEnabled(false);
+            button9.setEnabled(false);
+            button10.setEnabled(false);
+            button11.setEnabled(false);
+            button7.setEnabled(false);
+            list2.setEnabled(false);
+            textfield2.setEnabled(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            jLabel31.setEnabled(true);
+            jLabel30.setEnabled(true);
+            check4.setEnabled(true);
+            check1.setEnabled(true);
+            excludehttp.setEnabled(true);
+            onlyhttp.setEnabled(true);
+            check71.setEnabled(true);
+            check72.setEnabled(true);
+            text71.setEnabled(true);
+            text72.setEnabled(true);
+            negativeCT.setEnabled(true);
+            negativeRC.setEnabled(true);
+            rb1.setEnabled(true);
+            rb2.setEnabled(true);
+            rb3.setEnabled(true);
+            rb4.setEnabled(true);
+            jLabel6.setEnabled(true);
+            jLabel2.setEnabled(true);
+            sp1.setEnabled(true);
+            jLabel28.setEnabled(true);
+            jLabel29.setEnabled(true);
+            jLabel25.setEnabled(true);
+            jLabel24.setEnabled(true);
+            button8.setEnabled(true);
+            textgreps.setEnabled(true);
+            button9.setEnabled(true);
+            button10.setEnabled(true);
+            button11.setEnabled(true);
+            button7.setEnabled(true);
+            list2.setEnabled(true);
+            textfield2.setEnabled(true);
         }
-        initCombo();
+    }//GEN-LAST:event_TimeoutSelect
 
-    }//GEN-LAST:event_button1setProfileEnable
-
-    private void button12SetDisableProfiles(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button12SetDisableProfiles
-        int activePane = jtabpane.getSelectedIndex();
-
-        if(activePane == 0){
-            setEnableDisableProfile("No",0);
-        }else if(activePane == 1){
-            setEnableDisableProfile("No",1);
-        }else if(activePane == 2){
-            setEnableDisableProfile("No",2);
+    private void pasteGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteGrep
+        String element = getClipboardContents();
+        String[] lines = element.split("\n");
+        for (String line : lines) {
+            grep.addElement(line);
         }
-        initCombo();
-    }//GEN-LAST:event_button12SetDisableProfiles
+    }//GEN-LAST:event_pasteGrep
 
-    private void button13DeleteItem(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button13DeleteItem
-        int activePane = jtabpane.getSelectedIndex();
-
-        if(activePane == 0){
-            deleteProfile(0);
-        }else if(activePane == 1){
-            deleteProfile(1);
-        }else if(activePane == 2){
-            deleteProfile(2);
-        }
-        initCombo();
-    }//GEN-LAST:event_button13DeleteItem
-
-    private void showprofiles(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_showprofiles
-        if(jTabbedPane2.isShowing()){
-            showProfiles("All");
-            showTags();
-        }        
-    }//GEN-LAST:event_showprofiles
-
-    private void enableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableAll
-        setEnableDisableAllProfiles("Yes");
-        initCombo();
-    }//GEN-LAST:event_enableAll
-
-    private void removetag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removetag
-        int selectedIndex = listtag.getSelectedIndex();
-        if (selectedIndex != -1) {
-            tag.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_removetag
-
-    private void newTag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTag
-        NewTag nt = new NewTag(this);
-        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-        if (result == JOptionPane.OK_OPTION){ 
-            String newTag = nt.newTagtext.getText();
-            addNewTag(newTag);
-            showTags();
-        }
-    }//GEN-LAST:event_newTag
-
-    private void jTabbedPane1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPane1StateChanged
-        int activePane = jTabbedPane1.getSelectedIndex();
-        if(activePane == 3){
-           showTags();
-        }
-    }//GEN-LAST:event_jTabbedPane1StateChanged
-
-    private void addTag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTag
-        tag.addElement(newTagCombo.getSelectedItem());
-    }//GEN-LAST:event_addTag
-
-    private void selectTag(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectTag
-        if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
-            String name = newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex());
-            showProfiles(name);  
-        }
-    }//GEN-LAST:event_selectTag
-
-    private void disableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableAll
-        setEnableDisableAllProfiles("No");
-        initCombo();
-    }//GEN-LAST:event_disableAll
-
-    private void CollaboratorButton(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CollaboratorButton
-        if(burpCollaboratorbutton.isSelected()){
-            burpCollaboratorbutton.setText("Collaborator is on");
-            parent.startBCollaborator();
+    private void setToGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToGrep
+        if (!grep.isEmpty() && grep.firstElement().equals(" ")) {
+            grep.removeElementAt(0);
+            grep.addElement(textfield2.getText());
+            textfield2.setText("");
         } else {
-            burpCollaboratorbutton.setText("Collaborator is off");
-            parent.doStop();
+            grep.addElement(textfield2.getText());
+            textfield2.setText("");
         }
-    }//GEN-LAST:event_CollaboratorButton
+    }//GEN-LAST:event_setToGrep
 
-    private void newTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagManager
-        NewTag nt = new NewTag(this);
-        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-        if (result == JOptionPane.OK_OPTION){ 
-            String newTag = nt.newTagtext.getText();
-            addNewTag(newTag);
-            showTags();
-        }
-    }//GEN-LAST:event_newTagManager
+    private void removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllGrep
+        grep.removeAllElements();
+    }//GEN-LAST:event_removeAllGrep
 
-    private void removeTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTagManager
-        int selectedIndex = listtagmanager.getSelectedIndex();
-        String tag = "";
+    private void removeGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeGrep
+        int selectedIndex = list2.getSelectedIndex();
         if (selectedIndex != -1) {
-            tag = tagmanager.get(selectedIndex).toString();
-            tagmanager.remove(selectedIndex);
+            grep.remove(selectedIndex);
         }
-        removeTag(tag);
-        showTags();
-    }//GEN-LAST:event_removeTagManager
+    }//GEN-LAST:event_removeGrep
 
-    private void deleteTagmanager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTagmanager
-        int selectedIndex = listtagmanager.getSelectedIndex();
-        String tag = "";
-        if (selectedIndex != -1) {
-            tag = tagmanager.get(selectedIndex).toString();
-            tagmanager.remove(selectedIndex);
+    private void loadGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGrep
+        loadGrepsFile(grep);
+    }//GEN-LAST:event_loadGrep
+
+    private void addMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMatchReplace
+        model4.addRow(new Object[]{"Payload", "Leave blank to add a new header", "Leave blank to remove a matched header", "String", "Generic comment"});
+    }//GEN-LAST:event_addMatchReplace
+
+    private void jButton6addEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6addEncoder
+        if (!encoder.isEmpty() && encoder.firstElement().equals(" ")) {
+            encoder.removeElementAt(0);
+            encoder.addElement(combo2.getSelectedItem().toString());
+        } else {
+            encoder.addElement(combo2.getSelectedItem().toString());
         }
-        deleteTagProfiles(tag);
-        removeTag(tag);
-        showTags();   
-    }//GEN-LAST:event_deleteTagmanager
+    }//GEN-LAST:event_jButton6addEncoder
+
+    private void jButton7downEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7downEncoder
+        int selectedIndex = list3.getSelectedIndex();
+        if (selectedIndex != encoder.getSize() - 1) {
+            swap(selectedIndex, selectedIndex + 1);
+            list3.setSelectedIndex(selectedIndex + 1);
+            list3.ensureIndexIsVisible(selectedIndex + 1);
+
+        }
+    }//GEN-LAST:event_jButton7downEncoder
+
+    private void jButton8upEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8upEncoder
+        int selectedIndex = list3.getSelectedIndex();
+        if (selectedIndex != 0) {
+            swap(selectedIndex, selectedIndex - 1);
+            list3.setSelectedIndex(selectedIndex - 1);
+            list3.ensureIndexIsVisible(selectedIndex - 1);
+
+        }
+    }//GEN-LAST:event_jButton8upEncoder
+
+    private void jButton9removeEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9removeEncoder
+        int selectedIndex = list3.getSelectedIndex();
+        if (selectedIndex != -1) {
+            encoder.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_jButton9removeEncoder
+
+    private void setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToPayload
+        if (!payload.isEmpty() && payload.firstElement().equals(" ")) {
+            payload.removeElementAt(0);
+            payload.addElement(textfield1.getText());
+            textfield1.setText("");
+        } else {
+            payload.addElement(textfield1.getText());
+            textfield1.setText("");
+        }
+    }//GEN-LAST:event_setToPayload
+
+    private void removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllPayloads
+        payload.removeAllElements();
+    }//GEN-LAST:event_removeAllPayloads
+
+    private void removePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removePayload
+        int selectedIndex = list1.getSelectedIndex();
+        if (selectedIndex != -1) {
+            payload.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_removePayload
+
+    private void loadPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPayloads
+        loadPayloadsFile(payload);
+    }//GEN-LAST:event_loadPayloads
+
+    private void pastePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pastePayload
+
+        String element = getClipboardContents();
+        String[] lines = element.split("\n");
+        for (String line : lines) {
+            payload.addElement(line);
+        }
+    }//GEN-LAST:event_pastePayload
+
+    private void removeMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeMatchReplace
+        int[] rows = table4.getSelectedRows();
+        Arrays.sort(rows);
+        for (int i = rows.length - 1; i >= 0; i--) {
+            int row = rows[i];
+            int modelRow = table4.convertRowIndexToModel(row);
+            model4.removeRow(modelRow);
+        }
+    }//GEN-LAST:event_removeMatchReplace
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTag;
     private javax.swing.JRadioButton append;
-    private javax.swing.JToggleButton burpCollaboratorbutton;
     private javax.swing.JButton button1;
     private javax.swing.JButton button10;
     private javax.swing.JButton button11;
     private javax.swing.JButton button12;
     private javax.swing.JButton button13;
+    private javax.swing.JButton button18;
+    private javax.swing.JButton button19;
     private javax.swing.JButton button2;
     private javax.swing.JButton button3;
     private javax.swing.JButton button4;
@@ -3504,15 +3521,14 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.ButtonGroup buttonGroup8;
     private javax.swing.ButtonGroup buttonGroup9;
     private javax.swing.JCheckBox check1;
-    private javax.swing.JCheckBox check22;
     private javax.swing.JCheckBox check4;
     private javax.swing.JCheckBox check71;
     private javax.swing.JCheckBox check72;
     public javax.swing.JCheckBox check8;
-    private javax.swing.JCheckBox checkreplace;
     public javax.swing.JComboBox<String> combo1;
     private javax.swing.JComboBox<String> combo2;
     private javax.swing.JCheckBox excludehttp;
+    private javax.swing.JTabbedPane headerstab;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -3529,18 +3545,14 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
@@ -3572,6 +3584,10 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel52;
+    private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel55;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -3588,6 +3604,7 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane11;
     private javax.swing.JScrollPane jScrollPane13;
+    private javax.swing.JScrollPane jScrollPane14;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -3598,14 +3615,14 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator11;
-    private javax.swing.JSeparator jSeparator12;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JSeparator jSeparator8;
     private javax.swing.JSeparator jSeparator9;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jtabpane;
     private javax.swing.JList<String> list1;
@@ -3645,9 +3662,9 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JTable table;
     private javax.swing.JTable table1;
     private javax.swing.JTable table2;
+    private javax.swing.JTable table4;
     private javax.swing.JTextField text1;
     private javax.swing.JTextField text11;
-    private javax.swing.JTextField text22;
     private javax.swing.JTextField text4;
     private javax.swing.JTextField text5;
     private javax.swing.JTextField text71;
@@ -3662,8 +3679,6 @@ public class BurpBountyGui extends javax.swing.JPanel{
     private javax.swing.JTextField textfield2;
     private javax.swing.JTextField textgreps;
     private javax.swing.JTextField textpayloads;
-    private javax.swing.JTextField textreplace1;
-    private javax.swing.JTextField textreplace2;
     private javax.swing.JTextField texttime;
     // End of variables declaration//GEN-END:variables
-} 
+}
