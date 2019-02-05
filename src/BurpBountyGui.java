@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
@@ -1162,6 +1164,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
         tags.clear();
         tags.addAll(singles);
         tags.addAll(multiples);
+        File file = new File(filename + "tags.txt");
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(BurpBountyGui.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        
+        
         List<String> existenttags = readFile(filename + "tags.txt");
         for (String tag : tags) {
             if (!existenttags.contains(tag)) {
@@ -1434,6 +1447,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void showTags() {
+        File file = new File(filename + "tags.txt");
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(BurpBountyGui.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         List<String> tags = readFile(filename + "tags.txt");
         newTagCombo.removeAllItems();
         newTagCombo2.removeAllItems();
