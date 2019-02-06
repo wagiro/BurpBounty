@@ -20,6 +20,8 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
   
+* Profiles from [Gocha](https://twitter.com/GochaOqradze) in their [Github](https://github.com/ghsec/BBProfiles)
+
 
 ### For example videos please visit our youtube channel:
 
