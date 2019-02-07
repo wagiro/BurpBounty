@@ -201,7 +201,11 @@ public class GenericScan {
                     if (!headers.isEmpty()) {
                         for (int x = 0; x < headers.size(); x++) {
                             if (headers.get(x).type.equals("Payload")) {
-                                payload = payload.replaceAll(headers.get(x).match, headers.get(x).replace);
+                                if (headers.get(x).regex.equals("String")) {
+                                    payload = payload.replace(headers.get(x).match, headers.get(x).replace);
+                                }else{
+                                    payload = payload.replaceAll(headers.get(x).match, headers.get(x).replace);
+                                }
                             }
                         }
                     }

@@ -113,13 +113,19 @@ public class BurpCollaboratorThread extends Thread {
         issuedetail = issuedetail + "<br><br><strong>BurpCollaborator data:</strong><br><br><strong>Interaction id: </strong>" + interaction_id + "<br><strong>type: </strong>" + type
                 + "<br><strong>client_ip: </strong>" + client_ip + "<br><strong>time_stamp: </strong>" + time_stamp + "<br><strong>query_type: </strong>" + query_type + "<br>";
 
-        List requestMarkers = new ArrayList(1);
-        Integer i = helpers.bytesToString(requestResponse.getRequest()).indexOf(bchost);
-        Integer e = helpers.bytesToString(requestResponse.getRequest()).indexOf(bchost) + bchost.length();
-        if (i.equals(-1) || e.equals(-1)) {
-            requestMarkers.add(new int[]{0, 0});
-        } else {
-            requestMarkers.add(new int[]{i, e});
+        List requestMarkers = new ArrayList();
+        boolean token = true;
+        int start = 0;
+        while(token){
+            Integer i = helpers.indexOf(requestResponse.getRequest(), bchost.getBytes(), false, start, requestResponse.getRequest().length);
+            Integer e = helpers.indexOf(requestResponse.getRequest(), bchost.getBytes(), false, start, requestResponse.getRequest().length) + bchost.length();
+        
+            if (i.equals(-1) || e.equals(-1)) {
+                token = false;
+            } else {
+                requestMarkers.add(new int[]{i, e});
+                start = e;
+            }   
         }
 
         callbacks.addScanIssue(new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),

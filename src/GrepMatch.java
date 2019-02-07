@@ -403,6 +403,8 @@ public class GrepMatch {
         } else {
             if (casesensitive && !notresponse && !excludeHTTP && !onlyHTTP) {
                 if (helpers.bytesToString(requestResponse.getResponse()).contains(grep)) {
+                    
+                    
                     List responseMarkers = new ArrayList(1);
                     responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).indexOf(grep),
                         helpers.bytesToString(requestResponse.getResponse()).indexOf(grep) + grep.length()});
