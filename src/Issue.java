@@ -12,15 +12,12 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-package burpbounty;
-import java.util.List;
-/**
- *
- * @author eduardogarcia
  */
-public class Issue {
+package burpbounty;
 
+import java.util.List;
+
+public class Issue {
 
     private String Name;
     private boolean Active;
@@ -39,9 +36,6 @@ public class Issue {
     private String contentLength;
     private boolean iscontentLength;
     private boolean CaseSensitive;
-    private boolean isReplace;
-    private String Replace1;
-    private String Replace2;
     private boolean ExcludeHTTP;
     private boolean OnlyHTTP;
     private boolean IsContentType;
@@ -53,35 +47,27 @@ public class Issue {
     private int MatchType;
     private int RedirType;
     private int MaxRedir;
-    private boolean spaceEncode;
     private int payloadPosition;
-    private String sEncode;
     private String payloadsFile;
     private String grepsFile;
     private String IssueName;
-    private String IssueType;
     private String IssueSeverity;
     private String IssueConfidence;
     private String IssueDetail;
     private String RemediationDetail;
     private String IssueBackground;
     private String RemediationBackground;
-    
-    
-    
+    private List<Headers> Header;
 
-    
-    public Issue()
-    {
+    public Issue() {
         super();
     }
-    
-    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, List tags, boolean casesensitive,boolean urlencode,
-            boolean payloadresponse, boolean notresponse, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype,boolean negativect, 
+
+    public Issue(String name, int scanner, boolean active, List payloads, List encoder, String charstourlencode, List grep, List tags, boolean casesensitive, boolean urlencode,
+            boolean payloadresponse, boolean notresponse, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype, boolean negativect,
             boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean spaceencode, String sencode, String timeout,
             boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
-            String issuedetail,String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength)
-    {
+            String issuedetail, String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength, List<Headers> header) {
         super();
         Name = name;
         Active = active;
@@ -101,12 +87,8 @@ public class Issue {
         NegativeCT = negativect;
         IsResponseCode = isresponsecode;
         ResponseCode = responsecode;
-        isReplace = isreplace;
-        Replace1 = replace1;
-        Replace2 = replace2;
         NegativeRC = negativerc;
         MatchType = matchtype;
-        IssueType = issuetype;
         IssueName = issuename;
         IssueSeverity = issueseverity;
         IssueConfidence = issueconfidence;
@@ -117,8 +99,6 @@ public class Issue {
         UrlEncode = urlencode;
         CharsToUrlEncode = charstourlencode;
         RedirType = redirtype;
-        spaceEncode = spaceencode;
-        sEncode = sencode;
         payloadsFile = payloadsfile;
         grepsFile = grepsfile;
         MaxRedir = maxredir;
@@ -127,453 +107,320 @@ public class Issue {
         isTime = istime;
         contentLength = contentlength;
         iscontentLength = iscontentlength;
-        
+        Header = header;
+
     }
 
-    public String getName()
-    {
+    public String getName() {
         return Name;
     }
-    
-    public String getAuthor()
-    {
+
+    public List<Headers> getHeader() {
+        return Header;
+    }
+
+    public String getAuthor() {
         return Author;
     }
-    
-    public boolean getActive()
-    {
+
+    public boolean getActive() {
         return Active;
     }
-        
-    public int getScanner()
-    {
+
+    public int getScanner() {
         return Scanner;
     }
-    
-    public int getPayloadPosition()
-    {
+
+    public int getPayloadPosition() {
         return payloadPosition;
     }
-    
-    public List<String> getPayloads()
-    {
+
+    public List<String> getPayloads() {
         return Payloads;
     }
-    
-    public List<String> getEncoder()
-    {
+
+    public List<String> getEncoder() {
         return Encoder;
     }
-    
-    public String getCharsToUrlEncode()
-    {
+
+    public String getCharsToUrlEncode() {
         return CharsToUrlEncode;
     }
-    
-    public String getpayloadsFile()
-    {
+
+    public String getpayloadsFile() {
         return payloadsFile;
     }
-    
-    public String getgrepsFile()
-    {
+
+    public String getgrepsFile() {
         return grepsFile;
     }
-    
-    public boolean getIsReplace()
-    {
-        return isReplace;
-    }
-    
-    public String getReplace1()
-    {
-        return Replace1;
-    }
-    
-    public String getReplace2()
-    {
-        return Replace2;
-    }
-        
-    public List<String> getGreps()
-    {
+
+    public List<String> getGreps() {
         return Grep;
     }
-    
-    public List<String> getTags()
-    {
+
+    public List<String> getTags() {
         return Tags;
     }
-    
-    public boolean getCaseSensitive()
-    {
+
+    public boolean getCaseSensitive() {
         return CaseSensitive;
     }
-    
-    public boolean getPayloadResponse()
-    {
+
+    public boolean getPayloadResponse() {
         return PayloadResponse;
     }
-    
-    public boolean getNotResponse()
-    {
+
+    public boolean getNotResponse() {
         return NotResponse;
     }
-    
-    public boolean getSpaceEncode()
-    {
-        return spaceEncode;
-    }
-    
-    public boolean getExcludeHTTP()
-    {
+
+    public boolean getExcludeHTTP() {
         return ExcludeHTTP;
     }
-    
-    public boolean getOnlyHTTP()
-    {
+
+    public boolean getOnlyHTTP() {
         return OnlyHTTP;
     }
-    
-    public boolean getIsContentType()
-    {
+
+    public boolean getIsContentType() {
         return IsContentType;
     }
-    
-    public String getContentType()
-    {
+
+    public String getContentType() {
         return ContentType;
     }
-    
-    public String getSEncode()
-    {
-        return sEncode;
-    }
-    
-    public String getTime()
-    {
+
+    public String getTime() {
         return TimeOut;
     }
-    
-    public boolean getIsTime()
-    {
+
+    public boolean getIsTime() {
         return isTime;
     }
-    
-    public String getContentLength()
-    {
+
+    public String getContentLength() {
         return contentLength;
     }
-    
-    public boolean getIsContentLength()
-    {
+
+    public boolean getIsContentLength() {
         return iscontentLength;
     }
-    
-    public boolean getNegativeCT()
-    {
+
+    public boolean getNegativeCT() {
         return NegativeCT;
     }
-    
-    public boolean getIsResponseCode()
-    {
+
+    public boolean getIsResponseCode() {
         return IsResponseCode;
     }
-    
-    public String getResponseCode()
-    {
+
+    public String getResponseCode() {
         return ResponseCode;
     }
-    
-    public boolean getNegativeRC()
-    {
+
+    public boolean getNegativeRC() {
         return NegativeRC;
     }
-    
-    public boolean getUrlEncode()
-    {
+
+    public boolean getUrlEncode() {
         return UrlEncode;
     }
-        
-    public int getMatchType()
-    {
+
+    public int getMatchType() {
         return MatchType;
     }
-    
-    public int getRedirection()
-    {
-        return RedirType;
-    }   
 
-    
-    public int getMaxRedir()
-    {
+    public int getRedirection() {
+        return RedirType;
+    }
+
+    public int getMaxRedir() {
         return MaxRedir;
     }
-    
-    public String getIssueType()
-    {
-        return IssueType;
-    }
-    
-    public String getIssueName()
-    {
+
+    public String getIssueName() {
         return IssueName;
     }
-    
-    public String getIssueSeverity()
-    {
+
+    public String getIssueSeverity() {
         return IssueSeverity;
     }
-    
-    public String getIssueConfidence()
-    {
+
+    public String getIssueConfidence() {
         return IssueConfidence;
     }
-    
-    public String getIssueDetail()
-    {
+
+    public String getIssueDetail() {
         return IssueDetail;
     }
-    
-    public String getIssueBackground()
-    {
+
+    public String getIssueBackground() {
         return IssueBackground;
     }
-    
-    public String getRemediationDetail()
-    {
+
+    public String getRemediationDetail() {
         return RemediationDetail;
     }
-    
-    public String getRemediationBackground()
-    {
+
+    public String getRemediationBackground() {
         return RemediationBackground;
     }
-    
-    
+
     //Set functions
-    
-    public void setName(String name)
-    {
-         Name = name;
+    public void setName(String name) {
+        Name = name;
     }
-    
-    public void setAuthor(String author)
-    {
-         Author = author;
+
+    public void setHeader(List<Headers> header) {
+        Header = header;
     }
-    
-    public void setActive(boolean active)
-    {
-         Active = active;
+
+    public void setAuthor(String author) {
+        Author = author;
     }
-        
-    public void setScanner(int scanner)
-    {
+
+    public void setActive(boolean active) {
+        Active = active;
+    }
+
+    public void setScanner(int scanner) {
         Scanner = scanner;
     }
-    
-    public void setPayloadPosition(int payloadposition)
-    {
+
+    public void setPayloadPosition(int payloadposition) {
         payloadPosition = payloadposition;
     }
-    
-    public void setPayloads(List<String> payloads)
-    {
+
+    public void setPayloads(List<String> payloads) {
         Payloads = payloads;
     }
-    
-    public void setEncoder(List<String> encoder)
-    {
-         Encoder = encoder;
+
+    public void setEncoder(List<String> encoder) {
+        Encoder = encoder;
     }
-    
-    public void setCharsToUrlEncode(String charstourlencode)
-    {
-         CharsToUrlEncode = charstourlencode;
+
+    public void setCharsToUrlEncode(String charstourlencode) {
+        CharsToUrlEncode = charstourlencode;
     }
-    
-    public void setPayloadsFile(String payloadsfile)
-    {
-         payloadsFile = payloadsfile;
+
+    public void setPayloadsFile(String payloadsfile) {
+        payloadsFile = payloadsfile;
     }
-    
-    public void setGrepsFile(String grepsfile)
-    {
-         grepsFile = grepsfile;
+
+    public void setGrepsFile(String grepsfile) {
+        grepsFile = grepsfile;
     }
-    
-    public void setGreps(List<String> grep)
-    {
+
+    public void setGreps(List<String> grep) {
         Grep = grep;
     }
-    
-    public void setTags(List<String> tags)
-    {
+
+    public void setTags(List<String> tags) {
         Tags = tags;
     }
-       
-    public void setCaseSensitive(boolean casesensitive)
-    {
+
+    public void setCaseSensitive(boolean casesensitive) {
         CaseSensitive = casesensitive;
     }
-    
-    public void setisReplace(boolean isreplace)
-    {
-        isReplace = isreplace;
-    }
-    
-    public void setReplace1(String replace1)
-    {
-         Replace1 = replace1;
-    }
-    
-    public void setReplace2(String replace2)
-    {
-         Replace2 = replace2;
-    }
-       
-    public void setPayloadResponse(boolean payloadresponse)
-    {
+
+    public void setPayloadResponse(boolean payloadresponse) {
         PayloadResponse = payloadresponse;
     }
-    
-    public void setNotResponse(boolean notresponse)
-    {
+
+    public void setNotResponse(boolean notresponse) {
         NotResponse = notresponse;
     }
-    
-    
-    public void setOnlyHTTP(boolean onlyHTTP)
-    {
+
+    public void setOnlyHTTP(boolean onlyHTTP) {
         OnlyHTTP = onlyHTTP;
     }
-    
-    public void setExcludeHTTP(boolean excludeHTTP)
-    {
+
+    public void setExcludeHTTP(boolean excludeHTTP) {
         ExcludeHTTP = excludeHTTP;
     }
-    
-    public void setIsContentType(boolean iscontenttype)
-    {
+
+    public void setIsContentType(boolean iscontenttype) {
         IsContentType = iscontenttype;
     }
-    
-    public void setTime(String timeout)
-    {
-         TimeOut = timeout;
+
+    public void setTime(String timeout) {
+        TimeOut = timeout;
     }
-    
-    public void setIsTime(boolean istime)
-    {
-         isTime = istime;
+
+    public void setIsTime(boolean istime) {
+        isTime = istime;
     }
-    
-    
-    public void setContentLength(String contentlength)
-    {
-         contentLength = contentlength;
+
+    public void setContentLength(String contentlength) {
+        contentLength = contentlength;
     }
-    
-    public void setIsContentLength(boolean iscontentlength)
-    {
-         iscontentLength = iscontentlength;
+
+    public void setIsContentLength(boolean iscontentlength) {
+        iscontentLength = iscontentlength;
     }
-    
-    public void setContentType(String contenttype)
-    {
+
+    public void setContentType(String contenttype) {
         ContentType = contenttype;
     }
-    
-    public void setSEncode(String sencode)
-    {
-        sEncode = sencode;
-    }
-    
-    public void setNegativeCT(boolean negativect)
-    {
+
+    public void setNegativeCT(boolean negativect) {
         NegativeCT = negativect;
     }
-    
-    public void setIsResponseCode(boolean isresponsecode)
-    {
+
+    public void setIsResponseCode(boolean isresponsecode) {
         IsResponseCode = isresponsecode;
     }
-    
-    public void setResponseCode(String responsecode)
-    {
+
+    public void setResponseCode(String responsecode) {
         ResponseCode = responsecode;
     }
-    
-    public void setNegativeRC(boolean negativerc)
-    {
+
+    public void setNegativeRC(boolean negativerc) {
         NegativeRC = negativerc;
     }
-    
-    public void setUrlEncode(boolean urlencode)
-    {
+
+    public void setUrlEncode(boolean urlencode) {
         UrlEncode = urlencode;
     }
-    
-    public void setMatchType(int matchtype)
-    {
+
+    public void setMatchType(int matchtype) {
         MatchType = matchtype;
     }
-    
-    public void setRedirType(int redirtype)
-    {
+
+    public void setRedirType(int redirtype) {
         RedirType = redirtype;
     }
-        
-    
-    public void setSpaceEncode(boolean spaceencode)
-    {
-        spaceEncode = spaceencode;
-    }
-    
-    public void setMaxRedir(int maxredir)
-    {
+
+    public void setMaxRedir(int maxredir) {
         MaxRedir = maxredir;
     }
-    
-    public void setIssueType(String issuetype)
-    {
-        IssueType = issuetype;
-    }
-    
-    public void setIssueName(String issuename)
-    {
+
+    public void setIssueName(String issuename) {
         IssueName = issuename;
     }
-    
-    public void setIssueSeverity(String issueseverity)
-    {
+
+    public void setIssueSeverity(String issueseverity) {
         IssueSeverity = issueseverity;
     }
-    
-    public void setIssueConfidence(String issueconfidence)
-    {
+
+    public void setIssueConfidence(String issueconfidence) {
         IssueConfidence = issueconfidence;
     }
-    
-    public void setIssueDetail(String issuedetail)
-    {
+
+    public void setIssueDetail(String issuedetail) {
         IssueDetail = issuedetail;
     }
-    
-    public void setIssueBackground(String issuebackground)
-    {
+
+    public void setIssueBackground(String issuebackground) {
         IssueBackground = issuebackground;
     }
-    
-    public void setRemediationDetail(String remediationdetail)
-    {
+
+    public void setRemediationDetail(String remediationdetail) {
         RemediationDetail = remediationdetail;
     }
-    
-    public void setRemediationBackground(String remediationbackground)
-    {
+
+    public void setRemediationBackground(String remediationbackground) {
         RemediationBackground = remediationbackground;
     }
 }

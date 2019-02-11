@@ -7,7 +7,7 @@ Download releases:
 
 This BurpSuite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty_v3.0.0beta.png)
+![GitHub Logo](images/BurpBounty_v3.0.3beta.png)
 
 
 ## Usage
@@ -20,6 +20,8 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 * Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
   
+* Profiles from [Gocha](https://twitter.com/GochaOqradze) in their [Github](https://github.com/ghsec/BBProfiles)
+
 
 ### For example videos please visit our youtube channel:
 
@@ -29,6 +31,12 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 ### Contributions and feature requests are welcome!
 
 ##  Changelog
+**3.0.3beta 20190206**
+* Add Match and Replace feature
+* Delete Collaborator button (now start automatically)
+* Improve Collaborator Thread
+* Some minor improvements
+
 **3.0.2beta 20181217**
 * Fixed error with comma separated
 

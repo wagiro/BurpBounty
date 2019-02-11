@@ -12,25 +12,16 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-
-
+ */
 package burpbounty;
-
-
 
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import burp.IScanIssue;
 import java.net.URL;
 
-/**
- *
- * @author eduardogarcia
- */
+class CustomScanIssue implements IScanIssue {
 
-
-class CustomScanIssue implements IScanIssue{
     private IHttpService httpService;
     private URL url;
     private IHttpRequestResponse[] httpMessages;
@@ -44,16 +35,15 @@ class CustomScanIssue implements IScanIssue{
 
     public CustomScanIssue(
             IHttpService httpService,
-            URL url, 
-            IHttpRequestResponse[] httpMessages, 
+            URL url,
+            IHttpRequestResponse[] httpMessages,
             String name,
             String detail,
             String severity,
             String issueConfidence,
             String issueRemediation,
             String issueBackground,
-            String issueClassification)
-    {
+            String issueClassification) {
         this.httpService = httpService;
         this.url = url;
         this.httpMessages = httpMessages;
@@ -64,73 +54,62 @@ class CustomScanIssue implements IScanIssue{
         this.issueRemediation = issueRemediation;
         this.issueBackground = issueBackground;
         this.issueClassification = issueClassification;
-        
+
     }
-    
+
     @Override
-    public URL getUrl()
-    {
+    public URL getUrl() {
         return url;
     }
 
     @Override
-    public String getIssueName()
-    {
+    public String getIssueName() {
         return name;
     }
 
     @Override
-    public int getIssueType()
-    {
+    public int getIssueType() {
         return 0;
     }
 
     @Override
-    public String getSeverity()
-    {
+    public String getSeverity() {
         return severity;
     }
 
     @Override
-    public String getConfidence()
-    {
+    public String getConfidence() {
         return issueConfidence;
     }
 
     @Override
-    public String getIssueBackground()
-    {
+    public String getIssueBackground() {
         return issueBackground;
     }
 
     @Override
-    public String getRemediationBackground()
-    {
+    public String getRemediationBackground() {
         return issueRemediation;
     }
 
     @Override
-    public String getIssueDetail()
-    {
+    public String getIssueDetail() {
         return detail;
     }
 
     @Override
-    public String getRemediationDetail()
-    {
+    public String getRemediationDetail() {
         return issueClassification;
     }
 
     @Override
-    public IHttpRequestResponse[] getHttpMessages()
-    {
+    public IHttpRequestResponse[] getHttpMessages() {
         return httpMessages;
     }
 
     @Override
-    public IHttpService getHttpService()
-    {
+    public IHttpService getHttpService() {
         return httpService;
     }
-    
+
 }
