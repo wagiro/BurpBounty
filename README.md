@@ -27,7 +27,6 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
-### Contributions and feature requests are welcome!
 
 ##  Changelog
 **3.0.4beta 20190217**
