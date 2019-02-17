@@ -206,7 +206,7 @@ public class Issue {
     public boolean getIsTime() {
         return isTime;
     }
-    
+
     public boolean getPathDiscover() {
         return pathDiscovery;
     }
@@ -339,7 +339,7 @@ public class Issue {
     public void setPathDiscovery(boolean pathdiscovery) {
         pathDiscovery = pathdiscovery;
     }
-    
+
     public void setCaseSensitive(boolean casesensitive) {
         CaseSensitive = casesensitive;
     }

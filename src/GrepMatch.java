@@ -170,7 +170,7 @@ public class GrepMatch {
             List<int[]> requestMarkers = new ArrayList();
             int beginAt = 0;
             byte[] response = helpers.stringToBytes(responseString);
-            
+
             if (excludeHTTP && !onlyHTTP) {
                 beginAt = responseInfo.getBodyOffset();
             } else if (!excludeHTTP && onlyHTTP) {
@@ -203,7 +203,7 @@ public class GrepMatch {
             } else {
 
                 byte[] match = helpers.stringToBytes(grep);
-                
+
                 while (beginAt < response.length) {
                     beginAt = helpers.indexOf(response, match, false, beginAt, response.length);
                     if (beginAt == -1) {
@@ -227,7 +227,7 @@ public class GrepMatch {
     }
 
     public IScanIssue getRequestMatches(IHttpRequestResponse requestResponse, String grep, String issuename, String issuedetail, String issuebackground,
-            String remediationdetail, String remediationbackground, int matchtype, String issueseverity, String issueconfidence, boolean casesensitive, boolean notresponse, 
+            String remediationdetail, String remediationbackground, int matchtype, String issueseverity, String issueconfidence, boolean casesensitive, boolean notresponse,
             boolean excludeHTTP, boolean onlyHTTP) {
 
         if (requestResponse.getRequest() == null) {
