@@ -13,3 +13,6 @@ InformationDisclosure
 API
 SQLi
 XXE
+endpoints
+regex
+Variations

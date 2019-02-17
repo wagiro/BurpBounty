@@ -78,8 +78,8 @@
                   <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
-              <Component id="jTabbedPane2" min="-2" pref="1367" max="-2" attributes="0"/>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Component id="jTabbedPane2" min="-2" pref="1499" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -184,7 +184,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="radioPR" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="headerstab" max="32767" attributes="0"/>
+                      <Component id="headerstab" pref="1361" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -445,6 +445,8 @@
                                                           <Component id="append" min="-2" max="-2" attributes="0"/>
                                                           <Component id="replace" min="-2" max="-2" attributes="0"/>
                                                       </Group>
+                                                      <EmptySpace min="-2" pref="68" max="-2" attributes="0"/>
+                                                      <Component id="pathdiscovery" min="-2" max="-2" attributes="0"/>
                                                   </Group>
                                               </Group>
                                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -494,7 +496,10 @@
                               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="replace" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="replace" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="pathdiscovery" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="append" min="-2" max="-2" attributes="0"/>
                                   </Group>
@@ -545,7 +550,7 @@
                                   <Component id="check8" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="text5" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="74" max="32767" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -823,6 +828,11 @@
                         <Property name="text" type="java.lang.String" value="You can define the payload options."/>
                       </Properties>
                     </Component>
+                    <Component class="javax.swing.JCheckBox" name="pathdiscovery">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Path discovery"/>
+                      </Properties>
+                    </Component>
                   </SubComponents>
                 </Container>
                 <Container class="javax.swing.JPanel" name="jPanel11">
@@ -843,10 +853,11 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jSeparator11" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Component id="jSeparator5" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jSeparator6" alignment="1" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
@@ -872,43 +883,49 @@
                                   </Group>
                                   <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel24" min="-2" pref="769" max="-2" attributes="0"/>
+                                  <Component id="jLabel27" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel26" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
+                                  <Component id="Attributes" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="variationsRadio" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jSeparator5" alignment="0" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="jSeparator12" pref="4" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jSeparator11" min="-2" pref="952" max="-2" attributes="0"/>
+                          </Group>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="radio12" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="151" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel31" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel30" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
-                                          <Component id="onlyhttp" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="check4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="check1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="excludehttp" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="check72" alignment="0" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="check71" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              </Group>
-                                              <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Group type="102" alignment="0" attributes="0">
-                                                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                                                      <Component id="text71" min="-2" pref="356" max="-2" attributes="0"/>
-                                                  </Group>
-                                                  <Group type="102" alignment="1" attributes="0">
-                                                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-                                                      <Component id="text72" min="-2" pref="356" max="-2" attributes="0"/>
-                                                  </Group>
-                                              </Group>
-                                              <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="negativeCT" alignment="1" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="negativeRC" alignment="1" min="-2" max="-2" attributes="0"/>
-                                              </Group>
-                                          </Group>
-                                          <Component id="jLabel29" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel28" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
+                                          <Component id="radio22" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="invariationsRadio" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="radio4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="radio3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="116" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="radiotime" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="radiocl" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="texttime" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
+                                          <Component id="textcl" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="jLabel16" min="-2" pref="62" max="-2" attributes="0"/>
+                                          <Component id="jLabel42" min="-2" pref="62" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <Group type="102" attributes="0">
@@ -926,70 +943,85 @@
                                           <Component id="sp1" min="-2" pref="56" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel27" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel26" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
-                                          <Component id="radio22" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radio12" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radio3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radio4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radiotime" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel31" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel30" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
+                                          <Component id="onlyhttp" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="check4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="check1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="excludehttp" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Group type="102" alignment="0" attributes="0">
-                                              <Component id="radiocl" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Group type="102" alignment="0" attributes="0">
-                                                      <Component id="texttime" linkSize="15" min="-2" pref="100" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="jLabel16" min="-2" pref="62" max="-2" attributes="0"/>
-                                                  </Group>
-                                                  <Group type="102" alignment="0" attributes="0">
-                                                      <Component id="textcl" linkSize="15" min="-2" pref="100" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="jLabel42" min="-2" pref="62" max="-2" attributes="0"/>
-                                                  </Group>
+                                                  <Component id="check72" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="check71" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Component id="text71" pref="347" max="32767" attributes="0"/>
+                                                  <Component id="text72" max="32767" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Component id="negativeCT" alignment="1" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="negativeRC" alignment="1" min="-2" max="-2" attributes="0"/>
                                               </Group>
                                           </Group>
+                                          <Component id="jLabel29" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel28" alignment="0" min="-2" pref="769" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jSeparator6" alignment="1" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel27" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                               <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="radio4" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="radio3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="radio12" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="radio22" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="radiotime" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="texttime" linkSize="16" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="radio4" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                                      <Component id="radio3" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                      <Component id="radio12" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="radiotime" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="texttime" linkSize="22" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="radiocl" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel42" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="textcl" linkSize="22" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <Component id="radio22" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="radiocl" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel42" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="textcl" linkSize="16" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="variationsRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="invariationsRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSeparator11" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="Attributes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="jSeparator12" max="32767" attributes="0"/>
+                                  <Component id="jSeparator11" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                               <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
@@ -1138,6 +1170,9 @@
                         </Property>
                         <Property name="text" type="java.lang.String" value="Payload"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="payloadMatchType"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JRadioButton" name="radio4">
                       <Properties>
@@ -1146,6 +1181,9 @@
                         </Property>
                         <Property name="text" type="java.lang.String" value="Simple string"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="stringMatchType"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JRadioButton" name="radio3">
                       <Properties>
@@ -1154,6 +1192,9 @@
                         </Property>
                         <Property name="text" type="java.lang.String" value="Regex"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="regexMatchType"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JRadioButton" name="radio22">
                       <Properties>
@@ -1162,6 +1203,9 @@
                         </Property>
                         <Property name="text" type="java.lang.String" value="Payload without encode"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="payloadencodeMatchType"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JCheckBox" name="check4">
                       <Properties>
@@ -1190,7 +1234,7 @@
                     </Component>
                     <Component class="javax.swing.JCheckBox" name="check72">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Response code"/>
+                        <Property name="text" type="java.lang.String" value="Status code"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JTextField" name="texttime">
@@ -1357,6 +1401,343 @@
                       </Events>
                     </Component>
                     <Component class="javax.swing.JTextField" name="textcl">
+                    </Component>
+                    <Component class="javax.swing.JRadioButton" name="variationsRadio">
+                      <Properties>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="buttonGroup4"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Variations"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="variations"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JRadioButton" name="invariationsRadio">
+                      <Properties>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="buttonGroup4"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Invariations"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="invariations"/>
+                      </Events>
+                    </Component>
+                    <Container class="javax.swing.JPanel" name="Attributes">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                            <TitledBorder justification="2" position="2" title="Attributes"/>
+                          </Border>
+                        </Property>
+                      </Properties>
+
+                      <Layout>
+                        <DimensionLayout dim="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="page_title" min="-2" max="-2" attributes="0"/>
+                                      <Component id="non_hidden_form_input_types" min="-2" max="-2" attributes="0"/>
+                                      <Component id="input_image_labels" min="-2" max="-2" attributes="0"/>
+                                      <Component id="status_code" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="visible_text" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="word_count" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="div_ids" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="button_submit_labels" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="content_type" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="outbound_edge_tag_names" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="anchor_labels" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="etag_header" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="whole_body_content" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="content_length" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="visible_word_count" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="header_tags" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="input_submit_labels" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="tag_names" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="first_header_tag" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="set_cookie_names" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="line_count" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="comments" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="tag_ids" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="last_modified_header" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="outbound_edge_count" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="initial_body_content" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="css_classes" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="canonical_link" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="limited_body_content" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="content_location" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="location" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                        <DimensionLayout dim="1">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="outbound_edge_count" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="initial_body_content" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="content_location" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="limited_body_content" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="canonical_link" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="css_classes" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="location" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" attributes="0">
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Group type="102" attributes="0">
+                                                  <Group type="103" groupAlignment="0" attributes="0">
+                                                      <Group type="102" attributes="0">
+                                                          <Component id="content_type" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="outbound_edge_tag_names" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="anchor_labels" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="whole_body_content" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="etag_header" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <Group type="102" attributes="0">
+                                                          <Component id="tag_ids" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="comments" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="line_count" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="set_cookie_names" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="last_modified_header" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                  </Group>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Group type="103" groupAlignment="0" attributes="0">
+                                                      <Group type="102" attributes="0">
+                                                          <Component id="visible_word_count" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="content_length" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="header_tags" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <Group type="102" alignment="0" attributes="0">
+                                                          <Component id="first_header_tag" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="tag_names" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="input_submit_labels" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                  </Group>
+                                              </Group>
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Component id="status_code" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="input_image_labels" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="non_hidden_form_input_types" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="page_title" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="visible_text" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="button_submit_labels" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="div_ids" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="word_count" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                          </Group>
+                                          <EmptySpace max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                      </Layout>
+                      <SubComponents>
+                        <Component class="javax.swing.JCheckBox" name="status_code">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="status_code"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="input_image_labels">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="input_image_labels"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="non_hidden_form_input_types">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="non_hidden_form_input_types"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="page_title">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="page_title"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="visible_text">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="visible_text"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="button_submit_labels">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="button_submit_labels"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="div_ids">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="div_ids"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="word_count">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="word_count"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="content_type">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="content_type"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="outbound_edge_tag_names">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="outbound_edge_tag_names"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="location">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="location"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="css_classes">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="css_classes"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="last_modified_header">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="last_modified_header"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="set_cookie_names">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="set_cookie_names"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="line_count">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="line_count"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="comments">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="comments"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="tag_ids">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="tag_ids"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="header_tags">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="header_tags"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="content_length">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="content_length"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="visible_word_count">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="visible_word_count"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="whole_body_content">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="whole_body_content"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="etag_header">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="etag_header"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="first_header_tag">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="first_header_tag"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="tag_names">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="tag_names"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="input_submit_labels">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="input_submit_labels"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="outbound_edge_count">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="outbound_edge_count"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="content_location">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="content_location"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="initial_body_content">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="initial_body_content"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="limited_body_content">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="limited_body_content"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="canonical_link">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="canonical_link"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="anchor_labels">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="anchor_labels"/>
+                          </Properties>
+                        </Component>
+                      </SubComponents>
+                    </Container>
+                    <Component class="javax.swing.JSeparator" name="jSeparator12">
                     </Component>
                   </SubComponents>
                 </Container>
@@ -1841,7 +2222,7 @@
                                   <Component id="newTagCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="addTag" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace pref="1087" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1992,7 +2373,7 @@
                               <Component id="jtabpane" min="-2" pref="543" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="644" max="32767" attributes="0"/>
+                      <EmptySpace pref="776" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -2234,7 +2615,7 @@
                           <Component id="jButton13" min="-2" max="-2" attributes="0"/>
                           <Component id="jScrollPane13" min="-2" pref="296" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="944" max="32767" attributes="0"/>
+                      <EmptySpace pref="1076" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

@@ -27,14 +27,26 @@ public class BuildUnencodeRequest {
             for (int x = 0; x < headers.size(); x++) {
                 String replace = headers.get(x).replace;
                 if (headers.get(x).type.equals("Request")) {
-                    if (replace.contains("{PAYLOAD}")) {
-                        replace = replace.replaceAll("\\{PAYLOAD\\}", stringpayload);
-                    }
-                    if (headers.get(x).match.isEmpty()) {
-                        tempRequest = tempRequest.replace("\r\n\r\n", "\r\n" + replace + "\r\n\r\n");
+                    if (headers.get(x).regex.equals("String")) {
+                        if (replace.contains("{PAYLOAD}")) {
+                            replace = replace.replace("{PAYLOAD}", stringpayload);
+                        }
+                        if (headers.get(x).match.isEmpty()) {
+                            tempRequest = tempRequest.replace("\r\n\r\n", "\r\n" + replace + "\r\n\r\n");
+                        } else {
+                            tempRequest = tempRequest.replace(headers.get(x).match, replace);
+                        }
                     } else {
-                        tempRequest = tempRequest.replaceAll(headers.get(x).match, replace);
+                        if (replace.contains("{PAYLOAD}")) {
+                            replace = replace.replaceAll("\\{PAYLOAD\\}", stringpayload);
+                        }
+                        if (headers.get(x).match.isEmpty()) {
+                            tempRequest = tempRequest.replaceAll("\\r\\n\\r\\n", "\r\n" + replace + "\r\n\r\n");
+                        } else {
+                            tempRequest = tempRequest.replaceAll(headers.get(x).match, replace);
+                        }
                     }
+
                 }
             }
             return helpers.stringToBytes(tempRequest);
