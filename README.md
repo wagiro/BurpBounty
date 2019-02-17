@@ -35,7 +35,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * New tags for extract matches and better issue documentation
 * Variations/Invariations match type feature
 * Algorithm optimization
-* Add new profiles 
+* New profiles added 
 
 
 

@@ -80,4 +80,4 @@ You can add issues by checking Variations/Invariations between the base response
 
 ### Algorithm optimization
 
-### New profiles 
+### New profiles added
