@@ -38,8 +38,6 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * New profiles added 
 
 
-
-##  Changelog
 **3.0.3beta 20190206**
 * Add Match and Replace feature
 * Delete Collaborator button (now start automatically)
