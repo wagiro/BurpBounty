@@ -27,6 +27,11 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
+## DONATIONS:
+Donations are welcome. This will help fascilitate improved features, frequent updates and better overall support for BurpBunty.
+
+* Bitcoin: 35P94XGkPHGT2snfBu26V2gXrQWXndWq8B
+
 
 ##  Changelog
 **3.0.4beta 20190217**
