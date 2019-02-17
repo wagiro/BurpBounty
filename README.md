@@ -27,13 +27,6 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
-## Donations:
-Donations are welcome. This will help fascilitate improved features, frequent updates and better overall support for Burp Bounty.
-
-* Bitcoin: 35P94XGkPHGT2snfBu26V2gXrQWXndWq8B
-* [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6WBH49DKYYLHJ&currency_code=EUR) 
-
-
 ##  Changelog
 **3.0.4beta 20190217**
 * "Path discovery" feature add new insertion points
