@@ -8,28 +8,29 @@ GET /dir1/dir2/file.php?param=value HTTP/1.1
 
 Generate three new Insertion points:
 
-1- GET {HERE} HTTP/1.1
-2- GET /dir1{HERE} HTTP/1.1
-3- GET /dir1/dir2{HERE} HTTP/1.1
+1- GET {HERE} HTTP/1.1<br>
+2- GET /dir1{HERE} HTTP/1.1<br>
+3- GET /dir1/dir2{HERE} HTTP/1.1<br>
 
 Then, if you put in payload /.git/HEAD, the three new request are:
 
-1- GET /.git/HEAD HTTP/1.1
-2- GET /dir1/.git/HEAD HTTP/1.1
-3- GET /dir1/dir2/.git/HEAD HTTP/1.1
+1- GET /.git/HEAD HTTP/1.1<br>
+2- GET /dir1/.git/HEAD HTTP/1.1<br>
+3- GET /dir1/dir2/.git/HEAD HTTP/1.1<br>
 
 without param=value.
 
 Another example, in request:
 
-GET / HTTP/1.1
+GET / HTTP/1.1<br>
+
 Generate one new insertion point:
 
-1- GET {HERE} HTTP/1.1
+1- GET {HERE} HTTP/1.1<br>
 
 Then, if you put in payload "/assets../static/app.js", the one new request are:
 
-1- GET /assets../static/app.js HTTP/1.1
+1- GET /assets../static/app.js HTTP/1.1<br>
 
 
 Code:
