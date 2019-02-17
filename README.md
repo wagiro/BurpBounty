@@ -7,7 +7,6 @@ Download releases:
 
 This BurpSuite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty_v3.0.3beta.png)
 
 
 ## Usage
@@ -29,6 +28,16 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 
 
 ### Contributions and feature requests are welcome!
+
+##  Changelog
+**3.0.4beta 20190217**
+* "Path discovery" feature add new insertion points
+* New tags for extract matches and better issue documentation
+* Variations/Invariations match type feature
+* Algorithm optimization
+* Add new profiles 
+
+
 
 ##  Changelog
 **3.0.3beta 20190206**

@@ -63,7 +63,7 @@ For discover some useful files or directories:
 ![PathFeature](https://github.com/wagiro/BurpBounty/blob/master/images/path.png)
 
 
-### New tags for better issue documentation
+### New tags for extract matches and better issue documentation 
 
 All the matches of the requests and responses are highlighted. You can extract the matches of the requests and responses to the issuedetail, through the <payload> tags for the payloads and <grep> for the greps. It's useful for example, for extract endpoint from regex through passive scanner:
 
@@ -72,11 +72,12 @@ All the matches of the requests and responses are highlighted. You can extract t
 
 
 
-### Variations/Invariations issue feature
+### Variations/Invariations match type feature
 You can add issues by checking Variations/Invariations between the base response, and each payoad response. I have 31 different attributes for this(the names of the attributes are quite descriptive):
 
 ![VariationsFeatur](https://github.com/wagiro/BurpBounty/blob/master/images/variations.png)
 
 
+### Algorithm optimization
 
-
+### New profiles 
