@@ -79,5 +79,7 @@ You can add issues by checking Variations/Invariations between the base response
 
 
 ### Algorithm optimization
+Improved some algorithms for better performance.
 
 ### New profiles added
+Various profiles was added in profiles directory
