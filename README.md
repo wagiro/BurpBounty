@@ -31,15 +31,7 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 Donations are welcome. This will help fascilitate improved features, frequent updates and better overall support for Burp Bounty.
 
 * Bitcoin: 35P94XGkPHGT2snfBu26V2gXrQWXndWq8B
-* Paypal:
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_donations" />
-<input type="hidden" name="business" value="6WBH49DKYYLHJ" />
-<input type="hidden" name="currency_code" value="EUR" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_ES/i/scr/pixel.gif" width="1" height="1" />
-</form>
-
+* [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6WBH49DKYYLHJ&currency_code=EUR) 
 
 
 ##  Changelog
