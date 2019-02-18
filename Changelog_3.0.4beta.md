@@ -33,29 +33,6 @@ Then, if you put in payload "/assets../static/app.js", the one new request are:
 1- GET /assets../static/app.js HTTP/1.1<br>
 
 
-Code:
-```java
-@Override
-    public List<IScannerInsertionPoint> getInsertionPoints(IHttpRequestResponse baseRequestResponse) {
-        List<IScannerInsertionPoint> insertionPoints = new ArrayList();
-        IRequestInfo request = helpers.analyzeRequest(baseRequestResponse);
-
-        if (request.getMethod().equals("GET")) {
-            byte[] match = helpers.stringToBytes("/");
-            byte[] req = baseRequestResponse.getRequest();
-            int beginAt = 0;
-            while (beginAt < req.length) {
-                beginAt = helpers.indexOf(req, match, false, beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP"));
-                if (beginAt == -1) {
-                    break;
-                }
-                insertionPoints.add(helpers.makeScannerInsertionPoint("param" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
-                beginAt += match.length;
-            }
-        }
-        return insertionPoints;
-    }
-```
 <br>
 
 
