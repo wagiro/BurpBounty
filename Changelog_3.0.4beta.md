@@ -2,7 +2,7 @@
 
 ### "Path discovery" feature add new insertion points
 
-New insertion points are added to the requests (To discover hidden files and files), when you check the "Path Discovery" option in "Payload Options" section. For example in the request:
+New insertion points are added to the requests (To discover hidden files and directories), when you check the "Path Discovery" option in "Payload Options" section. For example in the request:
 
 GET /dir1/dir2/file.php?param=value HTTP/1.1
 
