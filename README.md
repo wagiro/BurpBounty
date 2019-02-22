@@ -1,5 +1,7 @@
 
-![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg#center)
+<div style="text-align:center" markdown="1">
+![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg)
+</div>
 
 
 
