@@ -1,7 +1,6 @@
 
-<p align="center">
-![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg)
-</p>
+![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg#center)
+
 
 
 [![GitHub release](https://img.shields.io/github/release/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/releases) 
