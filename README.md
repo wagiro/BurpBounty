@@ -1,3 +1,12 @@
+![alt tag](https://github.com/wagiro/BurpBounty/BurpBounty.jpg)
+
+[![GitHub release](https://img.shields.io/github/release/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/releases) 
+[![GitHub issues](https://img.shields.io/github/issues/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/issues) 
+[![Github Stars](https://img.shields.io/github/stars/wagiro/BurpBounty.svg?style=social&label=Stars)](https://github.com/wagiro/BurpBounty/) 
+[![GitHub Followers](https://img.shields.io/github/followers/wagiro.svg?style=social&label=Follow)](https://github.com/wagiro/BurpBounty/)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/bountyburp.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=bountyburp)
+
+
 # Burp Bounty - Scan Check Builder (BApp Store)
 
 Download releases:
