@@ -1,6 +1,9 @@
-<div id="container">
+
+
 ![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg)
-</div>
+
+
+
 [![GitHub release](https://img.shields.io/github/release/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/releases) 
 [![GitHub issues](https://img.shields.io/github/issues/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/issues) 
 [![Github Stars](https://img.shields.io/github/stars/wagiro/BurpBounty.svg?style=social&label=Stars)](https://github.com/wagiro/BurpBounty/) 
