@@ -1,4 +1,4 @@
-![alt tag](https://github.com/wagiro/BurpBounty/BurpBounty.jpg)
+![alt tag](https://github.com/wagiro/BurpBounty/blob/master/images/BurpBounty.jpg)
 
 [![GitHub release](https://img.shields.io/github/release/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/releases) 
 [![GitHub issues](https://img.shields.io/github/issues/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/issues) 
