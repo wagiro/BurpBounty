@@ -103,6 +103,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private DefaultListModel tag;
     private DefaultListModel tagmanager;
     private List<Headers> Header;
+    private List<String> variationAttributes;
+    private Boolean pathDiscovery;
+
     DefaultTableModel model;
     DefaultTableModel model1;
     DefaultTableModel model2;
@@ -148,9 +151,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
         tagmanager = new DefaultListModel();
         model4 = new DefaultTableModel();
         Header = new ArrayList();
+        variationAttributes = new ArrayList();
+        pathDiscovery = false;
 
         if (callbacks.loadExtensionSetting("filename") != null) {
             filename = callbacks.loadExtensionSetting("filename");
+        } else {
+            filename = System.getProperty("user.dir") + "/";
         }
         model = new DefaultTableModel() {
 
@@ -182,6 +189,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         //main
         initComponents();
         initCombo();
+        text11.setText(filename);
         makeTagsFile();
         showProfiles("All");
         showHeaders(Header);
@@ -223,6 +231,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
         texttime.setText("");
         textauthor.setText("");
         textcl.setText("");
+        setSelectedVariations(false);
+        pathdiscovery.setSelected(false);
 
     }
 
@@ -243,6 +253,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 }
             }
 
+            variationAttributes.clear();
             name = i.getName();
             scanner = i.getScanner();
             casesensitive = i.getCaseSensitive();
@@ -274,6 +285,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
             Author = i.getAuthor();
             contentLength = i.getContentLength();
             Header = i.getHeader();
+            variationAttributes = i.getVariationAttributes();
+            pathDiscovery = i.getPathDiscover();
 
             if (payloadsfile == null) {
                 payloadsfile = "";
@@ -325,6 +338,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
             if (Header == null) {
                 Header = new ArrayList();
+            }
+            if (variationAttributes == null) {
+                variationAttributes = new ArrayList();
+            }
+
+            if (pathDiscovery == null) {
+                pathDiscovery = false;
             }
 
             if (Author.length() >= 35) {
@@ -390,6 +410,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 encoder.addElement(enc);
             }
 
+            pathdiscovery.setSelected(pathDiscovery);
+
             text71.setText(contenttype);
             text72.setText(responsecode);
 
@@ -428,6 +450,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 case 6:
                     buttonGroup4.setSelected(radiocl.getModel(), true);
                     break;
+                case 7:
+                    buttonGroup4.setSelected(variationsRadio.getModel(), true);
+                    break;
+                case 8:
+                    buttonGroup4.setSelected(invariationsRadio.getModel(), true);
+                    break;
                 default:
                     buttonGroup4.clearSelection();
                     break;
@@ -452,6 +480,101 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
 
             showHeaders(Header);
+            setSelectedVariations(false);
+
+            if (variationAttributes.contains("status_code")) {
+                status_code.setSelected(true);
+            }
+            if (variationAttributes.contains("input_image_labels")) {
+                input_image_labels.setSelected(true);
+            }
+            if (variationAttributes.contains("non_hidden_form_input_types")) {
+                non_hidden_form_input_types.setSelected(true);
+            }
+            if (variationAttributes.contains("page_title")) {
+                page_title.setSelected(true);
+            }
+            if (variationAttributes.contains("visible_text")) {
+                visible_text.setSelected(true);
+            }
+            if (variationAttributes.contains("button_submit_labels")) {
+                button_submit_labels.setSelected(true);
+            }
+            if (variationAttributes.contains("div_ids")) {
+                div_ids.setSelected(true);
+            }
+            if (variationAttributes.contains("word_count")) {
+                word_count.setSelected(true);
+            }
+            if (variationAttributes.contains("content_type")) {
+                content_type.setSelected(true);
+            }
+            if (variationAttributes.contains("outbound_edge_tag_names")) {
+                outbound_edge_tag_names.setSelected(true);
+            }
+            if (variationAttributes.contains("whole_body_content")) {
+                whole_body_content.setSelected(true);
+            }
+            if (variationAttributes.contains("etag_header")) {
+                etag_header.setSelected(true);
+            }
+            if (variationAttributes.contains("visible_word_count")) {
+                visible_word_count.setSelected(true);
+            }
+            if (variationAttributes.contains("content_length")) {
+                content_length.setSelected(true);
+            }
+            if (variationAttributes.contains("header_tags")) {
+                header_tags.setSelected(true);
+            }
+            if (variationAttributes.contains("tag_ids")) {
+                tag_ids.setSelected(true);
+            }
+            if (variationAttributes.contains("comments")) {
+                comments.setSelected(true);
+            }
+            if (variationAttributes.contains("line_count")) {
+                line_count.setSelected(true);
+            }
+            if (variationAttributes.contains("set_cookie_names")) {
+                set_cookie_names.setSelected(true);
+            }
+            if (variationAttributes.contains("last_modified_header")) {
+                last_modified_header.setSelected(true);
+            }
+            if (variationAttributes.contains("first_header_tag")) {
+                first_header_tag.setSelected(true);
+            }
+            if (variationAttributes.contains("tag_names")) {
+                tag_names.setSelected(true);
+            }
+            if (variationAttributes.contains("input_submit_labels")) {
+                input_submit_labels.setSelected(true);
+            }
+            if (variationAttributes.contains("outbound_edge_count")) {
+                outbound_edge_count.setSelected(true);
+            }
+            if (variationAttributes.contains("initial_body_content")) {
+                initial_body_content.setSelected(true);
+            }
+            if (variationAttributes.contains("content_location")) {
+                content_location.setSelected(true);
+            }
+            if (variationAttributes.contains("limited_body_content")) {
+                limited_body_content.setSelected(true);
+            }
+            if (variationAttributes.contains("canonical_link")) {
+                canonical_link.setSelected(true);
+            }
+            if (variationAttributes.contains("css_classes")) {
+                css_classes.setSelected(true);
+            }
+            if (variationAttributes.contains("location")) {
+                location.setSelected(true);
+            }
+            if (variationAttributes.contains("anchor_labels")) {
+                anchor_labels.setSelected(true);
+            }
 
             check1.setSelected(casesensitive);
             check4.setSelected(notresponse);
@@ -503,6 +626,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void saveAttackValues() {
+        Header = new ArrayList();
+        variationAttributes = new ArrayList();
         //Save attack with fields values
         try {
             //get GUI values
@@ -558,11 +683,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
             newfile.setGreps(greps);
 
-            List<Headers> headers = new ArrayList();
             for (int row = 0; row < model4.getRowCount(); row++) {
-                headers.add(new Headers((String) model4.getValueAt(row, 0), (String) model4.getValueAt(row, 1), (String) model4.getValueAt(row, 2), (String) model4.getValueAt(row, 3), (String) model4.getValueAt(row, 4)));
+                Header.add(new Headers((String) model4.getValueAt(row, 0), (String) model4.getValueAt(row, 1), (String) model4.getValueAt(row, 2), (String) model4.getValueAt(row, 3), (String) model4.getValueAt(row, 4)));
             }
-            newfile.setHeader(headers);
+            newfile.setHeader(Header);
 
             for (int i = 0; i < listtag.getModel().getSize(); i++) {
                 Object item = listtag.getModel().getElementAt(i);
@@ -582,6 +706,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             newfile.setOnlyHTTP(onlyhttp.isSelected());
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
+            newfile.setPathDiscovery(pathdiscovery.isSelected());
 
             if (texttime.getText().isEmpty()) {
                 newfile.setTime(texttime.getText());
@@ -607,6 +732,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 newfile.setMatchType(5);
             } else if (radiocl.isSelected()) {
                 newfile.setMatchType(6);
+            } else if (variationsRadio.isSelected()) {
+                newfile.setMatchType(7);
+            } else if (invariationsRadio.isSelected()) {
+                newfile.setMatchType(8);
             } else {
                 newfile.setMatchType(0);
             }
@@ -622,6 +751,102 @@ public class BurpBountyGui extends javax.swing.JPanel {
             } else {
                 newfile.setRedirType(0);
             }
+
+            if (status_code.isSelected()) {
+                variationAttributes.add("status_code");
+            }
+            if (input_image_labels.isSelected()) {
+                variationAttributes.add("input_image_labels");
+            }
+            if (non_hidden_form_input_types.isSelected()) {
+                variationAttributes.add("non_hidden_form_input_types");
+            }
+            if (page_title.isSelected()) {
+                variationAttributes.add("page_title");
+            }
+            if (visible_text.isSelected()) {
+                variationAttributes.add("visible_text");
+            }
+            if (button_submit_labels.isSelected()) {
+                variationAttributes.add("button_submit_labels");
+            }
+            if (div_ids.isSelected()) {
+                variationAttributes.add("div_ids");
+            }
+            if (word_count.isSelected()) {
+                variationAttributes.add("word_count");
+            }
+            if (content_type.isSelected()) {
+                variationAttributes.add("content_type");
+            }
+            if (outbound_edge_tag_names.isSelected()) {
+                variationAttributes.add("outbound_edge_tag_names");
+            }
+            if (whole_body_content.isSelected()) {
+                variationAttributes.add("whole_body_content");
+            }
+            if (etag_header.isSelected()) {
+                variationAttributes.add("etag_header");
+            }
+            if (visible_word_count.isSelected()) {
+                variationAttributes.add("visible_word_count");
+            }
+            if (content_length.isSelected()) {
+                variationAttributes.add("content_length");
+            }
+            if (header_tags.isSelected()) {
+                variationAttributes.add("header_tags");
+            }
+            if (tag_ids.isSelected()) {
+                variationAttributes.add("tag_ids");
+            }
+            if (comments.isSelected()) {
+                variationAttributes.add("comments");
+            }
+            if (line_count.isSelected()) {
+                variationAttributes.add("line_count");
+            }
+            if (set_cookie_names.isSelected()) {
+                variationAttributes.add("set_cookie_names");
+            }
+            if (last_modified_header.isSelected()) {
+                variationAttributes.add("last_modified_header");
+            }
+            if (first_header_tag.isSelected()) {
+                variationAttributes.add("first_header_tag");
+            }
+            if (tag_names.isSelected()) {
+                variationAttributes.add("tag_names");
+            }
+            if (input_submit_labels.isSelected()) {
+                variationAttributes.add("input_submit_labels");
+            }
+            if (outbound_edge_count.isSelected()) {
+                variationAttributes.add("outbound_edge_count");
+            }
+            if (initial_body_content.isSelected()) {
+                variationAttributes.add("initial_body_content");
+            }
+            if (content_location.isSelected()) {
+                variationAttributes.add("content_location");
+            }
+            if (limited_body_content.isSelected()) {
+                variationAttributes.add("limited_body_content");
+            }
+            if (canonical_link.isSelected()) {
+                variationAttributes.add("canonical_link");
+            }
+            if (css_classes.isSelected()) {
+                variationAttributes.add("css_classes");
+            }
+            if (location.isSelected()) {
+                variationAttributes.add("location");
+            }
+            if (anchor_labels.isSelected()) {
+                variationAttributes.add("anchor_labels");
+            }
+
+            newfile.setVariationAttributes(variationAttributes);
 
             newfile.setCaseSensitive(check1.isSelected());
             newfile.setNotResponse(check4.isSelected());
@@ -681,6 +906,109 @@ public class BurpBountyGui extends javax.swing.JPanel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setSelectedVariations(boolean state) {
+        status_code.setSelected(state);
+        input_image_labels.setSelected(state);
+        non_hidden_form_input_types.setSelected(state);
+        page_title.setSelected(state);
+        visible_text.setSelected(state);
+        button_submit_labels.setSelected(state);
+        div_ids.setSelected(state);
+        word_count.setSelected(state);
+        content_type.setSelected(state);
+        outbound_edge_tag_names.setSelected(state);
+        whole_body_content.setSelected(state);
+        etag_header.setSelected(state);
+        visible_word_count.setSelected(state);
+        content_length.setSelected(state);
+        header_tags.setSelected(state);
+        tag_ids.setSelected(state);
+        comments.setSelected(state);
+        line_count.setSelected(state);
+        set_cookie_names.setSelected(state);
+        last_modified_header.setSelected(state);
+        first_header_tag.setSelected(state);
+        tag_names.setSelected(state);
+        input_submit_labels.setSelected(state);
+        outbound_edge_count.setSelected(state);
+        initial_body_content.setSelected(state);
+        content_location.setSelected(state);
+        limited_body_content.setSelected(state);
+        canonical_link.setSelected(state);
+        css_classes.setSelected(state);
+        location.setSelected(state);
+        anchor_labels.setSelected(state);
+    }
+
+    public void setEnabledVariations(boolean state) {
+        Attributes.setEnabled(state);
+        status_code.setEnabled(state);
+        input_image_labels.setEnabled(state);
+        non_hidden_form_input_types.setEnabled(state);
+        page_title.setEnabled(state);
+        visible_text.setEnabled(state);
+        button_submit_labels.setEnabled(state);
+        div_ids.setEnabled(state);
+        word_count.setEnabled(state);
+        content_type.setEnabled(state);
+        outbound_edge_tag_names.setEnabled(state);
+        whole_body_content.setEnabled(state);
+        etag_header.setEnabled(state);
+        visible_word_count.setEnabled(state);
+        content_length.setEnabled(state);
+        header_tags.setEnabled(state);
+        tag_ids.setEnabled(state);
+        comments.setEnabled(state);
+        line_count.setEnabled(state);
+        set_cookie_names.setEnabled(state);
+        last_modified_header.setEnabled(state);
+        first_header_tag.setEnabled(state);
+        tag_names.setEnabled(state);
+        input_submit_labels.setEnabled(state);
+        outbound_edge_count.setEnabled(state);
+        initial_body_content.setEnabled(state);
+        content_location.setEnabled(state);
+        limited_body_content.setEnabled(state);
+        canonical_link.setEnabled(state);
+        css_classes.setEnabled(state);
+        location.setEnabled(state);
+        anchor_labels.setEnabled(state);
+    }
+
+    public void setEnabledVarious(boolean state) {
+        jLabel31.setEnabled(state);
+        jLabel30.setEnabled(state);
+        check4.setEnabled(state);
+        check1.setEnabled(state);
+        excludehttp.setEnabled(state);
+        onlyhttp.setEnabled(state);
+        check71.setEnabled(state);
+        check72.setEnabled(state);
+        text71.setEnabled(state);
+        text72.setEnabled(state);
+        negativeCT.setEnabled(state);
+        negativeRC.setEnabled(state);
+        rb1.setEnabled(state);
+        rb2.setEnabled(state);
+        rb3.setEnabled(state);
+        rb4.setEnabled(state);
+        jLabel6.setEnabled(state);
+        jLabel2.setEnabled(state);
+        sp1.setEnabled(state);
+        jLabel28.setEnabled(state);
+        jLabel29.setEnabled(state);
+        jLabel25.setEnabled(state);
+        jLabel24.setEnabled(state);
+        button8.setEnabled(state);
+        textgreps.setEnabled(state);
+        button9.setEnabled(state);
+        button10.setEnabled(state);
+        button11.setEnabled(state);
+        button7.setEnabled(state);
+        list2.setEnabled(state);
+        textfield2.setEnabled(state);
     }
 
     public void updatePayloads(String file, Issue issue) {
@@ -777,7 +1105,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     private List<String> readFile(String filename) {
-        List<String> records = new ArrayList<String>();
+        List<String> records = new ArrayList();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line;
@@ -1169,16 +1497,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
         tags.addAll(singles);
         tags.addAll(multiples);
         File file = new File(filename + "tags.txt");
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException ex) {
                 Logger.getLogger(BurpBountyGui.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        
-        
+
         List<String> existenttags = readFile(filename + "tags.txt");
         for (String tag : tags) {
             if (!existenttags.contains(tag)) {
@@ -1452,7 +1778,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     public void showTags() {
         File file = new File(filename + "tags.txt");
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException ex) {
@@ -1546,6 +1872,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jSeparator4 = new javax.swing.JSeparator();
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
+        pathdiscovery = new javax.swing.JCheckBox();
         jPanel11 = new javax.swing.JPanel();
         button8 = new javax.swing.JButton();
         button9 = new javax.swing.JButton();
@@ -1594,6 +1921,41 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jLabel42 = new javax.swing.JLabel();
         radiocl = new javax.swing.JRadioButton();
         textcl = new javax.swing.JTextField();
+        variationsRadio = new javax.swing.JRadioButton();
+        invariationsRadio = new javax.swing.JRadioButton();
+        Attributes = new javax.swing.JPanel();
+        status_code = new javax.swing.JCheckBox();
+        input_image_labels = new javax.swing.JCheckBox();
+        non_hidden_form_input_types = new javax.swing.JCheckBox();
+        page_title = new javax.swing.JCheckBox();
+        visible_text = new javax.swing.JCheckBox();
+        button_submit_labels = new javax.swing.JCheckBox();
+        div_ids = new javax.swing.JCheckBox();
+        word_count = new javax.swing.JCheckBox();
+        content_type = new javax.swing.JCheckBox();
+        outbound_edge_tag_names = new javax.swing.JCheckBox();
+        location = new javax.swing.JCheckBox();
+        css_classes = new javax.swing.JCheckBox();
+        last_modified_header = new javax.swing.JCheckBox();
+        set_cookie_names = new javax.swing.JCheckBox();
+        line_count = new javax.swing.JCheckBox();
+        comments = new javax.swing.JCheckBox();
+        tag_ids = new javax.swing.JCheckBox();
+        header_tags = new javax.swing.JCheckBox();
+        content_length = new javax.swing.JCheckBox();
+        visible_word_count = new javax.swing.JCheckBox();
+        whole_body_content = new javax.swing.JCheckBox();
+        etag_header = new javax.swing.JCheckBox();
+        first_header_tag = new javax.swing.JCheckBox();
+        tag_names = new javax.swing.JCheckBox();
+        input_submit_labels = new javax.swing.JCheckBox();
+        outbound_edge_count = new javax.swing.JCheckBox();
+        content_location = new javax.swing.JCheckBox();
+        initial_body_content = new javax.swing.JCheckBox();
+        limited_body_content = new javax.swing.JCheckBox();
+        canonical_link = new javax.swing.JCheckBox();
+        anchor_labels = new javax.swing.JCheckBox();
+        jSeparator12 = new javax.swing.JSeparator();
         jPanel12 = new javax.swing.JPanel();
         jLabel32 = new javax.swing.JLabel();
         jLabel33 = new javax.swing.JLabel();
@@ -1899,6 +2261,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         jLabel55.setText("You can define the payload options.");
 
+        pathdiscovery.setText("Path discovery");
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
@@ -1978,7 +2342,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(append)
-                                            .addComponent(replace))))
+                                            .addComponent(replace))
+                                        .addGap(68, 68, 68)
+                                        .addComponent(pathdiscovery)))
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addComponent(jSeparator4))
                 .addContainerGap())
@@ -2019,7 +2385,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGap(19, 19, 19)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addComponent(replace)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(replace)
+                            .addComponent(pathdiscovery))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(append))
                     .addGroup(jPanel10Layout.createSequentialGroup()
@@ -2061,7 +2429,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(74, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         headerstab.addTab("          Request          ", jPanel10);
@@ -2108,15 +2476,35 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         buttonGroup4.add(radio12);
         radio12.setText("Payload");
+        radio12.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                payloadMatchType(evt);
+            }
+        });
 
         buttonGroup4.add(radio4);
         radio4.setText("Simple string");
+        radio4.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                stringMatchType(evt);
+            }
+        });
 
         buttonGroup4.add(radio3);
         radio3.setText("Regex");
+        radio3.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                regexMatchType(evt);
+            }
+        });
 
         buttonGroup4.add(radio22);
         radio22.setText("Payload without encode");
+        radio22.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                payloadencodeMatchType(evt);
+            }
+        });
 
         check4.setText("Negative match");
 
@@ -2128,7 +2516,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         check71.setText("Content type");
 
-        check72.setText("Response code");
+        check72.setText("Status code");
 
         negativeCT.setText("Negative match");
 
@@ -2199,14 +2587,220 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
+        buttonGroup4.add(variationsRadio);
+        variationsRadio.setText("Variations");
+        variationsRadio.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                variations(evt);
+            }
+        });
+
+        buttonGroup4.add(invariationsRadio);
+        invariationsRadio.setText("Invariations");
+        invariationsRadio.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                invariations(evt);
+            }
+        });
+
+        Attributes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Attributes", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
+
+        status_code.setText("status_code");
+
+        input_image_labels.setText("input_image_labels");
+
+        non_hidden_form_input_types.setText("non_hidden_form_input_types");
+
+        page_title.setText("page_title");
+
+        visible_text.setText("visible_text");
+
+        button_submit_labels.setText("button_submit_labels");
+
+        div_ids.setText("div_ids");
+
+        word_count.setText("word_count");
+
+        content_type.setText("content_type");
+
+        outbound_edge_tag_names.setText("outbound_edge_tag_names");
+
+        location.setText("location");
+
+        css_classes.setText("css_classes");
+
+        last_modified_header.setText("last_modified_header");
+
+        set_cookie_names.setText("set_cookie_names");
+
+        line_count.setText("line_count");
+
+        comments.setText("comments");
+
+        tag_ids.setText("tag_ids");
+
+        header_tags.setText("header_tags");
+
+        content_length.setText("content_length");
+
+        visible_word_count.setText("visible_word_count");
+
+        whole_body_content.setText("whole_body_content");
+
+        etag_header.setText("etag_header");
+
+        first_header_tag.setText("first_header_tag");
+
+        tag_names.setText("tag_names");
+
+        input_submit_labels.setText("input_submit_labels");
+
+        outbound_edge_count.setText("outbound_edge_count");
+
+        content_location.setText("content_location");
+
+        initial_body_content.setText("initial_body_content");
+
+        limited_body_content.setText("limited_body_content");
+
+        canonical_link.setText("canonical_link");
+
+        anchor_labels.setText("anchor_labels");
+
+        javax.swing.GroupLayout AttributesLayout = new javax.swing.GroupLayout(Attributes);
+        Attributes.setLayout(AttributesLayout);
+        AttributesLayout.setHorizontalGroup(
+            AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AttributesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(page_title)
+                    .addComponent(non_hidden_form_input_types)
+                    .addComponent(input_image_labels)
+                    .addComponent(status_code)
+                    .addComponent(visible_text)
+                    .addComponent(word_count)
+                    .addComponent(div_ids)
+                    .addComponent(button_submit_labels))
+                .addGap(18, 18, 18)
+                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(content_type)
+                    .addComponent(outbound_edge_tag_names)
+                    .addComponent(anchor_labels)
+                    .addComponent(etag_header)
+                    .addComponent(whole_body_content)
+                    .addComponent(content_length)
+                    .addComponent(visible_word_count)
+                    .addComponent(header_tags))
+                .addGap(18, 18, 18)
+                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(input_submit_labels)
+                    .addGroup(AttributesLayout.createSequentialGroup()
+                        .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tag_names)
+                            .addComponent(first_header_tag)
+                            .addComponent(set_cookie_names)
+                            .addComponent(line_count)
+                            .addComponent(comments)
+                            .addComponent(tag_ids)
+                            .addComponent(last_modified_header))
+                        .addGap(18, 18, 18)
+                        .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(outbound_edge_count)
+                            .addComponent(initial_body_content)
+                            .addComponent(css_classes)
+                            .addComponent(canonical_link)
+                            .addComponent(limited_body_content)
+                            .addComponent(content_location)
+                            .addComponent(location))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        AttributesLayout.setVerticalGroup(
+            AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AttributesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(AttributesLayout.createSequentialGroup()
+                        .addComponent(outbound_edge_count)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(initial_body_content)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(content_location)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(limited_body_content)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(canonical_link)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(css_classes)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(location)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(AttributesLayout.createSequentialGroup()
+                        .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(AttributesLayout.createSequentialGroup()
+                                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(AttributesLayout.createSequentialGroup()
+                                        .addComponent(content_type)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(outbound_edge_tag_names)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(anchor_labels)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(whole_body_content)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(etag_header))
+                                    .addGroup(AttributesLayout.createSequentialGroup()
+                                        .addComponent(tag_ids)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(comments)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(line_count)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(set_cookie_names)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(last_modified_header)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(AttributesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(AttributesLayout.createSequentialGroup()
+                                        .addComponent(visible_word_count)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(content_length)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(header_tags))
+                                    .addGroup(AttributesLayout.createSequentialGroup()
+                                        .addComponent(first_header_tag)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(tag_names)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(input_submit_labels))))
+                            .addGroup(AttributesLayout.createSequentialGroup()
+                                .addComponent(status_code)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(input_image_labels)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(non_hidden_form_input_types)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(page_title)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(visible_text)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(button_submit_labels)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(div_ids)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(word_count)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSeparator11)
+            .addComponent(jSeparator5)
+            .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(8, 8, 8)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2225,36 +2819,42 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(textfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addComponent(jLabel25)
-                    .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27)
+                    .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Attributes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(variationsRadio))
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addComponent(jSeparator5)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 4, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 952, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addContainerGap()
+                        .addComponent(radio12)
+                        .addGap(151, 151, 151)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel31)
-                            .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(onlyhttp)
-                            .addComponent(check4)
-                            .addComponent(check1)
-                            .addComponent(excludehttp)
-                            .addGroup(jPanel11Layout.createSequentialGroup()
-                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(check72)
-                                    .addComponent(check71))
-                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(text71, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(negativeCT, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(negativeRC, javax.swing.GroupLayout.Alignment.TRAILING)))
-                            .addComponent(jLabel29)
-                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(radio22)
+                            .addComponent(invariationsRadio)))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(radio4)
+                            .addComponent(radio3))
+                        .addGap(116, 116, 116)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(radiotime)
+                            .addComponent(radiocl))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(texttime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textcl, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2270,60 +2870,68 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel27)
-                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(radio22)
-                            .addComponent(radio12)
-                            .addComponent(radio3)
-                            .addComponent(radio4)
-                            .addComponent(radiotime)
+                            .addComponent(jLabel31)
+                            .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(onlyhttp)
+                            .addComponent(check4)
+                            .addComponent(check1)
+                            .addComponent(excludehttp)
                             .addGroup(jPanel11Layout.createSequentialGroup()
-                                .addComponent(radiocl)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                    .addComponent(check72)
+                                    .addComponent(check71))
+                                .addGap(15, 15, 15)
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
+                                    .addComponent(text72))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(negativeCT, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(negativeRC, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addComponent(jLabel29)
+                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel11Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jScrollPane2, textfield2, textgreps});
 
-        jPanel11Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {textcl, texttime});
-
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addContainerGap()
                 .addComponent(jLabel27)
                 .addGap(12, 12, 12)
                 .addComponent(jLabel26)
                 .addGap(18, 18, 18)
-                .addComponent(radio4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radio3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radio12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radio22)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(radio4)
+                        .addGap(18, 18, 18)
+                        .addComponent(radio3)
+                        .addGap(18, 18, 18)
+                        .addComponent(radio12))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radiotime)
+                            .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radiocl)
+                            .addComponent(jLabel42)
+                            .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(radio22)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(radiotime)
-                    .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel16))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(radiocl)
-                    .addComponent(jLabel42)
-                    .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(variationsRadio)
+                    .addComponent(invariationsRadio))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(Attributes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSeparator12)
+                    .addComponent(jSeparator11))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel25)
                 .addGap(12, 12, 12)
@@ -2694,7 +3302,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newTagCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(addTag))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(1087, Short.MAX_VALUE))
         );
 
         headerstab.addTab("          Tags          ", jPanel3);
@@ -2757,7 +3365,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioPR)
                 .addGap(18, 18, 18)
-                .addComponent(headerstab)
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1361, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2902,7 +3510,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(644, Short.MAX_VALUE))
+                .addContainerGap(776, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Manager   ", jPanel2);
@@ -2974,7 +3582,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addComponent(jButton12))
                     .addComponent(jButton13)
                     .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(944, Short.MAX_VALUE))
+                .addContainerGap(1076, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Tags Manager   ", jPanel4);
@@ -3006,7 +3614,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addGap(48, 48, 48)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1499, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -3067,6 +3675,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
             radiocl.setEnabled(false);
             textcl.setEnabled(false);
             jLabel42.setEnabled(false);
+            variationsRadio.setEnabled(false);
+            invariationsRadio.setEnabled(false);
+            setEnabledVariations(false);
         }
     }//GEN-LAST:event_SelectPassiveResponse
 
@@ -3096,6 +3707,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
             radiocl.setEnabled(true);
             textcl.setEnabled(true);
             jLabel42.setEnabled(true);
+            variationsRadio.setEnabled(true);
+            invariationsRadio.setEnabled(true);
+            if (variationsRadio.isSelected() || invariationsRadio.isSelected()) {
+                setEnabledVariations(true);
+            }
+
         }
     }//GEN-LAST:event_selectActive
 
@@ -3126,6 +3743,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
             radiocl.setEnabled(false);
             textcl.setEnabled(false);
             jLabel42.setEnabled(false);
+            variationsRadio.setEnabled(false);
+            invariationsRadio.setEnabled(false);
+            setEnabledVariations(false);
         }
     }//GEN-LAST:event_selectPassiveRequest
 
@@ -3264,137 +3884,21 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     private void radioclSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radioclSelect
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jLabel31.setEnabled(false);
-            jLabel30.setEnabled(false);
-            check4.setEnabled(false);
-            check1.setEnabled(false);
-            excludehttp.setEnabled(false);
-            onlyhttp.setEnabled(false);
-            check71.setEnabled(false);
-            check72.setEnabled(false);
-            text71.setEnabled(false);
-            text72.setEnabled(false);
-            negativeCT.setEnabled(false);
-            negativeRC.setEnabled(false);
-            rb1.setEnabled(false);
-            rb2.setEnabled(false);
-            rb3.setEnabled(false);
-            rb4.setEnabled(false);
-            jLabel6.setEnabled(false);
-            jLabel2.setEnabled(false);
-            sp1.setEnabled(false);
-            jLabel28.setEnabled(false);
-            jLabel29.setEnabled(false);
-            jLabel25.setEnabled(false);
-            jLabel24.setEnabled(false);
-            button8.setEnabled(false);
-            textgreps.setEnabled(false);
-            button9.setEnabled(false);
-            button10.setEnabled(false);
-            button11.setEnabled(false);
-            button7.setEnabled(false);
-            list2.setEnabled(false);
-            textfield2.setEnabled(false);
+            setEnabledVariations(false);
+            setEnabledVarious(false);
         } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            jLabel31.setEnabled(true);
-            jLabel30.setEnabled(true);
-            check4.setEnabled(true);
-            check1.setEnabled(true);
-            excludehttp.setEnabled(true);
-            onlyhttp.setEnabled(true);
-            check71.setEnabled(true);
-            check72.setEnabled(true);
-            text71.setEnabled(true);
-            text72.setEnabled(true);
-            negativeCT.setEnabled(true);
-            negativeRC.setEnabled(true);
-            rb1.setEnabled(true);
-            rb2.setEnabled(true);
-            rb3.setEnabled(true);
-            rb4.setEnabled(true);
-            jLabel6.setEnabled(true);
-            jLabel2.setEnabled(true);
-            sp1.setEnabled(true);
-            jLabel28.setEnabled(true);
-            jLabel29.setEnabled(true);
-            jLabel25.setEnabled(true);
-            jLabel24.setEnabled(true);
-            button8.setEnabled(true);
-            textgreps.setEnabled(true);
-            button9.setEnabled(true);
-            button10.setEnabled(true);
-            button11.setEnabled(true);
-            button7.setEnabled(true);
-            list2.setEnabled(true);
-            textfield2.setEnabled(true);
+            setEnabledVarious(true);
+            setEnabledVariations(true);
         }
     }//GEN-LAST:event_radioclSelect
 
     private void TimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TimeoutSelect
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            jLabel31.setEnabled(false);
-            jLabel30.setEnabled(false);
-            check4.setEnabled(false);
-            check1.setEnabled(false);
-            excludehttp.setEnabled(false);
-            onlyhttp.setEnabled(false);
-            check71.setEnabled(false);
-            check72.setEnabled(false);
-            text71.setEnabled(false);
-            text72.setEnabled(false);
-            negativeCT.setEnabled(false);
-            negativeRC.setEnabled(false);
-            rb1.setEnabled(false);
-            rb2.setEnabled(false);
-            rb3.setEnabled(false);
-            rb4.setEnabled(false);
-            jLabel6.setEnabled(false);
-            jLabel2.setEnabled(false);
-            sp1.setEnabled(false);
-            jLabel28.setEnabled(false);
-            jLabel29.setEnabled(false);
-            jLabel25.setEnabled(false);
-            jLabel24.setEnabled(false);
-            button8.setEnabled(false);
-            textgreps.setEnabled(false);
-            button9.setEnabled(false);
-            button10.setEnabled(false);
-            button11.setEnabled(false);
-            button7.setEnabled(false);
-            list2.setEnabled(false);
-            textfield2.setEnabled(false);
+            setEnabledVarious(false);
+            setEnabledVariations(false);
         } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            jLabel31.setEnabled(true);
-            jLabel30.setEnabled(true);
-            check4.setEnabled(true);
-            check1.setEnabled(true);
-            excludehttp.setEnabled(true);
-            onlyhttp.setEnabled(true);
-            check71.setEnabled(true);
-            check72.setEnabled(true);
-            text71.setEnabled(true);
-            text72.setEnabled(true);
-            negativeCT.setEnabled(true);
-            negativeRC.setEnabled(true);
-            rb1.setEnabled(true);
-            rb2.setEnabled(true);
-            rb3.setEnabled(true);
-            rb4.setEnabled(true);
-            jLabel6.setEnabled(true);
-            jLabel2.setEnabled(true);
-            sp1.setEnabled(true);
-            jLabel28.setEnabled(true);
-            jLabel29.setEnabled(true);
-            jLabel25.setEnabled(true);
-            jLabel24.setEnabled(true);
-            button8.setEnabled(true);
-            textgreps.setEnabled(true);
-            button9.setEnabled(true);
-            button10.setEnabled(true);
-            button11.setEnabled(true);
-            button7.setEnabled(true);
-            list2.setEnabled(true);
-            textfield2.setEnabled(true);
+            setEnabledVarious(true);
+            setEnabledVariations(true);
         }
     }//GEN-LAST:event_TimeoutSelect
 
@@ -3517,9 +4021,55 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_removeMatchReplace
 
+    private void variations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_variations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVarious(true);
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVarious(false);
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_variations
+
+    private void invariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_invariations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVarious(true);
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVarious(false);
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_invariations
+
+    private void stringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_stringMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_stringMatchType
+
+    private void regexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_regexMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_regexMatchType
+
+    private void payloadMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_payloadMatchType
+
+    private void payloadencodeMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadencodeMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_payloadencodeMatchType
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Attributes;
     private javax.swing.JButton addTag;
+    private javax.swing.JCheckBox anchor_labels;
     private javax.swing.JRadioButton append;
     private javax.swing.JButton button1;
     private javax.swing.JButton button10;
@@ -3545,6 +4095,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.ButtonGroup buttonGroup7;
     private javax.swing.ButtonGroup buttonGroup8;
     private javax.swing.ButtonGroup buttonGroup9;
+    private javax.swing.JCheckBox button_submit_labels;
+    private javax.swing.JCheckBox canonical_link;
     private javax.swing.JCheckBox check1;
     private javax.swing.JCheckBox check4;
     private javax.swing.JCheckBox check71;
@@ -3552,8 +4104,21 @@ public class BurpBountyGui extends javax.swing.JPanel {
     public javax.swing.JCheckBox check8;
     public javax.swing.JComboBox<String> combo1;
     private javax.swing.JComboBox<String> combo2;
+    private javax.swing.JCheckBox comments;
+    private javax.swing.JCheckBox content_length;
+    private javax.swing.JCheckBox content_location;
+    private javax.swing.JCheckBox content_type;
+    private javax.swing.JCheckBox css_classes;
+    private javax.swing.JCheckBox div_ids;
+    private javax.swing.JCheckBox etag_header;
     private javax.swing.JCheckBox excludehttp;
+    private javax.swing.JCheckBox first_header_tag;
+    private javax.swing.JCheckBox header_tags;
     private javax.swing.JTabbedPane headerstab;
+    private javax.swing.JCheckBox initial_body_content;
+    private javax.swing.JCheckBox input_image_labels;
+    private javax.swing.JCheckBox input_submit_labels;
+    private javax.swing.JRadioButton invariationsRadio;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -3640,6 +4205,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator11;
+    private javax.swing.JSeparator jSeparator12;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
@@ -3650,17 +4216,26 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator9;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jtabpane;
+    private javax.swing.JCheckBox last_modified_header;
+    private javax.swing.JCheckBox limited_body_content;
+    private javax.swing.JCheckBox line_count;
     private javax.swing.JList<String> list1;
     private javax.swing.JList<String> list2;
     public javax.swing.JList<String> list3;
     public javax.swing.JList<String> listtag;
     public javax.swing.JList<String> listtagmanager;
+    private javax.swing.JCheckBox location;
     private javax.swing.JCheckBox negativeCT;
     private javax.swing.JCheckBox negativeRC;
     private javax.swing.JComboBox<String> newTagCombo;
     private javax.swing.JComboBox<String> newTagCombo2;
     private javax.swing.JButton newTagb;
+    private javax.swing.JCheckBox non_hidden_form_input_types;
     private javax.swing.JCheckBox onlyhttp;
+    private javax.swing.JCheckBox outbound_edge_count;
+    private javax.swing.JCheckBox outbound_edge_tag_names;
+    private javax.swing.JCheckBox page_title;
+    private javax.swing.JCheckBox pathdiscovery;
     private javax.swing.JRadioButton radio1;
     private javax.swing.JRadioButton radio10;
     private javax.swing.JRadioButton radio11;
@@ -3683,11 +4258,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JRadioButton rb4;
     private javax.swing.JButton removetag;
     private javax.swing.JRadioButton replace;
+    private javax.swing.JCheckBox set_cookie_names;
     private javax.swing.JSpinner sp1;
+    private javax.swing.JCheckBox status_code;
     private javax.swing.JTable table;
     private javax.swing.JTable table1;
     private javax.swing.JTable table2;
     private javax.swing.JTable table4;
+    private javax.swing.JCheckBox tag_ids;
+    private javax.swing.JCheckBox tag_names;
     private javax.swing.JTextField text1;
     private javax.swing.JTextField text11;
     private javax.swing.JTextField text4;
@@ -3705,5 +4284,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JTextField textgreps;
     private javax.swing.JTextField textpayloads;
     private javax.swing.JTextField texttime;
+    private javax.swing.JRadioButton variationsRadio;
+    private javax.swing.JCheckBox visible_text;
+    private javax.swing.JCheckBox visible_word_count;
+    private javax.swing.JCheckBox whole_body_content;
+    private javax.swing.JCheckBox word_count;
     // End of variables declaration//GEN-END:variables
 }

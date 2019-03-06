@@ -1,13 +1,20 @@
-# Burp Bounty - Scan Check Builder (BApps Store)
+
+[![GitHub release](https://img.shields.io/github/release/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/releases) 
+[![GitHub issues](https://img.shields.io/github/issues/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/issues) 
+[![Github Stars](https://img.shields.io/github/stars/wagiro/BurpBounty.svg?style=social&label=Stars)](https://github.com/wagiro/BurpBounty/) 
+[![GitHub Followers](https://img.shields.io/github/followers/wagiro.svg?style=social&label=Follow)](https://github.com/wagiro/BurpBounty/)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/bountyburp.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=bountyburp)
+
+
+# Burp Bounty - Scan Check Builder (BApp Store)
 
 Download releases:
 
 * https://github.com/wagiro/BurpBounty/releases/
 
 
-This BurpSuite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
+This Burp Suite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.
 
-![GitHub Logo](images/BurpBounty_v3.0.3beta.png)
 
 
 ## Usage
@@ -28,9 +35,15 @@ This BurpSuite extension allows you, in a quick and simple way, to improve the a
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
-### Contributions and feature requests are welcome!
-
 ##  Changelog
+**3.0.4beta 20190217**
+* "Path discovery" feature add new insertion points
+* New tags for extract matches and better issue documentation
+* Variations/Invariations match type feature
+* Algorithm optimization
+* New profiles added 
+
+
 **3.0.3beta 20190206**
 * Add Match and Replace feature
 * Delete Collaborator button (now start automatically)

@@ -58,6 +58,8 @@ public class Issue {
     private String IssueBackground;
     private String RemediationBackground;
     private List<Headers> Header;
+    private List<String> VariationAttributes;
+    private boolean pathDiscovery;
 
     public Issue() {
         super();
@@ -67,7 +69,7 @@ public class Issue {
             boolean payloadresponse, boolean notresponse, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype, boolean negativect,
             boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean spaceencode, String sencode, String timeout,
             boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
-            String issuedetail, String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength, List<Headers> header) {
+            String issuedetail, String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength, List<Headers> header, List<String> variationAttributes, boolean pathdiscovery) {
         super();
         Name = name;
         Active = active;
@@ -108,6 +110,8 @@ public class Issue {
         contentLength = contentlength;
         iscontentLength = iscontentlength;
         Header = header;
+        VariationAttributes = variationAttributes;
+        pathDiscovery = pathdiscovery;
 
     }
 
@@ -117,6 +121,10 @@ public class Issue {
 
     public List<Headers> getHeader() {
         return Header;
+    }
+
+    public List<String> getVariationAttributes() {
+        return VariationAttributes;
     }
 
     public String getAuthor() {
@@ -199,6 +207,10 @@ public class Issue {
         return isTime;
     }
 
+    public boolean getPathDiscover() {
+        return pathDiscovery;
+    }
+
     public String getContentLength() {
         return contentLength;
     }
@@ -276,6 +288,10 @@ public class Issue {
         Header = header;
     }
 
+    public void setVariationAttributes(List<String> variationAttributes) {
+        VariationAttributes = variationAttributes;
+    }
+
     public void setAuthor(String author) {
         Author = author;
     }
@@ -318,6 +334,10 @@ public class Issue {
 
     public void setTags(List<String> tags) {
         Tags = tags;
+    }
+
+    public void setPathDiscovery(boolean pathdiscovery) {
+        pathDiscovery = pathdiscovery;
     }
 
     public void setCaseSensitive(boolean casesensitive) {

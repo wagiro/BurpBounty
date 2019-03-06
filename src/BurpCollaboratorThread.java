@@ -98,10 +98,7 @@ public class BurpCollaboratorThread extends Thread {
         String client_ip = interactions.getProperty("client_ip");
         String time_stamp = interactions.getProperty("time_stamp");
         String query_type = interactions.getProperty("query_type");
-
         issueProperties = burpCollaboratorData.getIssueProperties(bchost);
-        IHttpRequestResponse requestResponse = burpCollaboratorData.getRequestResponse(bchost);
-
         issuename = issueProperties.getProperty("issuename");
         issuedetail = issueProperties.getProperty("issuedetail");
         issuebackground = issueProperties.getProperty("issuebackground");
@@ -109,23 +106,22 @@ public class BurpCollaboratorThread extends Thread {
         remediationbackground = issueProperties.getProperty("remediationbackground");
         issueseverity = issueProperties.getProperty("issueseverity");
         issueconfidence = issueProperties.getProperty("issueconfidence");
-
         issuedetail = issuedetail + "<br><br><strong>BurpCollaborator data:</strong><br><br><strong>Interaction id: </strong>" + interaction_id + "<br><strong>type: </strong>" + type
                 + "<br><strong>client_ip: </strong>" + client_ip + "<br><strong>time_stamp: </strong>" + time_stamp + "<br><strong>query_type: </strong>" + query_type + "<br>";
 
+        IHttpRequestResponse requestResponse = burpCollaboratorData.getRequestResponse(bchost);
         List requestMarkers = new ArrayList();
-        boolean token = true;
         int start = 0;
-        while(token){
-            Integer i = helpers.indexOf(requestResponse.getRequest(), bchost.getBytes(), false, start, requestResponse.getRequest().length);
-            Integer e = helpers.indexOf(requestResponse.getRequest(), bchost.getBytes(), false, start, requestResponse.getRequest().length) + bchost.length();
-        
-            if (i.equals(-1) || e.equals(-1)) {
-                token = false;
-            } else {
-                requestMarkers.add(new int[]{i, e});
-                start = e;
-            }   
+        byte[] match = helpers.stringToBytes(bchost);
+        byte[] request = requestResponse.getRequest();
+
+        while (start < request.length) {
+            start = helpers.indexOf(request, match, false, start, request.length);
+            if (start == -1) {
+                break;
+            }
+            requestMarkers.add(new int[]{start, start + match.length});
+            start += match.length;
         }
 
         callbacks.addScanIssue(new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
