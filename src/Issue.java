@@ -59,6 +59,7 @@ public class Issue {
     private String RemediationBackground;
     private List<Headers> Header;
     private List<String> VariationAttributes;
+    private List<Integer> InsertionPointType;
     private boolean pathDiscovery;
 
     public Issue() {
@@ -69,7 +70,7 @@ public class Issue {
             boolean payloadresponse, boolean notresponse, boolean onlyHTTP, boolean excludeHTTP, boolean iscontenttype, String contenttype, boolean negativect,
             boolean isresponsecode, String responsecode, boolean negativerc, int matchtype, int redirtype, boolean spaceencode, String sencode, String timeout,
             boolean isreplace, String replace1, String replace2, String author, boolean istime, int payloadposition, int maxredir, String payloadsfile, String grepsfile, String issuetype, String issuename, String issueseverity, String issueconfidence,
-            String issuedetail, String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength, List<Headers> header, List<String> variationAttributes, boolean pathdiscovery) {
+            String issuedetail, String issuebackground, String remediationdetail, String remediationbackground, boolean iscontentlength, String contentlength, List<Headers> header, List<String> variationAttributes, List<Integer> insertionPointType, boolean pathdiscovery) {
         super();
         Name = name;
         Active = active;
@@ -111,6 +112,7 @@ public class Issue {
         iscontentLength = iscontentlength;
         Header = header;
         VariationAttributes = variationAttributes;
+        InsertionPointType = insertionPointType;
         pathDiscovery = pathdiscovery;
 
     }
@@ -125,6 +127,10 @@ public class Issue {
 
     public List<String> getVariationAttributes() {
         return VariationAttributes;
+    }
+    
+    public List<Integer> getInsertionPointType() {
+        return InsertionPointType;
     }
 
     public String getAuthor() {
@@ -291,6 +297,11 @@ public class Issue {
     public void setVariationAttributes(List<String> variationAttributes) {
         VariationAttributes = variationAttributes;
     }
+    
+    public void setInsertionPointType(List<Integer> insertionPointType) {
+        InsertionPointType = insertionPointType;
+    }
+
 
     public void setAuthor(String author) {
         Author = author;

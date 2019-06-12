@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
     </Component>
@@ -384,11 +384,47 @@
                                           </Group>
                                           <Group type="102" attributes="0">
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                              <Group type="103" groupAlignment="0" attributes="0">
                                                   <Component id="jLabel22" alignment="0" min="-2" max="-2" attributes="0"/>
                                                   <Component id="jLabel23" alignment="0" min="-2" pref="704" max="-2" attributes="0"/>
                                                   <Component id="jLabel54" alignment="0" min="-2" max="-2" attributes="0"/>
                                                   <Component id="jLabel55" alignment="0" min="-2" pref="704" max="-2" attributes="0"/>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="pathdiscovery" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="extensionprovided" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="header" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="urlpathfilename" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="entirebody" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="paramxml" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Group type="102" attributes="0">
+                                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                                  <Component id="paramjson" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="parambody" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="paramcookie" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="urlpathfolder" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="paramamf" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                              </Group>
+                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                                  <Component id="parammultipartattr" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="paramnamebody" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="paramnameurl" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="userprovided" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="paramurl" min="-2" max="-2" attributes="0"/>
+                                                              </Group>
+                                                          </Group>
+                                                          <Group type="102" attributes="0">
+                                                              <Component id="paramxmlattr" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                              <Component id="unknown" min="-2" max="-2" attributes="0"/>
+                                                          </Group>
+                                                      </Group>
+                                                      <EmptySpace min="-2" pref="158" max="-2" attributes="0"/>
+                                                  </Group>
                                               </Group>
                                           </Group>
                                       </Group>
@@ -438,15 +474,23 @@
                                                   <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
                                                   <Component id="jLabel19" alignment="0" min="-2" pref="704" max="-2" attributes="0"/>
                                                   <Group type="102" alignment="0" attributes="0">
-                                                      <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-                                                      <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Group type="103" groupAlignment="1" attributes="0">
-                                                          <Component id="append" min="-2" max="-2" attributes="0"/>
-                                                          <Component id="replace" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Group type="102" attributes="0">
+                                                              <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace max="-2" attributes="0"/>
+                                                              <Group type="103" groupAlignment="1" attributes="0">
+                                                                  <Component id="append" min="-2" max="-2" attributes="0"/>
+                                                                  <Component id="replace" min="-2" max="-2" attributes="0"/>
+                                                              </Group>
+                                                          </Group>
+                                                          <Group type="102" alignment="0" attributes="0">
+                                                              <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
+                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                              <Component id="All" min="-2" max="-2" attributes="0"/>
+                                                          </Group>
+                                                          <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                                                       </Group>
-                                                      <EmptySpace min="-2" pref="68" max="-2" attributes="0"/>
-                                                      <Component id="pathdiscovery" min="-2" max="-2" attributes="0"/>
                                                   </Group>
                                               </Group>
                                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -496,10 +540,7 @@
                               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="3" attributes="0">
-                                          <Component id="replace" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="pathdiscovery" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      </Group>
+                                      <Component id="replace" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="append" min="-2" max="-2" attributes="0"/>
                                   </Group>
@@ -508,6 +549,49 @@
                                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
+                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="All" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="paramamf" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="parammultipartattr" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="pathdiscovery" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="parambody" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramnamebody" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="urlpathfilename" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="extensionprovided" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramcookie" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramurl" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="header" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramjson" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramnameurl" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="entirebody" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="urlpathfolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="userprovided" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="paramxml" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="paramxmlattr" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="unknown" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                              <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                               <Component id="jSeparator4" min="-2" pref="10" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -832,6 +916,115 @@
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Path discovery"/>
                       </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel11">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Insertion point type:"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="extensionprovided">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Extension Provided"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="header">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Header"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramamf">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param AMF"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="parambody">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param body"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramcookie">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param cookie"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramjson">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param json"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="parammultipartattr">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param multipart attr"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramnamebody">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param name body"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramnameurl">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param name url"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramurl">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param url"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramxml">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param xml"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="paramxmlActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="paramxmlattr">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Param xml attr"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="urlpathfilename">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Url path filename"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="entirebody">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Entire body"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="urlpathfolder">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Url path folder"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="userprovided">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="User provided"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="unknown">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Unknown"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="All">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="All "/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="AllItemStateChanged"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel17">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&lt;html&gt; * More info at &lt;a href=\u005c&quot;\u005c&quot;&gt;Burp Suite Extender API&lt;/a&gt;&lt;/html&gt;" containsInvalidXMLChars="true"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="goWeb"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -2222,7 +2415,7 @@
                                   <Component id="newTagCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="addTag" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="1087" max="32767" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>

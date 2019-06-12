@@ -20,7 +20,6 @@ import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
-import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IResponseVariations;
 import burp.IScanIssue;
@@ -81,6 +80,7 @@ public class GenericScan {
     Properties issueProperties;
     List<IHttpRequestResponse> responses;
     List<String> variationAttributes;
+    List<Integer> insertionPointType;
     Boolean pathDiscovery;
 
     public GenericScan(IBurpExtenderCallbacks callbacks, JsonArray data, CollaboratorData burpCollaboratorData) {
@@ -146,6 +146,7 @@ public class GenericScan {
             contentLength = issue.getContentLength();
             headers = issue.getHeader();
             variationAttributes = issue.getVariationAttributes();
+            insertionPointType = issue.getInsertionPointType();
             IScanIssue matches = null;
             GrepMatch gm = new GrepMatch(callbacks);
             pathDiscovery = issue.getPathDiscover();
@@ -161,6 +162,29 @@ public class GenericScan {
             if (variationAttributes == null) {
                 variationAttributes = new ArrayList();
             }
+            
+            if (insertionPointType == null) {
+                insertionPointType = new ArrayList();
+                insertionPointType.add(77);
+                insertionPointType.add(65);
+                insertionPointType.add(32);
+                insertionPointType.add(36);
+                insertionPointType.add(7);
+                insertionPointType.add(1);
+                insertionPointType.add(2);
+                insertionPointType.add(6);
+                insertionPointType.add(33);
+                insertionPointType.add(5);
+                insertionPointType.add(35);
+                insertionPointType.add(34);
+                insertionPointType.add(64);
+                insertionPointType.add(0);
+                insertionPointType.add(3);
+                insertionPointType.add(4);
+                insertionPointType.add(37);
+                insertionPointType.add(127);
+            }
+
 
             while (greps.contains("")) {//remove void greps, because get auto DOS atack ;)
                 greps.remove(greps.indexOf(""));
@@ -200,7 +224,8 @@ public class GenericScan {
             }
 
             for (String payload : payloads) {
-                if (!pathDiscovery && insertionPoint.getInsertionPointName().startsWith("p4r4m")) {
+                if ((!insertionPointType.contains(77) && insertionPoint.getInsertionPointName().startsWith("p4r4m")) 
+                    || !insertionPointType.contains(insertionPoint.getInsertionPointType() & 0xFF) && !insertionPointType.contains(77)) {
                     break;
                 }
 
@@ -548,22 +573,25 @@ public class GenericScan {
 
     public IHttpRequestResponse getRedirection(IHttpRequestResponse response, String payload, IHttpService httpService) {
 
-        URL url = getLocation(httpService, response);
-        if (url == null) {
+        try{
+            URL url = getLocation(httpService, response);
+
+            if (redirtype == 2) {
+                if (url.getHost().contains(httpService.getHost())) {
+                    return Redirection(response, url, payload);
+                }
+            } else if (redirtype == 3) {
+                boolean isurl = callbacks.isInScope(url);
+                if (isurl) {
+                    return Redirection(response, url, payload);
+                }
+            }else{
+                return Redirection(response, url, payload);
+            }
+            return null;
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException ex) {
             return null;
         }
-        if (redirtype == 2) {
-            if (url.getHost().contains(httpService.getHost())) {
-                return Redirection(response, url, payload);
-            }
-        } else if (redirtype == 3) {
-            boolean isurl = callbacks.isInScope(url);
-            if (isurl) {
-                return Redirection(response, url, payload);
-            }
-
-        }
-        return Redirection(response, url, payload);
     }
 
     public byte[] getMatchAndReplace(List<Headers> headers, byte[] checkRequest, String payload) {
