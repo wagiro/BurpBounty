@@ -36,6 +36,10 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 
 
 ##  Changelog
+**3.0.5beta 201906112**
+* Choose insertion points type for one profile
+* Fixed error with redirections
+
 **3.0.4beta 20190217**
 * "Path discovery" feature add new insertion points
 * New tags for extract matches and better issue documentation
