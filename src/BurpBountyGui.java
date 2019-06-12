@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -39,6 +40,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,6 +103,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private DefaultListModel tagmanager;
     private List<Headers> Header;
     private List<String> variationAttributes;
+    private List<Integer> insertionPointType;
     private Boolean pathDiscovery;
 
     DefaultTableModel model;
@@ -148,6 +152,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         model4 = new DefaultTableModel();
         Header = new ArrayList();
         variationAttributes = new ArrayList();
+        insertionPointType = new ArrayList();
         pathDiscovery = false;
 
         if (callbacks.loadExtensionSetting("filename") != null) {
@@ -228,6 +233,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         textauthor.setText("");
         textcl.setText("");
         setSelectedVariations(false);
+        setSelectedInsertionPointType(false);
         pathdiscovery.setSelected(false);
 
     }
@@ -250,6 +256,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
 
             variationAttributes.clear();
+            insertionPointType.clear();
             name = i.getName();
             scanner = i.getScanner();
             casesensitive = i.getCaseSensitive();
@@ -282,6 +289,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             contentLength = i.getContentLength();
             Header = i.getHeader();
             variationAttributes = i.getVariationAttributes();
+            insertionPointType = i.getInsertionPointType();
             pathDiscovery = i.getPathDiscover();
 
             if (payloadsfile == null) {
@@ -337,6 +345,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
             if (variationAttributes == null) {
                 variationAttributes = new ArrayList();
+            }
+            if (insertionPointType == null) {
+                insertionPointType = new ArrayList();
             }
 
             if (pathDiscovery == null) {
@@ -572,6 +583,65 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 anchor_labels.setSelected(true);
             }
 
+            setSelectedInsertionPointType(false);
+            if (insertionPointType.contains(18)) {
+                All.setSelected(true);
+            }
+            if (insertionPointType.contains(77)) {
+                pathdiscovery.setSelected(true);
+            }
+            if (insertionPointType.contains(65)) {
+                extensionprovided.setSelected(true);
+            }
+            if (insertionPointType.contains(32)) {
+                header.setSelected(true);
+            }
+            if (insertionPointType.contains(36)) {
+                entirebody.setSelected(true);
+            }
+            if (insertionPointType.contains(7)) {
+                paramamf.setSelected(true);
+            }
+            if (insertionPointType.contains(1)) {
+                parambody.setSelected(true);
+            }
+            if (insertionPointType.contains(2)) {
+                paramcookie.setSelected(true);
+            }
+            if (insertionPointType.contains(6)) {
+                paramjson.setSelected(true);
+            }
+            if (insertionPointType.contains(33)) {
+                urlpathfolder.setSelected(true);
+            }
+            if (insertionPointType.contains(5)) {
+                parammultipartattr.setSelected(true);
+            }
+            if (insertionPointType.contains(35)) {
+                paramnamebody.setSelected(true);
+            }
+            if (insertionPointType.contains(34)) {
+                paramnameurl.setSelected(true);
+            }
+            if (insertionPointType.contains(64)) {
+                userprovided.setSelected(true);
+            }
+            if (insertionPointType.contains(0)) {
+                paramurl.setSelected(true);
+            }
+            if (insertionPointType.contains(3)) {
+                paramxml.setSelected(true);
+            }
+            if (insertionPointType.contains(4)) {
+                paramxmlattr.setSelected(true);
+            }
+            if (insertionPointType.contains(37)) {
+                urlpathfilename.setSelected(true);
+            }
+            if (insertionPointType.contains(127)) {
+                unknown.setSelected(true);
+            }
+
             check1.setSelected(casesensitive);
             check4.setSelected(notresponse);
             check71.setSelected(iscontenttype);
@@ -624,6 +694,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     public void saveAttackValues() {
         Header = new ArrayList();
         variationAttributes = new ArrayList();
+        insertionPointType = new ArrayList();
         //Save attack with fields values
         try {
             //get GUI values
@@ -844,6 +915,83 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             newfile.setVariationAttributes(variationAttributes);
 
+            if (All.isSelected()) {
+                insertionPointType.add(18);
+                insertionPointType.add(77);
+                insertionPointType.add(65);
+                insertionPointType.add(32);
+                insertionPointType.add(36);
+                insertionPointType.add(7);
+                insertionPointType.add(1);
+                insertionPointType.add(2);
+                insertionPointType.add(6);
+                insertionPointType.add(33);
+                insertionPointType.add(5);
+                insertionPointType.add(35);
+                insertionPointType.add(34);
+                insertionPointType.add(64);
+                insertionPointType.add(0);
+                insertionPointType.add(3);
+                insertionPointType.add(4);
+                insertionPointType.add(37);
+                insertionPointType.add(127);
+            }
+            if (pathdiscovery.isSelected()) {
+                insertionPointType.add(77);
+            }
+            if (extensionprovided.isSelected()) {
+                insertionPointType.add(65);
+            }
+            if (header.isSelected()) {
+                insertionPointType.add(32);
+            }
+            if (entirebody.isSelected()) {
+                insertionPointType.add(36);
+            }
+            if (paramamf.isSelected()) {
+                insertionPointType.add(7);
+            }
+            if (parambody.isSelected()) {
+                insertionPointType.add(1);
+            }
+            if (paramcookie.isSelected()) {
+                insertionPointType.add(2);
+            }
+            if (paramjson.isSelected()) {
+                insertionPointType.add(6);
+            }
+            if (urlpathfolder.isSelected()) {
+                insertionPointType.add(33);
+            }
+            if (parammultipartattr.isSelected()) {
+                insertionPointType.add(5);
+            }
+            if (paramnamebody.isSelected()) {
+                insertionPointType.add(35);
+            }
+            if (paramnameurl.isSelected()) {
+                insertionPointType.add(34);
+            }
+            if (userprovided.isSelected()) {
+                insertionPointType.add(64);
+            }
+            if (paramurl.isSelected()) {
+                insertionPointType.add(0);
+            }
+            if (paramxml.isSelected()) {
+                insertionPointType.add(3);
+            }
+            if (paramxmlattr.isSelected()) {
+                insertionPointType.add(4);
+            }
+            if (urlpathfilename.isSelected()) {
+                insertionPointType.add(37);
+            }
+            if (unknown.isSelected()) {
+                insertionPointType.add(127);
+            }
+            newfile.setInsertionPointType(insertionPointType);
+
             newfile.setCaseSensitive(check1.isSelected());
             newfile.setNotResponse(check4.isSelected());
             newfile.setIsContentType(check71.isSelected());
@@ -971,6 +1119,28 @@ public class BurpBountyGui extends javax.swing.JPanel {
         css_classes.setEnabled(state);
         location.setEnabled(state);
         anchor_labels.setEnabled(state);
+    }
+
+    public void setSelectedInsertionPointType(boolean state) {
+        All.setSelected(state);
+        pathdiscovery.setSelected(state);
+        extensionprovided.setSelected(state);
+        header.setSelected(state);
+        entirebody.setSelected(state);
+        paramamf.setSelected(state);
+        parambody.setSelected(state);
+        paramcookie.setSelected(state);
+        paramjson.setSelected(state);
+        urlpathfolder.setSelected(state);
+        parammultipartattr.setSelected(state);
+        paramnamebody.setSelected(state);
+        paramnameurl.setSelected(state);
+        userprovided.setSelected(state);
+        paramurl.setSelected(state);
+        paramxml.setSelected(state);
+        paramxmlattr.setSelected(state);
+        urlpathfilename.setSelected(state);
+        unknown.setSelected(state);
     }
 
     public void setEnabledVarious(boolean state) {
@@ -1869,6 +2039,26 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
         pathdiscovery = new javax.swing.JCheckBox();
+        jLabel11 = new javax.swing.JLabel();
+        extensionprovided = new javax.swing.JCheckBox();
+        header = new javax.swing.JCheckBox();
+        paramamf = new javax.swing.JCheckBox();
+        parambody = new javax.swing.JCheckBox();
+        paramcookie = new javax.swing.JCheckBox();
+        paramjson = new javax.swing.JCheckBox();
+        parammultipartattr = new javax.swing.JCheckBox();
+        paramnamebody = new javax.swing.JCheckBox();
+        paramnameurl = new javax.swing.JCheckBox();
+        paramurl = new javax.swing.JCheckBox();
+        paramxml = new javax.swing.JCheckBox();
+        paramxmlattr = new javax.swing.JCheckBox();
+        urlpathfilename = new javax.swing.JCheckBox();
+        entirebody = new javax.swing.JCheckBox();
+        urlpathfolder = new javax.swing.JCheckBox();
+        userprovided = new javax.swing.JCheckBox();
+        unknown = new javax.swing.JCheckBox();
+        All = new javax.swing.JCheckBox();
+        jLabel17 = new javax.swing.JLabel();
         jPanel11 = new javax.swing.JPanel();
         button8 = new javax.swing.JButton();
         button9 = new javax.swing.JButton();
@@ -2259,6 +2449,61 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         pathdiscovery.setText("Path discovery");
 
+        jLabel11.setText("Insertion point type:");
+
+        extensionprovided.setText("Extension Provided");
+
+        header.setText("Header");
+
+        paramamf.setText("Param AMF");
+
+        parambody.setText("Param body");
+
+        paramcookie.setText("Param cookie");
+
+        paramjson.setText("Param json");
+
+        parammultipartattr.setText("Param multipart attr");
+
+        paramnamebody.setText("Param name body");
+
+        paramnameurl.setText("Param name url");
+
+        paramurl.setText("Param url");
+
+        paramxml.setText("Param xml");
+        paramxml.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                paramxmlActionPerformed(evt);
+            }
+        });
+
+        paramxmlattr.setText("Param xml attr");
+
+        urlpathfilename.setText("Url path filename");
+
+        entirebody.setText("Entire body");
+
+        urlpathfolder.setText("Url path folder");
+
+        userprovided.setText("User provided");
+
+        unknown.setText("Unknown");
+
+        All.setText("All ");
+        All.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                AllItemStateChanged(evt);
+            }
+        });
+
+        jLabel17.setText("<html> * More info at <a href=\\\"\\\">Burp Suite Extender API</a></html>");
+        jLabel17.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                goWeb(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
@@ -2292,11 +2537,40 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel22)
                                     .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel54)
-                                    .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(pathdiscovery)
+                                            .addComponent(extensionprovided)
+                                            .addComponent(header)
+                                            .addComponent(urlpathfilename)
+                                            .addComponent(entirebody)
+                                            .addComponent(paramxml))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(paramjson)
+                                                    .addComponent(parambody)
+                                                    .addComponent(paramcookie)
+                                                    .addComponent(urlpathfolder)
+                                                    .addComponent(paramamf))
+                                                .addGap(18, 18, 18)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(parammultipartattr)
+                                                    .addComponent(paramnamebody)
+                                                    .addComponent(paramnameurl)
+                                                    .addComponent(userprovided)
+                                                    .addComponent(paramurl)))
+                                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addComponent(paramxmlattr)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(unknown)))
+                                        .addGap(158, 158, 158)))))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addContainerGap()
@@ -2333,14 +2607,19 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(jLabel5)
                                     .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel10Layout.createSequentialGroup()
-                                        .addGap(27, 27, 27)
-                                        .addComponent(jLabel10)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(append)
-                                            .addComponent(replace))
-                                        .addGap(68, 68, 68)
-                                        .addComponent(pathdiscovery)))
+                                        .addGap(47, 47, 47)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addComponent(jLabel10)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                    .addComponent(append)
+                                                    .addComponent(replace)))
+                                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addComponent(jLabel11)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(All))
+                                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addComponent(jSeparator4))
                 .addContainerGap())
@@ -2381,14 +2660,48 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGap(19, 19, 19)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(replace)
-                            .addComponent(pathdiscovery))
+                        .addComponent(replace)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(append))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(jLabel10)))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel11)
+                    .addComponent(All))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(paramamf)
+                    .addComponent(parammultipartattr)
+                    .addComponent(pathdiscovery))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(parambody)
+                    .addComponent(paramnamebody)
+                    .addComponent(urlpathfilename))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(extensionprovided)
+                    .addComponent(paramcookie)
+                    .addComponent(paramurl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(header)
+                    .addComponent(paramjson)
+                    .addComponent(paramnameurl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(entirebody)
+                    .addComponent(urlpathfolder)
+                    .addComponent(userprovided))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(paramxml)
+                    .addComponent(paramxmlattr)
+                    .addComponent(unknown))
+                .addGap(28, 28, 28)
+                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -3298,7 +3611,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newTagCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(addTag))
-                .addContainerGap(1087, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         headerstab.addTab("          Tags          ", jPanel3);
@@ -4061,8 +4374,64 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_payloadencodeMatchType
 
+    private void paramxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paramxmlActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_paramxmlActionPerformed
+
+    private void AllItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_AllItemStateChanged
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            pathdiscovery.setSelected(true);
+            extensionprovided.setSelected(true);
+            header.setSelected(true);
+            entirebody.setSelected(true);
+            paramamf.setSelected(true);
+            parambody.setSelected(true);
+            paramcookie.setSelected(true);
+            paramjson.setSelected(true);
+            urlpathfolder.setSelected(true);
+            parammultipartattr.setSelected(true);
+            paramnamebody.setSelected(true);
+            paramnameurl.setSelected(true);
+            userprovided.setSelected(true);
+            paramurl.setSelected(true);
+            paramxml.setSelected(true);
+            paramxmlattr.setSelected(true);
+            urlpathfilename.setSelected(true);
+            unknown.setSelected(true);
+        } else {
+            pathdiscovery.setSelected(false);
+            extensionprovided.setSelected(false);
+            header.setSelected(false);
+            entirebody.setSelected(false);
+            paramamf.setSelected(false);
+            parambody.setSelected(false);
+            paramcookie.setSelected(false);
+            paramjson.setSelected(false);
+            urlpathfolder.setSelected(false);
+            parammultipartattr.setSelected(false);
+            paramnamebody.setSelected(false);
+            paramnameurl.setSelected(false);
+            userprovided.setSelected(false);
+            paramurl.setSelected(false);
+            paramxml.setSelected(false);
+            paramxmlattr.setSelected(false);
+            urlpathfilename.setSelected(false);
+            unknown.setSelected(false);
+        }
+
+    }//GEN-LAST:event_AllItemStateChanged
+
+    private void goWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goWeb
+        try {
+             Desktop.getDesktop().browse(new URI("https://portswigger.net/burp/extender/api/burp/IScannerInsertionPoint.html"));
+            } catch (URISyntaxException | IOException e){
+                    System.out.println("Help web not opened: "+e);
+            }
+    }//GEN-LAST:event_goWeb
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox All;
     private javax.swing.JPanel Attributes;
     private javax.swing.JButton addTag;
     private javax.swing.JCheckBox anchor_labels;
@@ -4106,9 +4475,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JCheckBox content_type;
     private javax.swing.JCheckBox css_classes;
     private javax.swing.JCheckBox div_ids;
+    private javax.swing.JCheckBox entirebody;
     private javax.swing.JCheckBox etag_header;
     private javax.swing.JCheckBox excludehttp;
+    private javax.swing.JCheckBox extensionprovided;
     private javax.swing.JCheckBox first_header_tag;
+    private javax.swing.JCheckBox header;
     private javax.swing.JCheckBox header_tags;
     private javax.swing.JTabbedPane headerstab;
     private javax.swing.JCheckBox initial_body_content;
@@ -4131,11 +4503,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
@@ -4231,6 +4605,16 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JCheckBox outbound_edge_count;
     private javax.swing.JCheckBox outbound_edge_tag_names;
     private javax.swing.JCheckBox page_title;
+    private javax.swing.JCheckBox paramamf;
+    private javax.swing.JCheckBox parambody;
+    private javax.swing.JCheckBox paramcookie;
+    private javax.swing.JCheckBox paramjson;
+    private javax.swing.JCheckBox parammultipartattr;
+    private javax.swing.JCheckBox paramnamebody;
+    private javax.swing.JCheckBox paramnameurl;
+    private javax.swing.JCheckBox paramurl;
+    private javax.swing.JCheckBox paramxml;
+    private javax.swing.JCheckBox paramxmlattr;
     private javax.swing.JCheckBox pathdiscovery;
     private javax.swing.JRadioButton radio1;
     private javax.swing.JRadioButton radio10;
@@ -4280,6 +4664,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JTextField textgreps;
     private javax.swing.JTextField textpayloads;
     private javax.swing.JTextField texttime;
+    private javax.swing.JCheckBox unknown;
+    private javax.swing.JCheckBox urlpathfilename;
+    private javax.swing.JCheckBox urlpathfolder;
+    private javax.swing.JCheckBox userprovided;
     private javax.swing.JRadioButton variationsRadio;
     private javax.swing.JCheckBox visible_text;
     private javax.swing.JCheckBox visible_word_count;
