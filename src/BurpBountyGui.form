@@ -78,8 +78,8 @@
                   <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
-              <Component id="jTabbedPane2" min="-2" pref="1499" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jTabbedPane2" min="-2" pref="1581" max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -125,7 +125,6 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="headerstab" alignment="0" pref="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -156,7 +155,11 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace pref="36" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="headerstab" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -184,8 +187,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="radioPR" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="headerstab" pref="1361" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="headerstab" pref="1405" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1084,7 +1086,7 @@
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="jSeparator12" pref="4" max="32767" attributes="0"/>
+                              <Component id="jSeparator12" pref="1" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jSeparator11" min="-2" pref="952" max="-2" attributes="0"/>
                           </Group>
@@ -1961,7 +1963,7 @@
                                   <Group type="102" attributes="0">
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jSeparator8" alignment="0" pref="950" max="32767" attributes="0"/>
+                                          <Component id="jSeparator8" alignment="0" pref="944" max="32767" attributes="0"/>
                                           <Component id="jSeparator9" alignment="0" max="32767" attributes="0"/>
                                           <Component id="jLabel33" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Component id="jLabel35" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -2566,7 +2568,7 @@
                               <Component id="jtabpane" min="-2" pref="543" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="776" max="32767" attributes="0"/>
+                      <EmptySpace pref="858" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -2808,7 +2810,7 @@
                           <Component id="jButton13" min="-2" max="-2" attributes="0"/>
                           <Component id="jScrollPane13" min="-2" pref="296" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="1076" max="32767" attributes="0"/>
+                      <EmptySpace pref="1158" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

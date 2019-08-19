@@ -77,7 +77,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             callbacks.addSuiteTab(this);
 
-            callbacks.printOutput("- Burp Bounty v3.0.5beta");
+            callbacks.printOutput("- Burp Bounty v3.0.6beta");
             callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
             bct.start();

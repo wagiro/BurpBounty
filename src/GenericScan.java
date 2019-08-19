@@ -416,7 +416,7 @@ public class GenericScan {
                                     responseCode = new Integer(r.getStatusCode());
                                     if (responseCodes.contains(responseCode)) {
 
-                                        if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                                        if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                                             for (String grep : greps) {
                                                 matches = gm.getResponseMatches(requestResponse, payload, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                         issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -435,7 +435,7 @@ public class GenericScan {
                                         requestResponse.setResponse(redirectRequestResponse.getResponse());
 
                                     } else {
-                                        if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                                        if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                                             for (String grep : greps) {
                                                 matches = gm.getResponseMatches(requestResponse, payload, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                         issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -511,7 +511,7 @@ public class GenericScan {
                     Integer responseCode = new Integer(r.getStatusCode());
 
                     IScanIssue matches = null;
-                    if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                    if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                         matches = gm.getResponseMatches(baseRequestResponse, "", grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, "", matchtype,
                                 issueseverity, issueconfidence, notresponse, casesensitive, false, excludeHTTP, onlyHTTP);
                     }
@@ -683,6 +683,7 @@ public class GenericScan {
     public boolean isResponseCode(String responsecodes, boolean negativerc, Integer responsecode) {
 
         boolean iscode = true;
+
         if (responsecodes.equals("")) {
             return iscode;
         }
@@ -703,6 +704,7 @@ public class GenericScan {
                 break;
             }
         }
+        
         return iscode;
     }
 

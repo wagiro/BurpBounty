@@ -29,6 +29,8 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
   
 * Profiles from [Gocha](https://twitter.com/GochaOqradze) in their [Github](https://github.com/ghsec/BBProfiles)
 
+* Profiles from [Sy3Omda](https://twitter.com/Sy3Omda) in their [Github](https://github.com/Sy3Omda/burp-bounty)
+
 
 ### For example videos please visit our youtube channel:
 
@@ -36,7 +38,11 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 
 
 ##  Changelog
-**3.0.5beta 201906112**
+**3.0.6beta 20190819**
+* Fixed error with tab
+* Fixed error with status code
+
+**3.0.5beta 20190612**
 * Choose insertion points type for one profile
 * Fixed error with redirections
 

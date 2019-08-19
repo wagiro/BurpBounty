@@ -3135,7 +3135,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(variationsRadio))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 4, Short.MAX_VALUE)
+                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 952, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel11Layout.createSequentialGroup()
@@ -3412,7 +3412,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator8, javax.swing.GroupLayout.DEFAULT_SIZE, 950, Short.MAX_VALUE)
+                            .addComponent(jSeparator8, javax.swing.GroupLayout.DEFAULT_SIZE, 944, Short.MAX_VALUE)
                             .addComponent(jSeparator9)
                             .addComponent(jLabel33)
                             .addComponent(jLabel35)
@@ -3620,7 +3620,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3647,7 +3646,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
                             .addComponent(radio1)
                             .addComponent(radio2)
                             .addComponent(radioPR))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton2, jButton3});
@@ -3674,8 +3676,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioPR)
                 .addGap(18, 18, 18)
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1361, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1405, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Definition   ", jPanel1);
@@ -3819,7 +3820,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(776, Short.MAX_VALUE))
+                .addContainerGap(858, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Manager   ", jPanel2);
@@ -3891,7 +3892,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addComponent(jButton12))
                     .addComponent(jButton13)
                     .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(1076, Short.MAX_VALUE))
+                .addContainerGap(1158, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Tags Manager   ", jPanel4);
@@ -3923,7 +3924,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addGap(48, 48, 48)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1499, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1581, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
