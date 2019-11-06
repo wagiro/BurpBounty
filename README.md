@@ -37,8 +37,7 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 * [YouTube](https://www.youtube.com/channel/UCSq4R2o9_nGIMHWZ4H98GkQ/videos)
 
 
-Here are some videos to see how the extension works.<br/><br/>
-
+<br/>
 
 Blind RCE with BurpBounty using Burp Collaborator<br/>
 
