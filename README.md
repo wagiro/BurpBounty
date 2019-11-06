@@ -41,14 +41,17 @@ Here are some videos to see how the extension works.<br/><br/>
 
 
 Blind RCE with BurpBounty using Burp Collaborator<br/>
+
 [![Blind RCE with BurpBounty using Burp Collaborator](https://i9.ytimg.com/vi/kcyUueb56aM/mq3.jpg?sqp=CKy3i-4F&rs=AOn4CLBXYN1dPMrirkMWetiaFORkOjSDNw)](https://www.youtube.com/watch?v=kcyUueb56aM)
 
 
 Extract endpoints with BurpBounty<br/>
+
 [![Extract endpoints with BurpBounty](https://i9.ytimg.com/vi/ELftJwkY_e0/mq2.jpg?sqp=COO5i-4F&rs=AOn4CLBEf-Jte9PP6FKdax7c4kVP_ZLw0A)](https://www.youtube.com/watch?v=ELftJwkY_e0)
 
 
 Blind XXE with BurpBounty using Burp Collaborator<br/>
+
 [![Blind XXE with BurpBounty using Burp Collaborator](https://i9.ytimg.com/vi/v9lvz0RYirI/mq2.jpg?sqp=CJy3i-4F&rs=AOn4CLAPaiW2nsjo6CJI70MKWYQccxifYw)](https://www.youtube.com/watch?v=v9lvz0RYirI)
 
 <br/>
