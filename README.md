@@ -41,21 +41,29 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 
 Blind RCE with BurpBounty using Burp Collaborator<br/>
 
-[![Blind RCE with BurpBounty using Burp Collaborator](https://i9.ytimg.com/vi/kcyUueb56aM/mq3.jpg?sqp=CKy3i-4F&rs=AOn4CLBXYN1dPMrirkMWetiaFORkOjSDNw)](https://www.youtube.com/watch?v=kcyUueb56aM)
+[![Blind RCE with BurpBounty using Burp Collaborator](https://img.youtube.com/vi/kcyUueb56aM/0.jpg)](https://www.youtube.com/watch?v=kcyUueb56aM)
 
 
 Extract endpoints with BurpBounty<br/>
 
-[![Extract endpoints with BurpBounty](https://i9.ytimg.com/vi/ELftJwkY_e0/mq2.jpg?sqp=COO5i-4F&rs=AOn4CLBEf-Jte9PP6FKdax7c4kVP_ZLw0A)](https://www.youtube.com/watch?v=ELftJwkY_e0)
+[![Extract endpoints with BurpBounty](https://img.youtube.com/vi/ELftJwkY_e0/0.jpg)](https://www.youtube.com/watch?v=ELftJwkY_e0)
 
 
 Blind XXE with BurpBounty using Burp Collaborator<br/>
 
-[![Blind XXE with BurpBounty using Burp Collaborator](https://i9.ytimg.com/vi/v9lvz0RYirI/mq2.jpg?sqp=CJy3i-4F&rs=AOn4CLAPaiW2nsjo6CJI70MKWYQccxifYw)](https://www.youtube.com/watch?v=v9lvz0RYirI)
+[![Blind XXE with BurpBounty using Burp Collaborator](https://img.youtube.com/vi/v9lvz0RYirI/0.jpg)](https://www.youtube.com/watch?v=v9lvz0RYirI)
 
 <br/>
 
+
 ##  Changelog
+**3.1.0 20200407**
+* Fixed 12 issues from github 
+* Better performance of the match algorithm
+* "Path discovery" option has been improved
+* Profiles adapted to the new version
+
+
 **3.0.6beta 20190819**
 * Fixed error with tab
 * Fixed error with status code

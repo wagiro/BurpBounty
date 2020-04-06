@@ -36,6 +36,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -57,6 +58,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     BurpCollaboratorThread bct;
     CollaboratorData burpCollaboratorData;
     List<byte[]> responses;
+    List<String> params;
 
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
@@ -70,6 +72,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         burpCollaboratorData = new CollaboratorData(helpers);
         bct = new BurpCollaboratorThread(callbacks, burpCollaboratorData);
         responses = new ArrayList();
+        params = new ArrayList();
         filename = "";
 
         SwingUtilities.invokeLater(() -> {
@@ -77,7 +80,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             callbacks.addSuiteTab(this);
 
-            callbacks.printOutput("- Burp Bounty v3.0.6beta");
+            callbacks.printOutput("- Burp Bounty v3.1");
             callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
             bct.start();
@@ -98,16 +101,21 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         IRequestInfo request = helpers.analyzeRequest(baseRequestResponse);
 
         if (request.getMethod().equals("GET")) {
+            String url = request.getUrl().getHost();
             byte[] match = helpers.stringToBytes("/");
             byte[] req = baseRequestResponse.getRequest();
             int len = helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP");
             int beginAt = 0;
+            
             while (beginAt < len) {
                 beginAt = helpers.indexOf(req, match, false, beginAt, len);
                 if (beginAt == -1) {
                     break;
                 }
-                insertionPoints.add(helpers.makeScannerInsertionPoint("p4r4m" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
+                if(!params.contains(url+":p4r4m" + beginAt)){
+                    insertionPoints.add(helpers.makeScannerInsertionPoint("p4r4m" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
+                    params.add(url+":p4r4m" + beginAt);
+                }
                 beginAt += match.length;
             }
         }
@@ -119,6 +127,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         JsonArray data = new JsonArray();
         filename = panel.getFilename();
         FileReader fr;
+        params = new ArrayList();
 
         try {
             File f = new File(filename);

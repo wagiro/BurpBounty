@@ -86,7 +86,7 @@ public class GrepMatch {
         IResponseInfo responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
         byte[] request = requestResponse.getRequest();
 
-        if (casesensitive) {
+        if (casesensitive || matchtype == 2) {
             responseString = helpers.bytesToString(requestResponse.getResponse());
             for (String header : responseInfo.getHeaders()) {
                 headers += header + "\r\n";
@@ -241,13 +241,13 @@ public class GrepMatch {
         byte[] request = requestResponse.getRequest();
         IRequestInfo requestInfo = helpers.analyzeRequest(requestResponse.getRequest());
 
-        if (casesensitive) {
+        if (casesensitive || matchtype == 2) {
             requestString = helpers.bytesToString(requestResponse.getRequest());
             for (String header : requestInfo.getHeaders()) {
                 headers += header + "\r\n";
             }
         } else {
-            requestString = helpers.bytesToString(requestResponse.getResponse()).toUpperCase();
+            requestString = helpers.bytesToString(requestResponse.getRequest()).toUpperCase();
             grep = grep.toUpperCase();
             for (String header : requestInfo.getHeaders()) {
                 headers += header.toUpperCase() + "\r\n";

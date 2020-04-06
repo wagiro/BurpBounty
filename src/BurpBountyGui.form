@@ -393,12 +393,12 @@
                                                   <Component id="jLabel55" alignment="0" min="-2" pref="704" max="-2" attributes="0"/>
                                                   <Group type="102" alignment="1" attributes="0">
                                                       <Group type="103" groupAlignment="0" attributes="0">
-                                                          <Component id="pathdiscovery" alignment="0" min="-2" max="-2" attributes="0"/>
                                                           <Component id="extensionprovided" alignment="0" min="-2" max="-2" attributes="0"/>
                                                           <Component id="header" alignment="0" min="-2" max="-2" attributes="0"/>
                                                           <Component id="urlpathfilename" min="-2" max="-2" attributes="0"/>
                                                           <Component id="entirebody" alignment="0" min="-2" max="-2" attributes="0"/>
                                                           <Component id="paramxml" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="All" min="-2" max="-2" attributes="0"/>
                                                       </Group>
                                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                                       <Group type="103" groupAlignment="0" attributes="0">
@@ -486,11 +486,7 @@
                                                                   <Component id="replace" min="-2" max="-2" attributes="0"/>
                                                               </Group>
                                                           </Group>
-                                                          <Group type="102" alignment="0" attributes="0">
-                                                              <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
-                                                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                                                              <Component id="All" min="-2" max="-2" attributes="0"/>
-                                                          </Group>
+                                                          <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
                                                           <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                                                       </Group>
                                                   </Group>
@@ -551,16 +547,13 @@
                                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="All" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                              <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
+                              <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="paramamf" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="parammultipartattr" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pathdiscovery" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="All" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
@@ -636,7 +629,7 @@
                                   <Component id="check8" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="text5" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace pref="25" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -914,11 +907,6 @@
                         <Property name="text" type="java.lang.String" value="You can define the payload options."/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JCheckBox" name="pathdiscovery">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Path discovery"/>
-                      </Properties>
-                    </Component>
                     <Component class="javax.swing.JLabel" name="jLabel11">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Insertion point type:"/>
@@ -926,7 +914,7 @@
                     </Component>
                     <Component class="javax.swing.JCheckBox" name="extensionprovided">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Extension Provided"/>
+                        <Property name="text" type="java.lang.String" value="Path discovery"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JCheckBox" name="header">

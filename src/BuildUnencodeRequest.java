@@ -14,7 +14,7 @@ public class BuildUnencodeRequest {
         this.helpers = helpers;
     }
 
-    byte[] buildUnencodedRequest(IScannerInsertionPoint iScannerInsertionPoint, byte[] payload, List<Headers> headers) throws Exception {
+    byte[] buildUnencodedRequest(IScannerInsertionPoint iScannerInsertionPoint, byte[] payload, List<Headers> headers) {
         byte[] canary = buildCanary(payload.length);
         byte[] request = iScannerInsertionPoint.buildRequest(canary);
         int canaryPos = findCanary(canary, request);
@@ -62,15 +62,9 @@ public class BuildUnencodeRequest {
         return canary;
     }
 
-    private int findCanary(byte[] canary, byte[] request) throws Exception {
+    private int findCanary(byte[] canary, byte[] request) {
         int canaryPos = helpers.indexOf(request, canary, false, 0, request.length);
-        if (canaryPos == -1) {
-            throw new Exception("Cannot locate canary in request");
-        }
         int canaryPos2 = helpers.indexOf(request, canary, false, canaryPos + 1, request.length);
-        if (canaryPos2 != -1) {
-            throw new Exception("Multiple canary found in request");
-        }
         return canaryPos;
     }
 }
