@@ -224,8 +224,9 @@ public class GenericScan {
             }
 
             for (String payload : payloads) {
-                if ((!insertionPointType.contains(77) && insertionPoint.getInsertionPointName().startsWith("p4r4m")) 
-                    || !insertionPointType.contains(insertionPoint.getInsertionPointType() & 0xFF) && !insertionPointType.contains(77)) {
+                String name1 = insertionPoint.getInsertionPointName();
+                Integer a = insertionPoint.getInsertionPointType() & 0xFF;
+                if (!insertionPointType.contains(insertionPoint.getInsertionPointType() & 0xFF)) {
                     break;
                 }
 
@@ -256,18 +257,20 @@ public class GenericScan {
                 switch (matchtype) {
                     case 5://Timeout match type
                     {
-                        long startTime = System.currentTimeMillis();
+                        long startTime,endTime,difference = 0;
+                        matches = null;
                         IHttpRequestResponse response;
                         try {
+                            startTime = System.currentTimeMillis();
                             response = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
+                            endTime = System.currentTimeMillis();
+                            difference = (endTime - startTime);
                         } catch (Exception ex) {
-                            Logger.getLogger(GenericScan.class.getName()).log(Level.SEVERE, null, ex);
                             break;
                         }
-                        long endTime = System.currentTimeMillis();
-                        long duration = (endTime - startTime);
+                                               
                         Integer time = Integer.parseInt(timeout);
-                        if (duration >= time * 1000) {
+                        if (difference >= time * 1000) {
                             matches = new CustomScanIssue(response.getHttpService(), helpers.analyzeRequest(response).getUrl(),
                                     new IHttpRequestResponse[]{callbacks.applyMarkers(response, null, null)},
                                     "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(payload)), issueseverity,
@@ -282,10 +285,10 @@ public class GenericScan {
                     case 8://Invariation match type
                     {
                         IHttpRequestResponse requestResponse;
+                        matches = null;
                         try {
                             requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                         } catch (Exception ex) {
-                            Logger.getLogger(GenericScan.class.getName()).log(Level.SEVERE, null, ex);
                             break;
                         }
                         IResponseVariations ipv = helpers.analyzeResponseVariations(baseRequestResponse.getResponse(), requestResponse.getResponse());
@@ -324,10 +327,10 @@ public class GenericScan {
                     case 6://Content Length difference match type
                     {
                         IHttpRequestResponse requestResponse;
+                        matches = null;
                         try {
                             requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                         } catch (Exception ex) {
-                            Logger.getLogger(GenericScan.class.getName()).log(Level.SEVERE, null, ex);
                             break;
                         }
                         int currentResponseContentLength = getContentLength(requestResponse);
@@ -342,7 +345,7 @@ public class GenericScan {
                                     "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(grep)), issueseverity,
                                     issueconfidence, remediationdetail, issuebackground, remediationbackground);
                         }
-                        if (matches != null) {
+                        if (matches != null) {//posar matches=null al principi de dins de cada if
                             issues.add(matches);
                         }
                         break;
@@ -360,7 +363,6 @@ public class GenericScan {
                             try {
                                 requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                             } catch (Exception ex) {
-                                Logger.getLogger(GenericScan.class.getName()).log(Level.SEVERE, null, ex);
                                 break;
                             }
                             burpCollaboratorData.setIssueProperties(requestResponse, bchost, issuename, issuedetail, issueseverity, issueconfidence, remediationdetail, issuebackground, remediationbackground);
@@ -389,7 +391,6 @@ public class GenericScan {
                             try {
                                 requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                             } catch (Exception ex) {
-                                Logger.getLogger(GenericScan.class.getName()).log(Level.SEVERE, null, ex);
                                 break;
                             }
 
@@ -416,7 +417,7 @@ public class GenericScan {
                                     responseCode = new Integer(r.getStatusCode());
                                     if (responseCodes.contains(responseCode)) {
 
-                                        if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                                        if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                                             for (String grep : greps) {
                                                 matches = gm.getResponseMatches(requestResponse, payload, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                         issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -435,7 +436,7 @@ public class GenericScan {
                                         requestResponse.setResponse(redirectRequestResponse.getResponse());
 
                                     } else {
-                                        if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                                        if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                                             for (String grep : greps) {
                                                 matches = gm.getResponseMatches(requestResponse, payload, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                         issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -511,7 +512,7 @@ public class GenericScan {
                     Integer responseCode = new Integer(r.getStatusCode());
 
                     IScanIssue matches = null;
-                    if (!isresponsecode && isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
+                    if (isResponseCode(responsecode, negativerc, responseCode) || !iscontenttype && isContentType(contenttype, negativect, r)) {
                         matches = gm.getResponseMatches(baseRequestResponse, "", grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, "", matchtype,
                                 issueseverity, issueconfidence, notresponse, casesensitive, false, excludeHTTP, onlyHTTP);
                     }
@@ -683,6 +684,7 @@ public class GenericScan {
     public boolean isResponseCode(String responsecodes, boolean negativerc, Integer responsecode) {
 
         boolean iscode = true;
+
         if (responsecodes.equals("")) {
             return iscode;
         }
@@ -703,6 +705,7 @@ public class GenericScan {
                 break;
             }
         }
+        
         return iscode;
     }
 

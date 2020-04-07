@@ -108,7 +108,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private List<Headers> Header;
     private List<String> variationAttributes;
     private List<Integer> insertionPointType;
-    private Boolean pathDiscovery;
 
     DefaultTableModel model;
     DefaultTableModel model1;
@@ -157,7 +156,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         Header = new ArrayList();
         variationAttributes = new ArrayList();
         insertionPointType = new ArrayList();
-        pathDiscovery = false;
 
         if (callbacks.loadExtensionSetting("filename") != null) {
             filename = callbacks.loadExtensionSetting("filename");
@@ -238,7 +236,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         textcl.setText("");
         setSelectedVariations(false);
         setSelectedInsertionPointType(false);
-        pathdiscovery.setSelected(false);
 
     }
 
@@ -294,7 +291,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             Header = i.getHeader();
             variationAttributes = i.getVariationAttributes();
             insertionPointType = i.getInsertionPointType();
-            pathDiscovery = i.getPathDiscover();
 
             if (payloadsfile == null) {
                 payloadsfile = "";
@@ -352,10 +348,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
             if (insertionPointType == null) {
                 insertionPointType = new ArrayList();
-            }
-
-            if (pathDiscovery == null) {
-                pathDiscovery = false;
             }
 
             if (Author.length() >= 35) {
@@ -420,8 +412,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             for (String enc : i.getEncoder()) {
                 encoder.addElement(enc);
             }
-
-            pathdiscovery.setSelected(pathDiscovery);
 
             text71.setText(contenttype);
             text72.setText(responsecode);
@@ -591,9 +581,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             if (insertionPointType.contains(18)) {
                 All.setSelected(true);
             }
-            if (insertionPointType.contains(77)) {
-                pathdiscovery.setSelected(true);
-            }
             if (insertionPointType.contains(65)) {
                 extensionprovided.setSelected(true);
             }
@@ -743,14 +730,18 @@ public class BurpBountyGui extends javax.swing.JPanel {
             newfile.setPayloadsFile(textpayloads.getText());
             for (int i = 0; i < list1.getModel().getSize(); i++) {
                 Object item = list1.getModel().getElementAt(i);
-                payloads.add(item);
+                if(!item.toString().isEmpty()){
+                    payloads.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
+                }
             }
             newfile.setPayloads(payloads);
 
             newfile.setGrepsFile(textgreps.getText());
             for (int i = 0; i < list2.getModel().getSize(); i++) {
                 Object item = list2.getModel().getElementAt(i);
-                greps.add(item);
+                if(!item.toString().isEmpty()){
+                    greps.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
+                }
             }
             newfile.setGreps(greps);
 
@@ -761,13 +752,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             for (int i = 0; i < listtag.getModel().getSize(); i++) {
                 Object item = listtag.getModel().getElementAt(i);
-                tags.add(item);
+                if(!item.toString().isEmpty()){
+                    tags.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
+                }
             }
             newfile.setTags(tags);
 
             for (int i = 0; i < list3.getModel().getSize(); i++) {
                 Object item = list3.getModel().getElementAt(i);
-                encoders.add(item);
+                if(!item.toString().isEmpty()){
+                    encoders.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
+                }
             }
 
             newfile.setEncoder(encoders);
@@ -777,7 +772,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             newfile.setOnlyHTTP(onlyhttp.isSelected());
             newfile.setContentType(text71.getText());
             newfile.setResponseCode(text72.getText());
-            newfile.setPathDiscovery(pathdiscovery.isSelected());
 
             if (texttime.getText().isEmpty()) {
                 newfile.setTime(texttime.getText());
@@ -921,7 +915,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             if (All.isSelected()) {
                 insertionPointType.add(18);
-                insertionPointType.add(77);
                 insertionPointType.add(65);
                 insertionPointType.add(32);
                 insertionPointType.add(36);
@@ -940,9 +933,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 insertionPointType.add(37);
                 insertionPointType.add(127);
             }
-            if (pathdiscovery.isSelected()) {
-                insertionPointType.add(77);
-            }
+            
             if (extensionprovided.isSelected()) {
                 insertionPointType.add(65);
             }
@@ -1127,7 +1118,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     public void setSelectedInsertionPointType(boolean state) {
         All.setSelected(state);
-        pathdiscovery.setSelected(state);
         extensionprovided.setSelected(state);
         header.setSelected(state);
         entirebody.setSelected(state);
@@ -1888,12 +1878,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void addNewTag(String str) {
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filename + "tags.txt", true));
-            out.write(str + "\n");
-            out.close();
-        } catch (IOException e) {
-            System.out.println("exception occoured" + e);
+        if(!str.isEmpty()){
+            try {
+                BufferedWriter out = new BufferedWriter(new FileWriter(filename + "tags.txt", true));
+                out.write(str + "\n");
+                out.close();
+            } catch (IOException e) {
+                System.out.println("exception occoured" + e);
+            }
         }
     }
 
@@ -2042,7 +2034,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jSeparator4 = new javax.swing.JSeparator();
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
-        pathdiscovery = new javax.swing.JCheckBox();
         jLabel11 = new javax.swing.JLabel();
         extensionprovided = new javax.swing.JCheckBox();
         header = new javax.swing.JCheckBox();
@@ -2451,11 +2442,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         jLabel55.setText("You can define the payload options.");
 
-        pathdiscovery.setText("Path discovery");
-
         jLabel11.setText("Insertion point type:");
 
-        extensionprovided.setText("Extension Provided");
+        extensionprovided.setText("Path discovery");
 
         header.setText("Header");
 
@@ -2548,12 +2537,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
                                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(pathdiscovery)
                                             .addComponent(extensionprovided)
                                             .addComponent(header)
                                             .addComponent(urlpathfilename)
                                             .addComponent(entirebody)
-                                            .addComponent(paramxml))
+                                            .addComponent(paramxml)
+                                            .addComponent(All))
                                         .addGap(18, 18, 18)
                                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addGroup(jPanel10Layout.createSequentialGroup()
@@ -2619,10 +2608,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                                     .addComponent(append)
                                                     .addComponent(replace)))
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addComponent(jLabel11)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(All))
+                                            .addComponent(jLabel11)
                                             .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addComponent(jSeparator4))
@@ -2670,15 +2656,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(jLabel10)))
-                .addGap(26, 26, 26)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(All))
+                .addGap(30, 30, 30)
+                .addComponent(jLabel11)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(paramamf)
                     .addComponent(parammultipartattr)
-                    .addComponent(pathdiscovery))
+                    .addComponent(All))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(parambody)
@@ -2742,7 +2726,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         headerstab.addTab("          Request          ", jPanel10);
@@ -3139,7 +3123,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(variationsRadio))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 4, Short.MAX_VALUE)
+                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 952, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel11Layout.createSequentialGroup()
@@ -3416,7 +3400,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator8, javax.swing.GroupLayout.DEFAULT_SIZE, 950, Short.MAX_VALUE)
+                            .addComponent(jSeparator8, javax.swing.GroupLayout.DEFAULT_SIZE, 944, Short.MAX_VALUE)
                             .addComponent(jSeparator9)
                             .addComponent(jLabel33)
                             .addComponent(jLabel35)
@@ -3624,7 +3608,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3651,7 +3634,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
                             .addComponent(radio1)
                             .addComponent(radio2)
                             .addComponent(radioPR))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton2, jButton3});
@@ -3678,8 +3664,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioPR)
                 .addGap(18, 18, 18)
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1361, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1405, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Definition   ", jPanel1);
@@ -3823,7 +3808,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(776, Short.MAX_VALUE))
+                .addContainerGap(858, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Profiles Manager   ", jPanel2);
@@ -3895,7 +3880,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addComponent(jButton12))
                     .addComponent(jButton13)
                     .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(1076, Short.MAX_VALUE))
+                .addContainerGap(1158, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("   Tags Manager   ", jPanel4);
@@ -3927,7 +3912,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addGap(48, 48, 48)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1499, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1581, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -4224,14 +4209,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }//GEN-LAST:event_pasteGrep
 
     private void setToGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToGrep
-        if (!grep.isEmpty() && grep.firstElement().equals(" ")) {
-            grep.removeElementAt(0);
-            grep.addElement(textfield2.getText());
-            textfield2.setText("");
-        } else {
+        if (!textfield2.getText().isEmpty()){
             grep.addElement(textfield2.getText());
             textfield2.setText("");
         }
+        
     }//GEN-LAST:event_setToGrep
 
     private void removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllGrep
@@ -4290,14 +4272,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton9removeEncoder
 
     private void setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToPayload
-        if (!payload.isEmpty() && payload.firstElement().equals(" ")) {
-            payload.removeElementAt(0);
-            payload.addElement(textfield1.getText());
-            textfield1.setText("");
-        } else {
+        if (!textfield1.getText().isEmpty()){
             payload.addElement(textfield1.getText());
             textfield1.setText("");
         }
+
     }//GEN-LAST:event_setToPayload
 
     private void removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllPayloads
@@ -4384,7 +4363,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     private void AllItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_AllItemStateChanged
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            pathdiscovery.setSelected(true);
             extensionprovided.setSelected(true);
             header.setSelected(true);
             entirebody.setSelected(true);
@@ -4403,7 +4381,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             urlpathfilename.setSelected(true);
             unknown.setSelected(true);
         } else {
-            pathdiscovery.setSelected(false);
             extensionprovided.setSelected(false);
             header.setSelected(false);
             entirebody.setSelected(false);
@@ -4619,7 +4596,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JCheckBox paramurl;
     private javax.swing.JCheckBox paramxml;
     private javax.swing.JCheckBox paramxmlattr;
-    private javax.swing.JCheckBox pathdiscovery;
     private javax.swing.JRadioButton radio1;
     private javax.swing.JRadioButton radio10;
     private javax.swing.JRadioButton radio11;
