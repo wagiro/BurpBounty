@@ -1,9 +1,9 @@
 Uuid: 618f0b2489564607825e93eeed8b9e0a
 ExtensionType: 1
-Name: Scan Check Builder
+Name: Burp Bounty, Scan Check Builder
 RepoName: scan-check-builder
-ScreenVersion: 3.0.5
-SerialVersion: 11
+ScreenVersion: 3.1.0
+SerialVersion: 19
 MinPlatformVersion: 0
 ProOnly: True
 Author: Eduardo Garcia
