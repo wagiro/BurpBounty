@@ -39,19 +39,15 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 
 <br/>
 
-Blind RCE with BurpBounty using Burp Collaborator<br/>
+**Blind RCE with BurpBounty using Burp Collaborator<br/>**
 
 [![Blind RCE with BurpBounty using Burp Collaborator](https://img.youtube.com/vi/kcyUueb56aM/0.jpg)](https://www.youtube.com/watch?v=kcyUueb56aM)
 
 
-Extract endpoints with BurpBounty<br/>
+**Extract endpoints with BurpBounty<br/>**
 
 [![Extract endpoints with BurpBounty](https://img.youtube.com/vi/ELftJwkY_e0/0.jpg)](https://www.youtube.com/watch?v=ELftJwkY_e0)
 
-
-Blind XXE with BurpBounty using Burp Collaborator<br/>
-
-[![Blind XXE with BurpBounty using Burp Collaborator](https://img.youtube.com/vi/v9lvz0RYirI/0.jpg)](https://www.youtube.com/watch?v=v9lvz0RYirI)
 
 <br/>
 
