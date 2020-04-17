@@ -16,4 +16,3 @@ XXE
 endpoints
 regex
 Variations
-11paths
