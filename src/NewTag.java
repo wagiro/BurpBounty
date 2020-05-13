@@ -34,6 +34,9 @@ public class NewTag extends javax.swing.JPanel {
         newTagtext = new javax.swing.JTextField();
         jLabel47 = new javax.swing.JLabel();
 
+        setAlignmentX(300);
+        setAlignmentY(300);
+
         jLabel47.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel47.setForeground(new java.awt.Color(255, 102, 51));
         jLabel47.setText("Set new tag");

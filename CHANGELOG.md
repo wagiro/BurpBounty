@@ -1,4 +1,12 @@
 ##  Changelog
+**3.2.0 20200513**
+* Add filter profiles by type
+* Better and faster scroll
+* New look and feel
+* A lot of code rewritten for further optimization
+* BurpCollaborator has been improved to use fewer hosts
+
+##  Changelog
 **3.1.0 20200407**
 * Fixed 12 issues from github 
 * Better performance of the match algorithm

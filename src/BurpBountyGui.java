@@ -52,9 +52,11 @@ import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -95,20 +97,24 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private String grepsfile;
     private String timeOut;
     private String contentLength;
-    private String Author;
+    private String author;
     private DefaultListModel payload;
     private DefaultListModel grep;
     private DefaultListModel encoder;
     private DefaultListModel tag;
     private DefaultListModel tagmanager;
-    private List<Headers> Header;
+    private List<Headers> headers;
     private List<String> variationAttributes;
     private List<Integer> insertionPointType;
+    private List<String> Tags;
+    Boolean pathDiscovery;
 
     DefaultTableModel model;
     DefaultTableModel model1;
     DefaultTableModel model2;
     DefaultTableModel model4;
+    DefaultTableModel model9;
+    DefaultTableModel model10;
 
     public BurpBountyGui(BurpBountyExtension parent) {
         this.callbacks = parent.callbacks;
@@ -142,22 +148,30 @@ public class BurpBountyGui extends javax.swing.JPanel {
         grepsfile = "";
         timeOut = "";
         contentLength = "";
-        Author = "";
+        author = "";
         payload = new DefaultListModel();
         grep = new DefaultListModel();
         encoder = new DefaultListModel();
         tag = new DefaultListModel();
         tagmanager = new DefaultListModel();
         model4 = new DefaultTableModel();
-        Header = new ArrayList();
+        model9 = new DefaultTableModel();
+        model10 = new DefaultTableModel();
+        headers = new ArrayList();
         variationAttributes = new ArrayList();
         insertionPointType = new ArrayList();
 
         if (callbacks.loadExtensionSetting("filename") != null) {
             filename = callbacks.loadExtensionSetting("filename");
         } else {
-            filename = System.getProperty("user.dir") + "/";
+            if (System.getProperty("user.dir").contains("/")) {
+                filename = System.getProperty("user.dir") + "/";
+            } else {
+                filename = System.getProperty("user.dir") + "\\";
+            }
+
         }
+
         model = new DefaultTableModel() {
 
             @Override
@@ -187,11 +201,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         //main
         initComponents();
-        initCombo();
         text11.setText(filename);
+        txt_active.setSelected(true);
+        txt_passivereq.setSelected(true);
+        txt_passiveres.setSelected(true);
+        checkProfilesProperties();
+        initCombo();
         makeTagsFile();
         showProfiles("All");
-        showHeaders(Header);
+        showTags();
+        showHeaders(headers);
+
     }
 
     public void clear() {
@@ -232,131 +252,63 @@ public class BurpBountyGui extends javax.swing.JPanel {
         textcl.setText("");
         setSelectedVariations(false);
         setSelectedInsertionPointType(false);
-
+        variationAttributes.clear();
+        insertionPointType.clear();
     }
 
-    public void setAttackValues(String issue) {
+    public void setAttackValues(String profiles) {
         //Set Attack values when select from main combobox
         try {
             Gson gson = new Gson();
             JsonArray json = initJson();
-            Issue i = new Issue();
+            ProfilesProperties profile_property = new ProfilesProperties();
 
             if (json != null) {
                 for (JsonElement pa : json) {
                     JsonObject bbObj = pa.getAsJsonObject();
-                    if (bbObj.get("Name").getAsString().equals(issue)) {
-                        i = gson.fromJson(bbObj.toString(), Issue.class);
+                    if (bbObj.get("Name").getAsString().equals(profiles)) {
+                        profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class);
                     }
 
                 }
             }
 
-            variationAttributes.clear();
-            insertionPointType.clear();
-            name = i.getName();
-            scanner = i.getScanner();
-            casesensitive = i.getCaseSensitive();
-            notresponse = i.getNotResponse();
-            matchtype = i.getMatchType();
-            issuename = i.getIssueName();
-            issueseverity = i.getIssueSeverity();
-            issueconfidence = i.getIssueConfidence();
-            issuedetail = i.getIssueDetail();
-            issuebackground = i.getIssueBackground();
-            remediationdetail = i.getRemediationDetail();
-            remediationbackground = i.getRemediationBackground();
-            urlencode = i.getUrlEncode();
-            charstourlencode = i.getCharsToUrlEncode();
-            iscontenttype = i.getIsContentType();
-            isresponsecode = i.getIsResponseCode();
-            contenttype = i.getContentType();
-            responsecode = i.getResponseCode();
-            excludeHTTP = i.getExcludeHTTP();
-            onlyHTTP = i.getOnlyHTTP();
-            negativect = i.getNegativeCT();
-            negativerc = i.getNegativeRC();
-            redirtype = i.getRedirection();
-            maxRedir = i.getMaxRedir();
-            payloadsfile = i.getpayloadsFile();
-            grepsfile = i.getgrepsFile();
-            payloadPosition = i.getPayloadPosition();
-            timeOut = i.getTime();
-            Author = i.getAuthor();
-            contentLength = i.getContentLength();
-            Header = i.getHeader();
-            variationAttributes = i.getVariationAttributes();
-            insertionPointType = i.getInsertionPointType();
+            name = profile_property.getName();
+            scanner = profile_property.getScanner();
+            casesensitive = profile_property.getCaseSensitive();
+            notresponse = profile_property.getNotResponse();
+            matchtype = profile_property.getMatchType();
+            issuename = profile_property.getIssueName();
+            issueseverity = profile_property.getIssueSeverity();
+            issueconfidence = profile_property.getIssueConfidence();
+            issuedetail = profile_property.getIssueDetail();
+            issuebackground = profile_property.getIssueBackground();
+            remediationdetail = profile_property.getRemediationDetail();
+            remediationbackground = profile_property.getRemediationBackground();
+            urlencode = profile_property.getUrlEncode();
+            charstourlencode = profile_property.getCharsToUrlEncode();
+            iscontenttype = profile_property.getIsContentType();
+            isresponsecode = profile_property.getIsResponseCode();
+            contenttype = profile_property.getContentType();
+            responsecode = profile_property.getResponseCode();
+            excludeHTTP = profile_property.getExcludeHTTP();
+            onlyHTTP = profile_property.getOnlyHTTP();
+            negativect = profile_property.getNegativeCT();
+            negativerc = profile_property.getNegativeRC();
+            redirtype = profile_property.getRedirection();
+            maxRedir = profile_property.getMaxRedir();
+            payloadsfile = profile_property.getpayloadsFile();
+            grepsfile = profile_property.getgrepsFile();
+            payloadPosition = profile_property.getPayloadPosition();
+            timeOut = profile_property.getTime();
+            author = profile_property.getAuthor();
+            contentLength = profile_property.getContentLength();
+            headers = profile_property.getHeader();
+            variationAttributes = profile_property.getVariationAttributes();
+            insertionPointType = profile_property.getInsertionPointType();
 
-            if (payloadsfile == null) {
-                payloadsfile = "";
-            }
-            if (grepsfile == null) {
-                grepsfile = "";
-            }
-            if (Author == null) {
-                Author = "";
-            }
-            if (contentLength == null) {
-                contentLength = "";
-            }
-            if (name == null) {
-                name = "";
-            }
-            if (issuename == null) {
-                issuename = "";
-            }
-            if (issuedetail == null) {
-                issuedetail = "";
-            }
-            if (issuebackground == null) {
-                issuebackground = "";
-            }
-            if (remediationdetail == null) {
-                remediationdetail = "";
-            }
-            if (remediationbackground == null) {
-                remediationbackground = "";
-            }
-            if (charstourlencode == null) {
-                charstourlencode = "";
-            }
-            if (issueseverity == null) {
-                issueseverity = "";
-            }
-            if (issueconfidence == null) {
-                issueconfidence = "";
-            }
-            if (responsecode == null) {
-                responsecode = "";
-            }
-            if (contenttype == null) {
-                contenttype = "";
-            }
-            if (timeOut == null) {
-                timeOut = "";
-            }
-            if (Header == null) {
-                Header = new ArrayList();
-            }
-            if (variationAttributes == null) {
-                variationAttributes = new ArrayList();
-            }
-            if (insertionPointType == null) {
-                insertionPointType = new ArrayList();
-            }
-
-            if (Author.length() >= 35) {
-                textauthor.setText(Author.substring(0, 34));
-            } else {
-                textauthor.setText(Author);
-            }
-
-            if (name.length() >= 35) {
-                text1.setText(name.substring(0, 34));
-            } else {
-                text1.setText(name);
-            }
+            textauthor.setText(author);
+            text1.setText(name);
 
             if (scanner == 1) {
                 buttonGroup1.setSelected(radio1.getModel(), true);
@@ -376,36 +328,37 @@ public class BurpBountyGui extends javax.swing.JPanel {
             payload.removeAllElements();
             encoder.removeAllElements();
             tag.removeAllElements();
+
             textpayloads.setText(payloadsfile);
             textgreps.setText(grepsfile);
 
             if (!grepsfile.isEmpty()) {
                 loadPath(grepsfile, grep);
-                updateGreps(grepsfile, i);
+                updateGreps(grepsfile, profile_property);
 
             } else {
-                for (String gs : i.getGreps()) {
+                for (String gs : profile_property.getGreps()) {
                     grep.addElement(gs);
                 }
             }
 
             if (!payloadsfile.isEmpty()) {
                 loadPath(payloadsfile, payload);
-                updatePayloads(payloadsfile, i);
+                updatePayloads(payloadsfile, profile_property);
 
             } else {
-                for (String pay : i.getPayloads()) {
+                for (String pay : profile_property.getPayloads()) {
                     payload.addElement(pay);
                 }
             }
 
-            if (i.getTags() != null) {
-                for (String t : i.getTags()) {
+            if (profile_property.getTags() != null) {
+                for (String t : profile_property.getTags()) {
                     tag.addElement(t);
                 }
             }
 
-            for (String enc : i.getEncoder()) {
+            for (String enc : profile_property.getEncoder()) {
                 encoder.addElement(enc);
             }
 
@@ -416,6 +369,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             text5.setText(charstourlencode);
             excludehttp.setSelected(excludeHTTP);
             onlyhttp.setSelected(onlyHTTP);
+
             if (timeOut.equals("0")) {
                 texttime.setText("");
             } else {
@@ -476,7 +430,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     break;
             }
 
-            showHeaders(Header);
+            showHeaders(headers);
+
             setSelectedVariations(false);
 
             if (variationAttributes.contains("status_code")) {
@@ -679,13 +634,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void saveAttackValues() {
-        Header = new ArrayList();
+        headers = new ArrayList();
         variationAttributes = new ArrayList();
         insertionPointType = new ArrayList();
         //Save attack with fields values
         try {
             //get GUI values
-            Issue newfile = new Issue();
+            ProfilesProperties newfile = new ProfilesProperties();
 
             if (text1.getText().length() >= 35) {
                 newfile.setName(text1.getText().substring(0, 34));
@@ -699,14 +654,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 newfile.setAuthor(textauthor.getText());
             }
 
-            if (radio1.isSelected()) {
-                newfile.setScanner(1);
-            } else if (radio2.isSelected()) {
+            if (radio2.isSelected()) {
                 newfile.setScanner(2);
             } else if (radioPR.isSelected()) {
                 newfile.setScanner(3);
             } else {
-                newfile.setScanner(0);
+                newfile.setScanner(1);
             }
 
             if (replace.isSelected()) {
@@ -726,7 +679,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             newfile.setPayloadsFile(textpayloads.getText());
             for (int i = 0; i < list1.getModel().getSize(); i++) {
                 Object item = list1.getModel().getElementAt(i);
-                if(!item.toString().isEmpty()){
+                if (!item.toString().isEmpty()) {
                     payloads.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
                 }
             }
@@ -735,20 +688,20 @@ public class BurpBountyGui extends javax.swing.JPanel {
             newfile.setGrepsFile(textgreps.getText());
             for (int i = 0; i < list2.getModel().getSize(); i++) {
                 Object item = list2.getModel().getElementAt(i);
-                if(!item.toString().isEmpty()){
+                if (!item.toString().isEmpty()) {
                     greps.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
                 }
             }
             newfile.setGreps(greps);
 
             for (int row = 0; row < model4.getRowCount(); row++) {
-                Header.add(new Headers((String) model4.getValueAt(row, 0), (String) model4.getValueAt(row, 1), (String) model4.getValueAt(row, 2), (String) model4.getValueAt(row, 3), (String) model4.getValueAt(row, 4)));
+                headers.add(new Headers((String) model4.getValueAt(row, 0), (String) model4.getValueAt(row, 1), (String) model4.getValueAt(row, 2), (String) model4.getValueAt(row, 3), (String) model4.getValueAt(row, 4)));
             }
-            newfile.setHeader(Header);
+            newfile.setHeader(headers);
 
             for (int i = 0; i < listtag.getModel().getSize(); i++) {
                 Object item = listtag.getModel().getElementAt(i);
-                if(!item.toString().isEmpty()){
+                if (!item.toString().isEmpty()) {
                     tags.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
                 }
             }
@@ -756,7 +709,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             for (int i = 0; i < list3.getModel().getSize(); i++) {
                 Object item = list3.getModel().getElementAt(i);
-                if(!item.toString().isEmpty()){
+                if (!item.toString().isEmpty()) {
                     encoders.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
                 }
             }
@@ -929,7 +882,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 insertionPointType.add(37);
                 insertionPointType.add(127);
             }
-            
+
             if (extensionprovided.isSelected()) {
                 insertionPointType.add(65);
             }
@@ -1018,7 +971,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             Gson gson = new Gson();
 
             JsonArray ijson = new JsonArray();
-            List<Issue> newjson = gson.fromJson(ijson, new TypeToken<List<Issue>>() {
+            List<ProfilesProperties> newjson = gson.fromJson(ijson, new TypeToken<List<ProfilesProperties>>() {
             }.getType());
             newjson.add(newfile);
 
@@ -1028,9 +981,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
             FileOutputStream fileStream;
 
             if (text1.getText().length() >= 35) {
-                fileStream = new FileOutputStream(new File(text11.getText() + "/" + text1.getText().substring(0, 34) + ".bb"));
+                fileStream = new FileOutputStream(new File(text11.getText() + text1.getText().substring(0, 34) + ".bb"));
             } else {
-                fileStream = new FileOutputStream(new File(text11.getText() + "/" + text1.getText()) + ".bb");
+                fileStream = new FileOutputStream(new File(text11.getText() + text1.getText()) + ".bb");
             }
 
             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
@@ -1133,41 +1086,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         unknown.setSelected(state);
     }
 
-    public void setEnabledVarious(boolean state) {
-        jLabel31.setEnabled(state);
-        jLabel30.setEnabled(state);
-        check4.setEnabled(state);
-        check1.setEnabled(state);
-        excludehttp.setEnabled(state);
-        onlyhttp.setEnabled(state);
-        check71.setEnabled(state);
-        check72.setEnabled(state);
-        text71.setEnabled(state);
-        text72.setEnabled(state);
-        negativeCT.setEnabled(state);
-        negativeRC.setEnabled(state);
-        rb1.setEnabled(state);
-        rb2.setEnabled(state);
-        rb3.setEnabled(state);
-        rb4.setEnabled(state);
-        jLabel6.setEnabled(state);
-        jLabel2.setEnabled(state);
-        sp1.setEnabled(state);
-        jLabel28.setEnabled(state);
-        jLabel29.setEnabled(state);
-        jLabel25.setEnabled(state);
-        jLabel24.setEnabled(state);
-        button8.setEnabled(state);
-        textgreps.setEnabled(state);
-        button9.setEnabled(state);
-        button10.setEnabled(state);
-        button11.setEnabled(state);
-        button7.setEnabled(state);
-        list2.setEnabled(state);
-        textfield2.setEnabled(state);
-    }
-
-    public void updatePayloads(String file, Issue issue) {
+    public void updatePayloads(String file, ProfilesProperties issue) {
 
         //Load file for implement payloads
         List payloads = new ArrayList();
@@ -1194,7 +1113,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         String strJson = gson.toJson(issue);
         FileWriter writer = null;
         try {
-            writer = new FileWriter(text11.getText() + "/" + issue.getName() + ".bb");
+            writer = new FileWriter(text11.getText() + issue.getName() + ".bb");
             writer.write("[" + strJson + "]");
         } catch (IOException e) {
             e.printStackTrace();
@@ -1206,7 +1125,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }
 
-    public void updateGreps(String file, Issue issue) {
+    public void updateGreps(String file, ProfilesProperties issue) {
 
         //Load file for implement payloads
         List greps = new ArrayList();
@@ -1233,7 +1152,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         String strJson = gson.toJson(issue);
         FileWriter writer = null;
         try {
-            writer = new FileWriter(text11.getText() + "/" + issue.getName() + ".bb");
+            writer = new FileWriter(text11.getText() + issue.getName() + ".bb");
             writer.write("[" + strJson + "]");
         } catch (IOException e) {
             e.printStackTrace();
@@ -1248,13 +1167,125 @@ public class BurpBountyGui extends javax.swing.JPanel {
     public void initCombo() {
         //Init main comboBox with file values
         JsonArray json = initJson();
+        Gson gson = new Gson();
         combo1.removeAllItems();
+        ProfilesProperties profile_property;
+
         if (json != null) {
             //Names for main combo box
             for (JsonElement pa : json) {
                 JsonObject bbObj = pa.getAsJsonObject();
-                if (bbObj.get("Active").getAsBoolean()) {
-                    combo1.addItem(bbObj.get("Name").getAsString());
+                profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class);
+                if (profile_property.getActive() && profile_property.getScanner() == 1 && txt_active.isSelected()) {
+                    combo1.addItem(profile_property.getName());
+                }
+                if (profile_property.getActive() && profile_property.getScanner() == 3 && txt_passivereq.isSelected()) {
+                    combo1.addItem(profile_property.getName());
+                }
+                if (profile_property.getActive() && profile_property.getScanner() == 2 && txt_passiveres.isSelected()) {
+                    combo1.addItem(profile_property.getName());
+                }
+            }
+        }
+    }
+
+    public void checkProfilesProperties() {
+        //Init main comboBox with file values
+
+        Gson gson = new Gson();
+        File f = new File(filename);
+        JsonArray json2 = new JsonArray();
+        List<ProfilesProperties> newfile = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
+        }.getType());
+
+        File[] files = f.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().endsWith(".bb")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        if (f.exists() && f.isDirectory()) {
+            for (File file : files) {
+                try {
+                    JsonArray data = new JsonArray();
+                    JsonReader jsons = new JsonReader(new FileReader(file.getAbsolutePath()));
+                    JsonParser parser = new JsonParser();
+                    data.addAll(parser.parse(jsons).getAsJsonArray());
+
+                    Object idata = data.get(0);
+                    ProfilesProperties profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class);
+
+                    name = profile_property.getName() != null ? profile_property.getName() : "";
+                    author = profile_property.getAuthor() != null ? profile_property.getAuthor() : "";
+                    scanner = profile_property.getScanner() != 0 ? profile_property.getScanner() : 1;
+                    headers = profile_property.getHeader() != null ? profile_property.getHeader() : new ArrayList();
+                    variationAttributes = profile_property.getVariationAttributes() != null ? profile_property.getVariationAttributes() : new ArrayList();
+                    insertionPointType = profile_property.getInsertionPointType() != null ? profile_property.getInsertionPointType() : new ArrayList(Arrays.asList(0));
+                    issuename = profile_property.getIssueName() != null ? profile_property.getIssueName() : "";
+                    issueseverity = profile_property.getIssueSeverity() != null ? profile_property.getIssueSeverity() : "";
+                    issueconfidence = profile_property.getIssueConfidence() != null ? profile_property.getIssueConfidence() : "";
+                    issuedetail = profile_property.getIssueDetail() != null ? profile_property.getIssueDetail() : "";
+                    issuebackground = profile_property.getIssueBackground() != null ? profile_property.getIssueBackground() : "";
+                    remediationdetail = profile_property.getRemediationDetail() != null ? profile_property.getRemediationDetail() : "";
+                    remediationbackground = profile_property.getRemediationBackground() != null ? profile_property.getRemediationBackground() : "";
+                    charstourlencode = profile_property.getCharsToUrlEncode() != null ? profile_property.getCharsToUrlEncode() : "";
+                    contenttype = profile_property.getContentType() != null ? profile_property.getContentType() : "";
+                    responsecode = profile_property.getResponseCode() != null ? profile_property.getResponseCode() : "";
+                    payloadsfile = profile_property.getpayloadsFile() != null ? profile_property.getpayloadsFile() : "";
+                    grepsfile = profile_property.getgrepsFile() != null ? profile_property.getgrepsFile() : "";
+                    timeOut = profile_property.getTime() != null ? profile_property.getTime() : "";
+                    contentLength = profile_property.getContentLength() != null ? profile_property.getContentLength() : "";
+
+                    Tags = profile_property.getTags() != null ? profile_property.getTags() : new ArrayList(Arrays.asList("All"));
+
+                    if (!Tags.contains("All")) {
+                        Tags = new ArrayList(Arrays.asList("All"));
+                    }
+
+                    if (author.length() >= 35) {
+                        profile_property.setAuthor(author.substring(0, 34));
+                    }
+
+                    if (name.length() >= 35) {
+                        profile_property.setName(name.substring(0, 34));
+                    }
+
+                    profile_property.setName(name);
+                    profile_property.setAuthor(author);
+                    profile_property.setScanner(scanner);
+                    profile_property.setHeader(headers);
+                    profile_property.setVariationAttributes(variationAttributes);
+                    profile_property.setInsertionPointType(insertionPointType);
+                    profile_property.setIssueName(issuename);
+                    profile_property.setIssueSeverity(issueseverity);
+                    profile_property.setIssueConfidence(issueconfidence);
+                    profile_property.setIssueBackground(issuebackground);
+                    profile_property.setIssueDetail(issuedetail);
+                    profile_property.setRemediationDetail(remediationdetail);
+                    profile_property.setRemediationBackground(remediationbackground);
+                    profile_property.setCharsToUrlEncode(charstourlencode);
+                    profile_property.setContentType(contenttype);
+                    profile_property.setResponseCode(responsecode);
+                    profile_property.setPayloadsFile(payloadsfile);
+                    profile_property.setGrepsFile(grepsfile);
+                    profile_property.setTime(timeOut);
+                    profile_property.setContentLength(contentLength);
+                    profile_property.setTags(Tags);
+
+                    newfile.clear();
+                    newfile.add(profile_property);
+                    FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
+                    String fjson = gson.toJson(newfile);
+                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
+                    writer.write(fjson);
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -1331,8 +1362,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileload = fileChooser.getSelectedFile();
-            filename = fileload.getAbsolutePath() + "/";
-            text11.setText(fileload.getAbsolutePath());
+            if (fileload.getAbsolutePath().contains("/")) {
+                filename = fileload.getAbsolutePath() + "/";
+            } else {
+                filename = fileload.getAbsolutePath() + "\\";
+            }
+            text11.setText(filename);
 
             initJson();
             initCombo();
@@ -1429,7 +1464,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
         }.getType());
 
         File[] files = f.listFiles(new FilenameFilter() {
@@ -1465,19 +1500,19 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         data.addAll(parser.parse(json).getAsJsonArray());
 
                         Object idata = data.get(0);
-                        Issue i = gson.fromJson(idata.toString(), Issue.class);
+                        ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
                         String pname = finalTable.getValueAt(row, 0).toString();
 
-                        if (pname.equals(i.getName())) {
+                        if (pname.equals(profile_properties.getName())) {
                             if (enable.contains("Yes")) {
-                                i.setActive(true);
+                                profile_properties.setActive(true);
                                 finalTable.setValueAt("Yes", row, 1);
                             } else {
-                                i.setActive(false);
+                                profile_properties.setActive(false);
                                 finalTable.setValueAt("No", row, 1);
                             }
                             newjson.clear();
-                            newjson.add(i);
+                            newjson.add(profile_properties);
                             FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                             String fjson = gson.toJson(newjson);
                             OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
@@ -1498,7 +1533,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
         }.getType());
 
         File[] files = f.listFiles(new FilenameFilter() {
@@ -1521,14 +1556,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     data.addAll(parser.parse(json).getAsJsonArray());
 
                     Object idata = data.get(0);
-                    Issue i = gson.fromJson(idata.toString(), Issue.class);
+                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
                     if (enable.contains("Yes")) {
-                        i.setActive(true);
+                        profile_properties.setActive(true);
                     } else {
-                        i.setActive(false);
+                        profile_properties.setActive(false);
                     }
                     newjson.clear();
-                    newjson.add(i);
+                    newjson.add(profile_properties);
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
@@ -1549,7 +1584,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         File f = new File(filename);
 
         JsonArray json2 = new JsonArray();
-        List<Issue> newjson = gson.fromJson(json2, new TypeToken<List<Issue>>() {
+        List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
         }.getType());
 
         File[] files = f.listFiles(new FilenameFilter() {
@@ -1572,8 +1607,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     data.addAll(parser.parse(json).getAsJsonArray());
 
                     Object idata = data.get(0);
-                    Issue i = gson.fromJson(idata.toString(), Issue.class);
-                    List<String> tags = i.getTags();
+                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                    List<String> tags = profile_properties.getTags();
                     List<String> finaltags = new ArrayList();
                     if (tags != null) {
                         for (String dtag : tags) {
@@ -1582,9 +1617,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
                             }
                         }
                     }
-                    i.setTags(finaltags);
+                    profile_properties.setTags(finaltags);
                     newjson.clear();
-                    newjson.add(i);
+                    newjson.add(profile_properties);
                     FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
                     String fjson = gson.toJson(newjson);
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
@@ -1625,10 +1660,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     data.addAll(parser.parse(json).getAsJsonArray());
 
                     Object idata = data.get(0);
-                    Issue i = gson.fromJson(idata.toString(), Issue.class);
-                    if (i.getTags() != null) {
-                        tags.addAll(i.getTags());
+                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                    if (profile_properties.getTags() != null) {
+                        tags.addAll(profile_properties.getTags());
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -1655,7 +1691,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
         File file = new File(filename + "tags.txt");
         if (!file.exists()) {
             try {
-                file.createNewFile();
+                file.getParentFile().mkdirs();
+                FileWriter writer = new FileWriter(file);
             } catch (IOException ex) {
                 Logger.getLogger(BurpBountyGui.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1671,12 +1708,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     public void showProfiles(String Tag) {
         JsonArray json = initJson();
+        Gson gson = new Gson();
+        ProfilesProperties profile_property;
         //model for active profiles
         model.setNumRows(0);
         model.setColumnCount(0);
-        model.addColumn("Profile");
+        model.addColumn("Profile Name");
         model.addColumn("Enabled");
-        model.addColumn("Authors Twitter");
+        model.addColumn("Author's Twitter");
 
         table.getColumnModel().getColumn(0).setPreferredWidth(400);
         table.getColumnModel().getColumn(1).setPreferredWidth(5);
@@ -1692,9 +1731,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
         //model for passive response
         model1.setNumRows(0);
         model1.setColumnCount(0);
-        model1.addColumn("Profile");
+        model1.addColumn("Profile Name");
         model1.addColumn("Enabled");
-        model1.addColumn("Authors Twitter");
+        model1.addColumn("Author's Twitter");
 
         table1.getColumnModel().getColumn(0).setPreferredWidth(400);
         table1.getColumnModel().getColumn(1).setPreferredWidth(5);
@@ -1710,9 +1749,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
         //model for passive request
         model2.setNumRows(0);
         model2.setColumnCount(0);
-        model2.addColumn("Profile");
+        model2.addColumn("Profile Name");
         model2.addColumn("Enabled");
-        model2.addColumn("Authors Twitter");
+        model2.addColumn("Author's Twitter");
 
         table2.getColumnModel().getColumn(0).setPreferredWidth(400);
         table2.getColumnModel().getColumn(1).setPreferredWidth(5);
@@ -1725,46 +1764,31 @@ public class BurpBountyGui extends javax.swing.JPanel {
         sorter2.setSortKeys(sortKeys2);
         sorter2.sort();
 
-        String author = "";
-
         if (json != null) {
             for (JsonElement pa : json) {
                 JsonObject bbObj = pa.getAsJsonObject();
-                if (bbObj.has("Author")) {
-                    author = bbObj.get("Author").getAsString();
-                }
-                JsonArray Tags = new JsonArray();
-                if (bbObj.has("Tags")) {
-                    Tags = bbObj.get("Tags").getAsJsonArray();
-                    if (!Tags.toString().contains("All")) {
-                        Tags.add("All");
-                    }
-                } else {
-                    Tags.add("All");
-                }
-                for (JsonElement t : Tags) {
-                    if (t.getAsString().equals(Tag)) {
-                        if (bbObj.get("Scanner").getAsInt() == 1) {
+                profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class);
+
+                for (String tag : profile_property.getTags()) {
+                    if (tag.equals(Tag) || Tag.isEmpty()) {
+                        if (profile_property.getScanner() == 1) {
                             if (bbObj.get("Active").getAsBoolean()) {
-                                model.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                                model.addRow(new Object[]{profile_property.getName(), "Yes", profile_property.getAuthor()});
                             } else {
-                                model.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
+                                model.addRow(new Object[]{profile_property.getName(), "No", profile_property.getAuthor()});
                             }
-                            author = "";
-                        } else if (bbObj.get("Scanner").getAsInt() == 2) {
+                        } else if (profile_property.getScanner() == 2) {
                             if (bbObj.get("Active").getAsBoolean()) {
-                                model1.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                                model1.addRow(new Object[]{profile_property.getName(), "Yes", profile_property.getAuthor()});
                             } else {
-                                model1.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
+                                model1.addRow(new Object[]{profile_property.getName(), "No", profile_property.getAuthor()});
                             }
-                            author = "";
-                        } else if (bbObj.get("Scanner").getAsInt() == 3) {
+                        } else if (profile_property.getScanner() == 3) {
                             if (bbObj.get("Active").getAsBoolean()) {
-                                model2.addRow(new Object[]{bbObj.get("Name").getAsString(), "Yes", author});
+                                model2.addRow(new Object[]{profile_property.getName(), "Yes", profile_property.getAuthor()});
                             } else {
-                                model2.addRow(new Object[]{bbObj.get("Name").getAsString(), "No", author});
+                                model2.addRow(new Object[]{profile_property.getName(), "No", profile_property.getAuthor()});
                             }
-                            author = "";
 
                         }
                     }
@@ -1774,6 +1798,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void showHeaders(List<Headers> Header) {
+
+        JComboBox jcb = new JComboBox();
+        JComboBox jcb1 = new JComboBox();
+
         //model for active profiles
         model4.setNumRows(0);
         model4.setColumnCount(0);
@@ -1783,17 +1811,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
         model4.addColumn("Type");
         model4.addColumn("Comment");
 
+        jcb.addItem("Payload");
+        jcb.addItem("Request");
+        jcb1.addItem("String");
+        jcb1.addItem("Regex");
+
         table4.getColumnModel().getColumn(0).setPreferredWidth(140);
         table4.getColumnModel().getColumn(1).setPreferredWidth(400);
         table4.getColumnModel().getColumn(2).setPreferredWidth(450);
         table4.getColumnModel().getColumn(3).setPreferredWidth(120);
         table4.getColumnModel().getColumn(4).setPreferredWidth(250);
-        JComboBox jcb = new JComboBox();
-        jcb.addItem("Payload");
-        jcb.addItem("Request");
-        JComboBox jcb1 = new JComboBox();
-        jcb1.addItem("String");
-        jcb1.addItem("Regex");
+
         table4.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(jcb));
         table4.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(jcb1));
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table4.getModel());
@@ -1846,7 +1874,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         data.addAll(parser.parse(json).getAsJsonArray());
 
                         Object idata = data.get(0);
-                        Issue i = gson.fromJson(idata.toString(), Issue.class);
+                        ProfilesProperties i = gson.fromJson(idata.toString(), ProfilesProperties.class
+                        );
                         String pname = finalTable.getValueAt(row, 0).toString();
 
                         if (pname.equals(i.getName())) {
@@ -1874,7 +1903,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public void addNewTag(String str) {
-        if(!str.isEmpty()){
+        if (!str.isEmpty()) {
             try {
                 BufferedWriter out = new BufferedWriter(new FileWriter(filename + "tags.txt", true));
                 out.write(str + "\n");
@@ -1938,21 +1967,24 @@ public class BurpBountyGui extends javax.swing.JPanel {
         File file = new File(filename + "tags.txt");
         if (!file.exists()) {
             try {
-                file.createNewFile();
+                file.getParentFile().mkdirs();
+                FileWriter writer = new FileWriter(file);
             } catch (IOException ex) {
                 Logger.getLogger(BurpBountyGui.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
         List<String> tags = readFile(filename + "tags.txt");
+
         newTagCombo.removeAllItems();
         newTagCombo2.removeAllItems();
         tagmanager.removeAllElements();
-        newTagCombo2.addItem("All");
         for (String tag : tags) {
             newTagCombo.addItem(tag);
             newTagCombo2.addItem(tag);
             tagmanager.addElement(tag);
         }
+        newTagCombo2.setSelectedItem("All");
     }
 
     /**
@@ -1975,13 +2007,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
         buttonGroup9 = new javax.swing.ButtonGroup();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jButton5 = new javax.swing.JButton();
-        text11 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
         jTabbedPane2 = new javax.swing.JTabbedPane();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        combo1 = new javax.swing.JComboBox<>();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         text1 = new javax.swing.JTextField();
@@ -1993,63 +2022,67 @@ public class BurpBountyGui extends javax.swing.JPanel {
         radioPR = new javax.swing.JRadioButton();
         radio1 = new javax.swing.JRadioButton();
         headerstab = new javax.swing.JTabbedPane();
+        jScrollPane12 = new javax.swing.JScrollPane();
         jPanel10 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
+        parambody = new javax.swing.JCheckBox();
+        jSeparator2 = new javax.swing.JSeparator();
+        text5 = new javax.swing.JTextField();
+        jButton9 = new javax.swing.JButton();
+        button6 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         list1 = new javax.swing.JList<>();
-        button2 = new javax.swing.JButton();
-        textpayloads = new javax.swing.JTextField();
-        button3 = new javax.swing.JButton();
-        button4 = new javax.swing.JButton();
-        button5 = new javax.swing.JButton();
-        button6 = new javax.swing.JButton();
-        textfield1 = new javax.swing.JTextField();
-        jLabel19 = new javax.swing.JLabel();
-        append = new javax.swing.JRadioButton();
-        replace = new javax.swing.JRadioButton();
-        jLabel10 = new javax.swing.JLabel();
-        check8 = new javax.swing.JCheckBox();
-        text5 = new javax.swing.JTextField();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        list3 = new javax.swing.JList<>();
-        jButton9 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        combo2 = new javax.swing.JComboBox<>();
-        jSeparator2 = new javax.swing.JSeparator();
-        jLabel22 = new javax.swing.JLabel();
-        jLabel23 = new javax.swing.JLabel();
-        jLabel52 = new javax.swing.JLabel();
-        jLabel53 = new javax.swing.JLabel();
-        button18 = new javax.swing.JButton();
         jScrollPane14 = new javax.swing.JScrollPane();
         table4 = new javax.swing.JTable();
-        button19 = new javax.swing.JButton();
-        jSeparator3 = new javax.swing.JSeparator();
-        jSeparator4 = new javax.swing.JSeparator();
-        jLabel54 = new javax.swing.JLabel();
-        jLabel55 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        extensionprovided = new javax.swing.JCheckBox();
-        header = new javax.swing.JCheckBox();
-        paramamf = new javax.swing.JCheckBox();
-        parambody = new javax.swing.JCheckBox();
-        paramcookie = new javax.swing.JCheckBox();
-        paramjson = new javax.swing.JCheckBox();
-        parammultipartattr = new javax.swing.JCheckBox();
-        paramnamebody = new javax.swing.JCheckBox();
-        paramnameurl = new javax.swing.JCheckBox();
-        paramurl = new javax.swing.JCheckBox();
-        paramxml = new javax.swing.JCheckBox();
-        paramxmlattr = new javax.swing.JCheckBox();
-        urlpathfilename = new javax.swing.JCheckBox();
-        entirebody = new javax.swing.JCheckBox();
+        jLabel22 = new javax.swing.JLabel();
         urlpathfolder = new javax.swing.JCheckBox();
-        userprovided = new javax.swing.JCheckBox();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        list3 = new javax.swing.JList<>();
+        header = new javax.swing.JCheckBox();
+        jSeparator3 = new javax.swing.JSeparator();
+        paramurl = new javax.swing.JCheckBox();
+        button3 = new javax.swing.JButton();
+        jLabel55 = new javax.swing.JLabel();
+        paramcookie = new javax.swing.JCheckBox();
+        jLabel52 = new javax.swing.JLabel();
+        paramnamebody = new javax.swing.JCheckBox();
+        button2 = new javax.swing.JButton();
+        paramamf = new javax.swing.JCheckBox();
+        urlpathfilename = new javax.swing.JCheckBox();
         unknown = new javax.swing.JCheckBox();
-        All = new javax.swing.JCheckBox();
+        jLabel11 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JSeparator();
+        button4 = new javax.swing.JButton();
+        button18 = new javax.swing.JButton();
+        button19 = new javax.swing.JButton();
+        combo2 = new javax.swing.JComboBox<>();
+        extensionprovided = new javax.swing.JCheckBox();
+        parammultipartattr = new javax.swing.JCheckBox();
+        paramjson = new javax.swing.JCheckBox();
+        paramxmlattr = new javax.swing.JCheckBox();
+        paramnameurl = new javax.swing.JCheckBox();
+        textpayloads = new javax.swing.JTextField();
+        userprovided = new javax.swing.JCheckBox();
+        jLabel54 = new javax.swing.JLabel();
+        jButton6 = new javax.swing.JButton();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        button5 = new javax.swing.JButton();
+        replace = new javax.swing.JRadioButton();
+        jLabel5 = new javax.swing.JLabel();
+        check8 = new javax.swing.JCheckBox();
+        textfield1 = new javax.swing.JTextField();
+        entirebody = new javax.swing.JCheckBox();
+        All = new javax.swing.JCheckBox();
+        paramxml = new javax.swing.JCheckBox();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel53 = new javax.swing.JLabel();
+        append = new javax.swing.JRadioButton();
+        jButton7 = new javax.swing.JButton();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jScrollPane15 = new javax.swing.JScrollPane();
         jPanel11 = new javax.swing.JPanel();
         button8 = new javax.swing.JButton();
         button9 = new javax.swing.JButton();
@@ -2133,6 +2166,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         canonical_link = new javax.swing.JCheckBox();
         anchor_labels = new javax.swing.JCheckBox();
         jSeparator12 = new javax.swing.JSeparator();
+        jScrollPane16 = new javax.swing.JScrollPane();
         jPanel12 = new javax.swing.JPanel();
         jLabel32 = new javax.swing.JLabel();
         jLabel33 = new javax.swing.JLabel();
@@ -2180,11 +2214,16 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jLabel46 = new javax.swing.JLabel();
         jLabel47 = new javax.swing.JLabel();
         newTagb = new javax.swing.JButton();
+        jSeparator16 = new javax.swing.JSeparator();
+        combo1 = new javax.swing.JComboBox<>();
+        txt_active = new javax.swing.JCheckBox();
+        txt_passivereq = new javax.swing.JCheckBox();
+        txt_passiveres = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jLabel43 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
-        jLabel45 = new javax.swing.JLabel();
         newTagCombo2 = new javax.swing.JComboBox<>();
+        jLabel45 = new javax.swing.JLabel();
         jtabpane = new javax.swing.JTabbedPane();
         jScrollPane5 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -2194,15 +2233,20 @@ public class BurpBountyGui extends javax.swing.JPanel {
         table2 = new javax.swing.JTable();
         button1 = new javax.swing.JButton();
         button12 = new javax.swing.JButton();
-        button13 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
+        button13 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
-        jLabel48 = new javax.swing.JLabel();
+        jLabel50 = new javax.swing.JLabel();
+        jLabel51 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        text11 = new javax.swing.JTextField();
+        jSeparator13 = new javax.swing.JSeparator();
         jLabel49 = new javax.swing.JLabel();
+        jLabel48 = new javax.swing.JLabel();
         jButton11 = new javax.swing.JButton();
         jButton12 = new javax.swing.JButton();
-        jButton13 = new javax.swing.JButton();
         jScrollPane13 = new javax.swing.JScrollPane();
         listtagmanager = new javax.swing.JList<>();
 
@@ -2213,38 +2257,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         setAutoscrolls(true);
 
-        jButton5.setText("Profiles Directory");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadConfigFile(evt);
-            }
-        });
-
-        text11.setToolTipText("");
-
-        jButton1.setText("Profiles Reload");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profilesReload(evt);
-            }
-        });
-
         jTabbedPane2.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 showprofiles(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 15)); // NOI18N
-        jLabel1.setText("Select Profile:");
+        jPanel1.setAutoscrolls(true);
 
-        combo1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        combo1.setModel(new javax.swing.DefaultComboBoxModel<>());
-        combo1.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                selectAttack(evt);
-            }
-        });
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 15)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel1.setText("Select Profile:");
 
         jButton2.setText("Save");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -2308,44 +2331,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
-        jPanel10.setAutoscrolls(true);
-        jPanel10.setMaximumSize(new java.awt.Dimension(800, 800));
-        jPanel10.setPreferredSize(new java.awt.Dimension(716, 800));
+        jScrollPane12.getVerticalScrollBar().setUnitIncrement(20);
 
-        jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel5.setText("Payload Sets");
+        jPanel10.setMaximumSize(new java.awt.Dimension(400, 400));
+        jPanel10.setPreferredSize(new java.awt.Dimension(958, 1250));
 
-        list1.setModel(payload);
-        jScrollPane3.setViewportView(list1);
+        parambody.setText("Param body");
 
-        button2.setText("Paste");
-        button2.addActionListener(new java.awt.event.ActionListener() {
+        jButton9.setText("Remove");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pastePayload(evt);
-            }
-        });
-
-        textpayloads.setToolTipText("");
-
-        button3.setText("Load File");
-        button3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadPayloads(evt);
-            }
-        });
-
-        button4.setText("Remove");
-        button4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removePayload(evt);
-            }
-        });
-
-        button5.setText("Clear");
-        button5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeAllPayloads(evt);
+                jButton9removeEncoder(evt);
             }
         });
 
@@ -2356,27 +2352,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
-        jLabel19.setText("You can define one or more payloads. Each payload of this section will be sent at each insertion point.");
-
-        buttonGroup9.add(append);
-        append.setText("Append");
-
-        buttonGroup9.add(replace);
-        replace.setText("Replace");
-
-        jLabel10.setText("Payload position:");
-
-        check8.setText("URL-Encode these characters:");
-
-        list3.setModel(encoder);
-        jScrollPane4.setViewportView(list3);
-
-        jButton9.setText("Remove");
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9removeEncoder(evt);
-            }
-        });
+        list1.setModel(payload);
+        jScrollPane3.setViewportView(list1);
 
         jButton8.setText("Up");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -2385,106 +2362,55 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
-        jButton7.setText("Down");
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7downEncoder(evt);
-            }
-        });
-
-        jButton6.setText("Add");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6addEncoder(evt);
-            }
-        });
-
-        combo2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "URL-encode key characters", "URL-encode all characters", "URL-encode all characters (Unicode)", "HTML-encode key characters", "HTML-encode all characters", "Base64-encode" }));
-
-        jLabel22.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel22.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel22.setText("Payload Encoding");
-
-        jLabel23.setText("You can define the encoding of payloads. You can encode each payload multiple times.");
-
-        jLabel52.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel52.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel52.setText("Match and Replace");
-
-        jLabel53.setText("These settings are used to automatically replace part of request when the active scanner run.");
-
-        button18.setText("Remove");
-        button18.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeMatchReplace(evt);
-            }
-        });
-
         table4.setFont(new java.awt.Font("Lucida Grande", 0, 13)); // NOI18N
         table4.setModel(model4);
         table4.setShowGrid(false);
         jScrollPane14.setViewportView(table4);
 
-        button19.setText("Add");
-        button19.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addMatchReplace(evt);
-            }
-        });
-
-        jLabel54.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel54.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel54.setText("Payload Options");
-
-        jLabel55.setText("You can define the payload options.");
-
-        jLabel11.setText("Insertion point type:");
-
-        extensionprovided.setText("Path discovery");
-
-        header.setText("Header");
-
-        paramamf.setText("Param AMF");
-
-        parambody.setText("Param body");
-
-        paramcookie.setText("Param cookie");
-
-        paramjson.setText("Param json");
-
-        parammultipartattr.setText("Param multipart attr");
-
-        paramnamebody.setText("Param name body");
-
-        paramnameurl.setText("Param name url");
-
-        paramurl.setText("Param url");
-
-        paramxml.setText("Param xml");
-        paramxml.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                paramxmlActionPerformed(evt);
-            }
-        });
-
-        paramxmlattr.setText("Param xml attr");
-
-        urlpathfilename.setText("Url path filename");
-
-        entirebody.setText("Entire body");
+        jLabel22.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel22.setText("Payload Encoding");
 
         urlpathfolder.setText("Url path folder");
 
-        userprovided.setText("User provided");
+        list3.setModel(encoder);
+        jScrollPane4.setViewportView(list3);
+
+        header.setText("Header");
+
+        paramurl.setText("Param url");
+
+        button3.setText("Load File");
+        button3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadPayloads(evt);
+            }
+        });
+
+        jLabel55.setText("You can define the payload options.");
+
+        paramcookie.setText("Param cookie");
+
+        jLabel52.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel52.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel52.setText("Match and Replace");
+
+        paramnamebody.setText("Param name body");
+
+        button2.setText("Paste");
+        button2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pastePayload(evt);
+            }
+        });
+
+        paramamf.setText("Param AMF");
+
+        urlpathfilename.setText("Url path filename");
 
         unknown.setText("Unknown");
 
-        All.setText("All ");
-        All.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                AllItemStateChanged(evt);
-            }
-        });
+        jLabel11.setText("Insertion point type:");
 
         jLabel17.setText("<html> * More info at <a href=\\\"\\\">Burp Suite Extender API</a></html>");
         jLabel17.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2493,86 +2419,123 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
+        button4.setText("Remove");
+        button4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removePayload(evt);
+            }
+        });
+
+        button18.setText("Remove");
+        button18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeMatchReplace(evt);
+            }
+        });
+
+        button19.setText("Add");
+        button19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addMatchReplace(evt);
+            }
+        });
+
+        combo2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "URL-encode key characters", "URL-encode all characters", "URL-encode all characters (Unicode)", "HTML-encode key characters", "HTML-encode all characters", "Base64-encode" }));
+
+        extensionprovided.setText("Path discovery");
+
+        parammultipartattr.setText("Param multipart attr");
+
+        paramjson.setText("Param json");
+
+        paramxmlattr.setText("Param xml attr");
+
+        paramnameurl.setText("Param name url");
+
+        textpayloads.setToolTipText("");
+
+        userprovided.setText("User provided");
+
+        jLabel54.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel54.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel54.setText("Payload Options");
+
+        jButton6.setText("Add");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6addEncoder(evt);
+            }
+        });
+
+        jLabel19.setText("You can define one or more payloads. Each payload of this section will be sent at each insertion point.");
+
+        jLabel10.setText("Payload position:");
+
+        button5.setText("Clear");
+        button5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeAllPayloads(evt);
+            }
+        });
+
+        buttonGroup9.add(replace);
+        replace.setText("Replace");
+
+        jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel5.setText("Payload Sets");
+
+        check8.setText("URL-Encode these characters:");
+
+        entirebody.setText("Entire body");
+
+        All.setText("All ");
+        All.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                AllItemStateChanged(evt);
+            }
+        });
+
+        paramxml.setText("Param xml");
+        paramxml.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                paramxmlActionPerformed(evt);
+            }
+        });
+
+        jLabel23.setText("You can define the encoding of payloads. You can encode each payload multiple times.");
+
+        jLabel53.setText("These settings are used to automatically replace part of request when the active scanner run.");
+
+        buttonGroup9.add(append);
+        append.setText("Append");
+
+        jButton7.setText("Down");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7downEncoder(evt);
+            }
+        });
+
+        jLabel20.setText("- {PAYLOAD} token will be replaced by your payload");
+
+        jLabel21.setText("- {BC} token will be replaced by burpcollaborator host");
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator2)
                     .addComponent(jSeparator3)
+                    .addComponent(jSeparator4)
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel10Layout.createSequentialGroup()
-                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(jPanel10Layout.createSequentialGroup()
-                                            .addGap(12, 12, 12)
-                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(button4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addComponent(button5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                                            .addContainerGap()
-                                            .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGap(18, 18, 18)
-                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(textpayloads)
-                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)))
-                                .addGroup(jPanel10Layout.createSequentialGroup()
-                                    .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel22)
-                                    .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel54)
-                                    .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(extensionprovided)
-                                            .addComponent(header)
-                                            .addComponent(urlpathfilename)
-                                            .addComponent(entirebody)
-                                            .addComponent(paramxml)
-                                            .addComponent(All))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(paramjson)
-                                                    .addComponent(parambody)
-                                                    .addComponent(paramcookie)
-                                                    .addComponent(urlpathfolder)
-                                                    .addComponent(paramamf))
-                                                .addGap(18, 18, 18)
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(parammultipartattr)
-                                                    .addComponent(paramnamebody)
-                                                    .addComponent(paramnameurl)
-                                                    .addComponent(userprovided)
-                                                    .addComponent(paramurl)))
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addComponent(paramxmlattr)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(unknown)))
-                                        .addGap(158, 158, 158)))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(button18, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(button19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(jLabel53, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel52, javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -2589,26 +2552,84 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                             .addGap(12, 12, 12)
                                             .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                 .addComponent(jScrollPane4)
-                                                .addComponent(combo2, 0, 447, Short.MAX_VALUE)))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE))
-                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel10Layout.createSequentialGroup()
-                                        .addGap(47, 47, 47)
+                                                .addComponent(combo2, 0, 447, Short.MAX_VALUE))))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
                                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addComponent(jLabel10)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                    .addComponent(append)
-                                                    .addComponent(replace)))
-                                            .addComponent(jLabel11)
-                                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 0, Short.MAX_VALUE))))
-                    .addComponent(jSeparator4))
-                .addContainerGap())
+                                            .addComponent(button18, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel20)
+                                            .addComponent(jLabel21)
+                                            .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel10Layout.createSequentialGroup()
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                            .addGap(12, 12, 12)
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(button4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(button5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(button2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(textpayloads)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(jPanel10Layout.createSequentialGroup()
+                                    .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel22)
+                                .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel54)
+                                .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(extensionprovided)
+                                        .addComponent(header)
+                                        .addComponent(urlpathfilename)
+                                        .addComponent(entirebody)
+                                        .addComponent(paramxml)
+                                        .addComponent(All))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(paramjson)
+                                                .addComponent(parambody)
+                                                .addComponent(paramcookie)
+                                                .addComponent(urlpathfolder)
+                                                .addComponent(paramamf))
+                                            .addGap(18, 18, 18)
+                                            .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(parammultipartattr)
+                                                .addComponent(paramnamebody)
+                                                .addComponent(paramnameurl)
+                                                .addComponent(userprovided)
+                                                .addComponent(paramurl)))
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                            .addComponent(paramxmlattr)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(unknown)))
+                                    .addGap(158, 158, 158)))
+                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                .addGap(47, 47, 47)
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel10Layout.createSequentialGroup()
+                                        .addComponent(jLabel10)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(append)
+                                            .addComponent(replace)))
+                                    .addComponent(jLabel11)
+                                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabel5))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(14, 14, 14))
         );
 
         jPanel10Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {combo2, jScrollPane4});
@@ -2616,15 +2637,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(10, 10, 10)
                 .addComponent(jLabel5)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel19)
-                .addGap(27, 27, 27)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textpayloads, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button3))
-                .addGap(25, 25, 25)
+                .addGap(20, 20, 20)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(button2)
@@ -2639,11 +2660,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel54)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel55)
-                .addGap(19, 19, 19)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(replace)
@@ -2652,7 +2673,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(jLabel10)))
-                .addGap(30, 30, 30)
+                .addGap(25, 25, 25)
                 .addComponent(jLabel11)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -2688,22 +2709,26 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel52)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel53)
                 .addGap(18, 18, 18)
+                .addComponent(jLabel20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel21)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(button19)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button18))
-                    .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel22)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel23)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -2722,10 +2747,14 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(check8)
                     .addComponent(text5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        headerstab.addTab("          Request          ", jPanel10);
+        jScrollPane12.setViewportView(jPanel10);
+
+        headerstab.addTab("     Request     ", jScrollPane12);
+
+        jScrollPane15.getVerticalScrollBar().setUnitIncrement(20);
 
         jPanel11.setAutoscrolls(true);
 
@@ -3119,7 +3148,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(variationsRadio))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
+                .addComponent(jSeparator12, javax.swing.GroupLayout.DEFAULT_SIZE, 4, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 952, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel11Layout.createSequentialGroup()
@@ -3175,7 +3204,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(check71))
                                 .addGap(15, 15, 15)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
+                                    .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
                                     .addComponent(text72))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3191,11 +3220,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(10, 10, 10)
                 .addComponent(jLabel27)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel26)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addComponent(radio4)
@@ -3225,15 +3254,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jSeparator12)
                     .addComponent(jSeparator11))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel25)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel24)
-                .addGap(32, 32, 32)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button8))
-                .addGap(26, 26, 26)
+                .addGap(20, 20, 20)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addComponent(button7)
@@ -3248,9 +3277,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(button11))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel31)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel30)
                 .addGap(18, 18, 18)
                 .addComponent(check4)
@@ -3272,11 +3301,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(negativeRC))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel29)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel28)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rb1)
                     .addComponent(jLabel6))
@@ -3286,7 +3315,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(rb3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(rb4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(sp1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -3295,8 +3324,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         jPanel11Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {textcl, texttime});
 
-        headerstab.addTab("          Response          ", jPanel11);
+        JScrollPane responseresScroll = new JScrollPane(jPanel11,
+            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        jScrollPane15.setViewportView(jPanel11);
         jPanel11.getAccessibleContext().setAccessibleName("");
+
+        headerstab.addTab("     Response     ", jScrollPane15);
+
+        jScrollPane16.getVerticalScrollBar().setUnitIncrement(20);
 
         jPanel12.setAutoscrolls(true);
 
@@ -3396,7 +3432,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator8, javax.swing.GroupLayout.DEFAULT_SIZE, 944, Short.MAX_VALUE)
+                            .addComponent(jSeparator8)
                             .addComponent(jSeparator9)
                             .addComponent(jLabel33)
                             .addComponent(jLabel35)
@@ -3451,11 +3487,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(10, 10, 10)
                 .addComponent(jLabel33)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel32)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(text4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -3481,48 +3517,50 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addComponent(radio8)))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel35)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel34)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel37)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel36)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel13)
                     .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator9, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel39)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel38)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel15)
                     .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator10, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel41)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel40)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel14)
                     .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        headerstab.addTab("          Issue          ", jPanel12);
+        jScrollPane16.setViewportView(jPanel12);
+
+        headerstab.addTab("     Issue     ", jScrollPane16);
 
         removetag.setText("Remove");
         removetag.addActionListener(new java.awt.event.ActionListener() {
@@ -3580,11 +3618,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(10, 10, 10)
                 .addComponent(jLabel47)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel46)
-                .addGap(18, 18, 18)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -3600,29 +3638,69 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         headerstab.addTab("          Tags          ", jPanel3);
 
+        combo1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        combo1.setModel(new javax.swing.DefaultComboBoxModel<>());
+        combo1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                selectAttack(evt);
+            }
+        });
+
+        txt_active.setText("Active");
+        txt_active.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                setActiveProfiles(evt);
+            }
+        });
+
+        txt_passivereq.setText("Passive Request");
+        txt_passivereq.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                setPassiveReq(evt);
+            }
+        });
+
+        txt_passiveres.setText("Passive Response");
+        txt_passiveres.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                setPassiveRes(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jSeparator16))
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, 590, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                        .addGap(20, 20, 20)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(txt_active)
+                                .addGap(58, 58, 58)
+                                .addComponent(txt_passivereq)
+                                .addGap(41, 41, 41)
+                                .addComponent(txt_passiveres))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel12)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(38, 38, 38)
+                        .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(48, 48, 48)
                         .addComponent(jLabel18)
                         .addGap(18, 18, 18)
-                        .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(35, 35, 35)
                         .addComponent(jLabel8)
                         .addGap(18, 18, 18)
@@ -3630,24 +3708,26 @@ public class BurpBountyGui extends javax.swing.JPanel {
                             .addComponent(radio1)
                             .addComponent(radio2)
                             .addComponent(radioPR))))
-                .addContainerGap(36, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(headerstab)
         );
-
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton2, jButton3});
-
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
+                    .addComponent(txt_active)
+                    .addComponent(txt_passivereq)
+                    .addComponent(txt_passiveres))
+                .addGap(20, 20, 20)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(combo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
-                .addGap(22, 22, 22)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator16, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(radio1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -3660,18 +3740,17 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioPR)
                 .addGap(18, 18, 18)
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, 1405, Short.MAX_VALUE))
+                .addComponent(headerstab, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        jTabbedPane2.addTab("   Profiles Definition   ", jPanel1);
+        jTabbedPane1.addTab("   Profiles Definition   ", jPanel1);
 
         jLabel43.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel43.setForeground(new java.awt.Color(255, 102, 51));
         jLabel43.setText("Profile Manager");
 
         jLabel44.setText("In this section you can manage the profiles. ");
-
-        jLabel45.setText("Filter by Tag");
 
         newTagCombo2.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -3684,12 +3763,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
+        jLabel45.setText("Filter by Tag");
+
         jtabpane.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
 
         table.setAutoCreateRowSorter(true);
         table.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         table.setModel(model);
-        table.setRowSorter(null);
         table.getTableHeader().setReorderingAllowed(false);
         jScrollPane5.setViewportView(table);
 
@@ -3727,13 +3807,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
-        button13.setText("Remove");
-        button13.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button13DeleteItem(evt);
-            }
-        });
-
         jButton4.setText("Enable All");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -3748,32 +3821,37 @@ public class BurpBountyGui extends javax.swing.JPanel {
             }
         });
 
+        button13.setText("Remove");
+        button13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button13DeleteItem(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(249, 249, 249)
+                        .addGap(212, 212, 212)
                         .addComponent(jLabel45)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(newTagCombo2, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(button12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(button13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(18, 18, 18)
-                                .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel44, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel43))))
-                .addContainerGap(133, Short.MAX_VALUE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(button12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(button13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel44, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel43))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {button1, button12, button13, jButton10, jButton4});
@@ -3781,11 +3859,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
+                .addContainerGap()
                 .addComponent(jLabel43)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel44)
-                .addGap(36, 36, 36)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newTagCombo2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel45))
@@ -3804,21 +3882,47 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jtabpane, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(858, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane2.addTab("   Profiles Manager   ", jPanel2);
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {button13, jButton10, jButton4});
 
-        jLabel48.setText("In this section you can manage the tags. You can delete tags, add, etc ");
+        jTabbedPane1.addTab("     Profiles Manager     ", jPanel2);
+
+        jTabbedPane2.addTab("     Profiles     ", jTabbedPane1);
+
+        jLabel50.setText("In this section specify the profiles directory. ");
+
+        jLabel51.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel51.setForeground(new java.awt.Color(255, 102, 51));
+        jLabel51.setText("Profiles Directory");
+
+        jButton5.setText("Profiles Directory");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadConfigFile(evt);
+            }
+        });
+
+        jButton1.setText("Profiles Reload");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                profilesReload(evt);
+            }
+        });
+
+        text11.setToolTipText("");
 
         jLabel49.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel49.setForeground(new java.awt.Color(255, 102, 51));
         jLabel49.setText("Tags Manager");
 
-        jButton11.setText("New");
+        jLabel48.setText("In this section you can manage the tags.");
+
+        jButton11.setText("Add");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newTagManager(evt);
+                newTag(evt);
             }
         });
 
@@ -3826,13 +3930,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jButton12.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeTagManager(evt);
-            }
-        });
-
-        jButton13.setText("Delete tag for all profiles");
-        jButton13.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteTagmanager(evt);
             }
         });
 
@@ -3844,136 +3941,112 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel49)
+                    .addComponent(jSeparator13)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton11)
-                            .addComponent(jButton12))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton13)))
-                .addContainerGap(314, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel50, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel51)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel49)
+                            .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 190, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
-        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton11, jButton12});
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton1, jButton5});
 
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel51)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel50)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton5)
+                    .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator13, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel49)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel48)
-                .addGap(36, 36, 36)
+                .addGap(20, 20, 20)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButton11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton12))
-                    .addComponent(jButton13)
-                    .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(1158, Short.MAX_VALUE))
+                    .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(158, Short.MAX_VALUE))
         );
 
-        jTabbedPane2.addTab("   Tags Manager   ", jPanel4);
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButton1, jButton5});
+
+        jTabbedPane2.addTab("     Options     ", jPanel4);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPane2)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(92, 92, 92)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+            .addComponent(jTabbedPane2)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton5)
-                    .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
-                .addGap(48, 48, 48)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1581, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(jTabbedPane2)
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void selectAttack(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectAttack
-        if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
-            String name = combo1.getItemAt(combo1.getSelectedIndex());
-            setAttackValues(name);
+    private void showprofiles(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_showprofiles
+        if (jTabbedPane2.isShowing()) {
+            showProfiles("All");
+            showTags();
         }
-    }//GEN-LAST:event_selectAttack
-
-    private void saveAttack(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAttack
-        saveAttackValues();
-        initCombo();
-    }//GEN-LAST:event_saveAttack
-
-    private void loadConfigFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadConfigFile
-        loadConfigFile();
-        makeTagsFile();
-        showTags();
-    }//GEN-LAST:event_loadConfigFile
+    }//GEN-LAST:event_showprofiles
 
     private void profilesReload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_profilesReload
+        checkProfilesProperties();
         initCombo();
         makeTagsFile();
         showTags();
     }//GEN-LAST:event_profilesReload
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        clear();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void loadConfigFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadConfigFile
+        loadConfigFile();
+        checkProfilesProperties();
+        makeTagsFile();
+        showTags();
+    }//GEN-LAST:event_loadConfigFile
 
-    private void SelectPassiveResponse(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_SelectPassiveResponse
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            headerstab.setSelectedIndex(1);
-            headerstab.setEnabledAt(0, false);
-            radio12.setEnabled(false);
-            radio22.setEnabled(false);
-            radiotime.setEnabled(false);
-            texttime.setEnabled(false);
-            jLabel16.setEnabled(false);
-            texttime.setEnabled(false);
-            check71.setEnabled(true);
-            check72.setEnabled(true);
-            text71.setEnabled(true);
-            text72.setEnabled(true);
-            negativeCT.setEnabled(true);
-            negativeRC.setEnabled(true);
-            rb1.setEnabled(false);
-            rb2.setEnabled(false);
-            rb3.setEnabled(false);
-            rb4.setEnabled(false);
-            jLabel6.setEnabled(false);
-            jLabel2.setEnabled(false);
-            sp1.setEnabled(false);
-            jLabel28.setEnabled(false);
-            jLabel29.setEnabled(false);
-            radiocl.setEnabled(false);
-            textcl.setEnabled(false);
-            jLabel42.setEnabled(false);
-            variationsRadio.setEnabled(false);
-            invariationsRadio.setEnabled(false);
-            setEnabledVariations(false);
+    private void removeTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTagManager
+        int selectedIndex = listtagmanager.getSelectedIndex();
+        String tag = "";
+        if (selectedIndex != -1) {
+            tag = tagmanager.get(selectedIndex).toString();
+            if (!tag.equals("All")) {
+                tagmanager.remove(selectedIndex);
+                deleteTagProfiles(tag);
+                removeTag(tag);
+                showTags();
+            }
         }
-    }//GEN-LAST:event_SelectPassiveResponse
+    }//GEN-LAST:event_removeTagManager
 
     private void selectActive(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectActive
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
@@ -4043,36 +4116,59 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_selectPassiveRequest
 
-    private void newTagCombo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagCombo2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_newTagCombo2ActionPerformed
-
-    private void button1setProfileEnable(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1setProfileEnable
-        int activePane = jtabpane.getSelectedIndex();
-
-        if (activePane == 0) {
-            setEnableDisableProfile("Yes", 0);
-        } else if (activePane == 1) {
-            setEnableDisableProfile("Yes", 1);
-        } else if (activePane == 2) {
-            setEnableDisableProfile("Yes", 2);
+    private void SelectPassiveResponse(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_SelectPassiveResponse
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            headerstab.setSelectedIndex(1);
+            headerstab.setEnabledAt(0, false);
+            radio12.setEnabled(false);
+            radio22.setEnabled(false);
+            radiotime.setEnabled(false);
+            texttime.setEnabled(false);
+            jLabel16.setEnabled(false);
+            texttime.setEnabled(false);
+            check71.setEnabled(true);
+            check72.setEnabled(true);
+            text71.setEnabled(true);
+            text72.setEnabled(true);
+            negativeCT.setEnabled(true);
+            negativeRC.setEnabled(true);
+            rb1.setEnabled(false);
+            rb2.setEnabled(false);
+            rb3.setEnabled(false);
+            rb4.setEnabled(false);
+            jLabel6.setEnabled(false);
+            jLabel2.setEnabled(false);
+            sp1.setEnabled(false);
+            jLabel28.setEnabled(false);
+            jLabel29.setEnabled(false);
+            radiocl.setEnabled(false);
+            textcl.setEnabled(false);
+            jLabel42.setEnabled(false);
+            variationsRadio.setEnabled(false);
+            invariationsRadio.setEnabled(false);
+            setEnabledVariations(false);
         }
+    }//GEN-LAST:event_SelectPassiveResponse
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        clear();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void saveAttack(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAttack
+        saveAttackValues();
+        checkProfilesProperties();
         initCombo();
+    }//GEN-LAST:event_saveAttack
 
-    }//GEN-LAST:event_button1setProfileEnable
-
-    private void button12SetDisableProfiles(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button12SetDisableProfiles
-        int activePane = jtabpane.getSelectedIndex();
-
-        if (activePane == 0) {
-            setEnableDisableProfile("No", 0);
-        } else if (activePane == 1) {
-            setEnableDisableProfile("No", 1);
-        } else if (activePane == 2) {
-            setEnableDisableProfile("No", 2);
-        }
+    private void disableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableAll
+        setEnableDisableAllProfiles("No");
         initCombo();
-    }//GEN-LAST:event_button12SetDisableProfiles
+    }//GEN-LAST:event_disableAll
+
+    private void enableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableAll
+        setEnableDisableAllProfiles("Yes");
+        initCombo();
+    }//GEN-LAST:event_enableAll
 
     private void button13DeleteItem(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button13DeleteItem
         int activePane = jtabpane.getSelectedIndex();
@@ -4087,62 +4183,77 @@ public class BurpBountyGui extends javax.swing.JPanel {
         initCombo();
     }//GEN-LAST:event_button13DeleteItem
 
-    private void showprofiles(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_showprofiles
-        if (jTabbedPane2.isShowing()) {
-            showProfiles("All");
-            showTags();
-        }
-    }//GEN-LAST:event_showprofiles
+    private void button12SetDisableProfiles(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button12SetDisableProfiles
+        int activePane = jtabpane.getSelectedIndex();
 
-    private void enableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableAll
-        setEnableDisableAllProfiles("Yes");
+        if (activePane == 0) {
+            setEnableDisableProfile("No", 0);
+        } else if (activePane == 1) {
+            setEnableDisableProfile("No", 1);
+        } else if (activePane == 2) {
+            setEnableDisableProfile("No", 2);
+        }
         initCombo();
-    }//GEN-LAST:event_enableAll
+    }//GEN-LAST:event_button12SetDisableProfiles
+
+    private void button1setProfileEnable(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1setProfileEnable
+        int activePane = jtabpane.getSelectedIndex();
+
+        if (activePane == 0) {
+            setEnableDisableProfile("Yes", 0);
+        } else if (activePane == 1) {
+            setEnableDisableProfile("Yes", 1);
+        } else if (activePane == 2) {
+            setEnableDisableProfile("Yes", 2);
+        }
+        initCombo();
+    }//GEN-LAST:event_button1setProfileEnable
+
+    private void newTagCombo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagCombo2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_newTagCombo2ActionPerformed
 
     private void selectTag(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectTag
         if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
-            String name = newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex());
-            showProfiles(name);
+            showProfiles(newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex()));
         }
     }//GEN-LAST:event_selectTag
 
-    private void disableAll(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disableAll
-        setEnableDisableAllProfiles("No");
+    private void selectAttack(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectAttack
+        if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
+            setAttackValues(combo1.getItemAt(combo1.getSelectedIndex()));
+        }
+    }//GEN-LAST:event_selectAttack
+
+    private void setActiveProfiles(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_setActiveProfiles
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            txt_active.setSelected(true);
+        } else {
+            txt_active.setSelected(false);
+        }
+
         initCombo();
-    }//GEN-LAST:event_disableAll
+    }//GEN-LAST:event_setActiveProfiles
 
-    private void newTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTagManager
-        NewTag nt = new NewTag();
-        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-        if (result == JOptionPane.OK_OPTION) {
-            String newTag = nt.newTagtext.getText();
-            addNewTag(newTag);
-            showTags();
+    private void setPassiveReq(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_setPassiveReq
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            txt_passivereq.setSelected(true);
+        } else {
+            txt_passivereq.setSelected(false);
         }
-    }//GEN-LAST:event_newTagManager
 
-    private void removeTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTagManager
-        int selectedIndex = listtagmanager.getSelectedIndex();
-        String tag = "";
-        if (selectedIndex != -1) {
-            tag = tagmanager.get(selectedIndex).toString();
-            tagmanager.remove(selectedIndex);
-        }
-        removeTag(tag);
-        showTags();
-    }//GEN-LAST:event_removeTagManager
+        initCombo();
+    }//GEN-LAST:event_setPassiveReq
 
-    private void deleteTagmanager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTagmanager
-        int selectedIndex = listtagmanager.getSelectedIndex();
-        String tag = "";
-        if (selectedIndex != -1) {
-            tag = tagmanager.get(selectedIndex).toString();
-            tagmanager.remove(selectedIndex);
+    private void setPassiveRes(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_setPassiveRes
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            txt_passiveres.setSelected(true);
+        } else {
+            txt_passiveres.setSelected(false);
         }
-        deleteTagProfiles(tag);
-        removeTag(tag);
-        showTags();
-    }//GEN-LAST:event_deleteTagmanager
+
+        initCombo();
+    }//GEN-LAST:event_setPassiveRes
 
     private void headerstabStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_headerstabStateChanged
         int activePane = headerstab.getSelectedIndex();
@@ -4152,12 +4263,21 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }//GEN-LAST:event_headerstabStateChanged
 
     private void newTag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTag
+        Integer result;
         NewTag nt = new NewTag();
-        int result = JOptionPane.showOptionDialog(this, nt, "New Tag", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-        if (result == JOptionPane.OK_OPTION) {
-            String newTag = nt.newTagtext.getText();
-            addNewTag(newTag);
-            showTags();
+        JOptionPane jopane1 = new JOptionPane(nt, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        JDialog dialog = jopane1.createDialog(this, "New Tag");
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+        Object selectedValue = jopane1.getValue();
+
+        if (selectedValue != null) {
+            result = ((Integer) selectedValue).intValue();
+
+            if (result == JOptionPane.OK_OPTION) {
+                addNewTag(nt.newTagtext.getText());
+                showTags();
+            }
         }
     }//GEN-LAST:event_newTag
 
@@ -4172,6 +4292,22 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_removetag
 
+    private void invariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_invariations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_invariations
+
+    private void variations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_variations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_variations
+
     private void radioclActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioclActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_radioclActionPerformed
@@ -4179,22 +4315,42 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private void radioclSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radioclSelect
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             setEnabledVariations(false);
-            setEnabledVarious(false);
         } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVarious(true);
             setEnabledVariations(true);
         }
     }//GEN-LAST:event_radioclSelect
 
     private void TimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TimeoutSelect
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVarious(false);
             setEnabledVariations(false);
         } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVarious(true);
             setEnabledVariations(true);
         }
     }//GEN-LAST:event_TimeoutSelect
+
+    private void payloadencodeMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadencodeMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_payloadencodeMatchType
+
+    private void regexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_regexMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_regexMatchType
+
+    private void stringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_stringMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_stringMatchType
+
+    private void payloadMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_payloadMatchType
 
     private void pasteGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteGrep
         String element = getClipboardContents();
@@ -4205,11 +4361,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }//GEN-LAST:event_pasteGrep
 
     private void setToGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToGrep
-        if (!textfield2.getText().isEmpty()){
+        if (!textfield2.getText().isEmpty()) {
             grep.addElement(textfield2.getText());
             textfield2.setText("");
         }
-        
     }//GEN-LAST:event_setToGrep
 
     private void removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllGrep
@@ -4227,9 +4382,53 @@ public class BurpBountyGui extends javax.swing.JPanel {
         loadGrepsFile(grep);
     }//GEN-LAST:event_loadGrep
 
-    private void addMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMatchReplace
-        model4.addRow(new Object[]{"Payload", "Leave blank to add a new header", "Leave blank to remove a matched header", "String", "Generic comment"});
-    }//GEN-LAST:event_addMatchReplace
+    private void pastePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pastePayload
+
+        String element = getClipboardContents();
+        String[] lines = element.split("\n");
+        for (String line : lines) {
+            payload.addElement(line);
+        }
+    }//GEN-LAST:event_pastePayload
+
+    private void loadPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPayloads
+        loadPayloadsFile(payload);
+    }//GEN-LAST:event_loadPayloads
+
+    private void removePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removePayload
+        int selectedIndex = list1.getSelectedIndex();
+        if (selectedIndex != -1) {
+            payload.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_removePayload
+
+    private void removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllPayloads
+        payload.removeAllElements();
+    }//GEN-LAST:event_removeAllPayloads
+
+    private void setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToPayload
+        if (!textfield1.getText().isEmpty()) {
+            payload.addElement(textfield1.getText());
+            textfield1.setText("");
+        }
+    }//GEN-LAST:event_setToPayload
+
+    private void jButton9removeEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9removeEncoder
+        int selectedIndex = list3.getSelectedIndex();
+        if (selectedIndex != -1) {
+            encoder.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_jButton9removeEncoder
+
+    private void jButton8upEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8upEncoder
+        int selectedIndex = list3.getSelectedIndex();
+        if (selectedIndex != 0) {
+            swap(selectedIndex, selectedIndex - 1);
+            list3.setSelectedIndex(selectedIndex - 1);
+            list3.ensureIndexIsVisible(selectedIndex - 1);
+
+        }
+    }//GEN-LAST:event_jButton8upEncoder
 
     private void jButton6addEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6addEncoder
         if (!encoder.isEmpty() && encoder.firstElement().equals(" ")) {
@@ -4250,54 +4449,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButton7downEncoder
 
-    private void jButton8upEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8upEncoder
-        int selectedIndex = list3.getSelectedIndex();
-        if (selectedIndex != 0) {
-            swap(selectedIndex, selectedIndex - 1);
-            list3.setSelectedIndex(selectedIndex - 1);
-            list3.ensureIndexIsVisible(selectedIndex - 1);
-
-        }
-    }//GEN-LAST:event_jButton8upEncoder
-
-    private void jButton9removeEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9removeEncoder
-        int selectedIndex = list3.getSelectedIndex();
-        if (selectedIndex != -1) {
-            encoder.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_jButton9removeEncoder
-
-    private void setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setToPayload
-        if (!textfield1.getText().isEmpty()){
-            payload.addElement(textfield1.getText());
-            textfield1.setText("");
-        }
-
-    }//GEN-LAST:event_setToPayload
-
-    private void removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAllPayloads
-        payload.removeAllElements();
-    }//GEN-LAST:event_removeAllPayloads
-
-    private void removePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removePayload
-        int selectedIndex = list1.getSelectedIndex();
-        if (selectedIndex != -1) {
-            payload.remove(selectedIndex);
-        }
-    }//GEN-LAST:event_removePayload
-
-    private void loadPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPayloads
-        loadPayloadsFile(payload);
-    }//GEN-LAST:event_loadPayloads
-
-    private void pastePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pastePayload
-
-        String element = getClipboardContents();
-        String[] lines = element.split("\n");
-        for (String line : lines) {
-            payload.addElement(line);
-        }
-    }//GEN-LAST:event_pastePayload
+    private void addMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMatchReplace
+        model4.addRow(new Object[]{"Payload", "Leave blank to add a new header", "Leave blank to remove a matched header", "String", "Generic comment"});
+    }//GEN-LAST:event_addMatchReplace
 
     private void removeMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeMatchReplace
         int[] rows = table4.getSelectedRows();
@@ -4309,53 +4463,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_removeMatchReplace
 
-    private void variations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_variations
-        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVarious(true);
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVarious(false);
-            setEnabledVariations(true);
+    private void goWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goWeb
+        try {
+            Desktop.getDesktop().browse(new URI("https://portswigger.net/burp/extender/api/burp/IScannerInsertionPoint.html"));
+        } catch (URISyntaxException | IOException e) {
+            System.out.println("Help web not opened: " + e);
         }
-    }//GEN-LAST:event_variations
-
-    private void invariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_invariations
-        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVarious(true);
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVarious(false);
-            setEnabledVariations(true);
-        }
-    }//GEN-LAST:event_invariations
-
-    private void stringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_stringMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_stringMatchType
-
-    private void regexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_regexMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_regexMatchType
-
-    private void payloadMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_payloadMatchType
-
-    private void payloadencodeMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_payloadencodeMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_payloadencodeMatchType
-
-    private void paramxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paramxmlActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_paramxmlActionPerformed
+    }//GEN-LAST:event_goWeb
 
     private void AllItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_AllItemStateChanged
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
@@ -4395,16 +4509,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
             urlpathfilename.setSelected(false);
             unknown.setSelected(false);
         }
-
     }//GEN-LAST:event_AllItemStateChanged
 
-    private void goWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goWeb
-        try {
-             Desktop.getDesktop().browse(new URI("https://portswigger.net/burp/extender/api/burp/IScannerInsertionPoint.html"));
-            } catch (URISyntaxException | IOException e){
-                    System.out.println("Help web not opened: "+e);
-            }
-    }//GEN-LAST:event_goWeb
+    private void paramxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paramxmlActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_paramxmlActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -4468,7 +4577,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -4490,6 +4598,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
@@ -4521,6 +4631,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel50;
+    private javax.swing.JLabel jLabel51;
     private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
@@ -4540,8 +4652,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane11;
+    private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane13;
     private javax.swing.JScrollPane jScrollPane14;
+    private javax.swing.JScrollPane jScrollPane15;
+    private javax.swing.JScrollPane jScrollPane16;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -4553,6 +4668,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator11;
     private javax.swing.JSeparator jSeparator12;
+    private javax.swing.JSeparator jSeparator13;
+    private javax.swing.JSeparator jSeparator16;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
@@ -4561,6 +4678,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JSeparator jSeparator8;
     private javax.swing.JSeparator jSeparator9;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jtabpane;
     private javax.swing.JCheckBox last_modified_header;
@@ -4640,6 +4758,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JTextField textgreps;
     private javax.swing.JTextField textpayloads;
     private javax.swing.JTextField texttime;
+    private javax.swing.JCheckBox txt_active;
+    private javax.swing.JCheckBox txt_passivereq;
+    private javax.swing.JCheckBox txt_passiveres;
     private javax.swing.JCheckBox unknown;
     private javax.swing.JCheckBox urlpathfilename;
     private javax.swing.JCheckBox urlpathfolder;
