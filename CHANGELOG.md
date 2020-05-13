@@ -1,6 +1,6 @@
 ##  Changelog
 **3.2.0 20200513**
-* Add filter profiles by type
+* You can filter profiles by type
 * Better and faster scroll
 * New look and feel
 * A lot of code rewritten for further optimization
