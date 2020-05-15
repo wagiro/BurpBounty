@@ -27,16 +27,17 @@ import burp.IScannerCheck;
 import burp.IScannerInsertionPoint;
 import burp.IScannerInsertionPointProvider;
 import burp.ITab;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,13 +53,14 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     List<IBurpCollaboratorClientContext> CollaboratorClientContext;
     private JScrollPane optionsTab;
     private BurpBountyGui panel;
-    Issue issue;
-    String filename;
+    ProfilesProperties issue;
     BurpCollaboratorThread BurpCollaborator;
     BurpCollaboratorThread bct;
     CollaboratorData burpCollaboratorData;
     List<byte[]> responses;
     List<String> params;
+    Gson gson;
+    int scanner;
 
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
@@ -73,14 +75,16 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         bct = new BurpCollaboratorThread(callbacks, burpCollaboratorData);
         responses = new ArrayList();
         params = new ArrayList();
-        filename = "";
+        gson = new Gson();
 
         SwingUtilities.invokeLater(() -> {
             panel = new BurpBountyGui(this);
             optionsTab = new JScrollPane(panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            optionsTab.setPreferredSize(new Dimension(600, 600));
+            optionsTab.getVerticalScrollBar().setUnitIncrement(20);
             callbacks.addSuiteTab(this);
 
-            callbacks.printOutput("- Burp Bounty v3.1");
+            callbacks.printOutput("- Burp Bounty v3.2");
             callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
             bct.start();
@@ -106,15 +110,15 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             byte[] req = baseRequestResponse.getRequest();
             int len = helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP");
             int beginAt = 0;
-            
+
             while (beginAt < len) {
                 beginAt = helpers.indexOf(req, match, false, beginAt, len);
                 if (beginAt == -1) {
                     break;
                 }
-                if(!params.contains(url+":p4r4m" + beginAt)){
+                if (!params.contains(url + ":p4r4m" + beginAt)) {
                     insertionPoints.add(helpers.makeScannerInsertionPoint("p4r4m" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
-                    params.add(url+":p4r4m" + beginAt);
+                    params.add(url + ":p4r4m" + beginAt);
                 }
                 beginAt += match.length;
             }
@@ -125,12 +129,13 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     @Override
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         JsonArray data = new JsonArray();
-        filename = panel.getFilename();
+        JsonArray activeprofiles = new JsonArray();
         FileReader fr;
+        List<Integer> insertionPointType;
         params = new ArrayList();
 
         try {
-            File f = new File(filename);
+            File f = new File(panel.getFilename());
             if (f.exists() && f.isDirectory()) {
                 for (File file : f.listFiles()) {
                     if (file.getName().endsWith("bb")) {
@@ -141,13 +146,29 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
                     }
                 }
             }
+            for (int i = 0; i < data.size(); i++) {
+                Object idata = data.get(i);
+                issue = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                scanner = issue.getScanner();
+                insertionPointType = issue.getInsertionPointType();
+                if (scanner == 1 && issue.getActive() && insertionPointType.contains(insertionPoint.getInsertionPointType() & 0xFF)) {
+                    activeprofiles.add(data.get(i));
+                }
+
+            }
+            if (activeprofiles.size() == 0) {
+                return null;
+            }
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             System.out.println(e.getClass());
         }
 
-        GenericScan as = new GenericScan(callbacks, data, burpCollaboratorData);
+        GenericScan as = new GenericScan(callbacks, activeprofiles, burpCollaboratorData);
         try {
-            return as.runAScan(baseRequestResponse, insertionPoint);
+            IBurpCollaboratorClientContext CollaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
+            burpCollaboratorData.setCollaboratorClientContext(CollaboratorClientContext);
+            String bchost = CollaboratorClientContext.generatePayload(true);
+            return as.runAScan(baseRequestResponse, insertionPoint, bchost);
         } catch (Exception ex) {
             Logger.getLogger(BurpBountyExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -156,13 +177,12 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
-
         JsonArray data = new JsonArray();
-        filename = panel.getFilename();
+        JsonArray passiveprofiles = new JsonArray();
         FileReader fr;
 
         try {
-            File f = new File(filename);
+            File f = new File(panel.getFilename());
             if (f.exists() && f.isDirectory()) {
                 for (File file : f.listFiles()) {
                     if (file.getName().endsWith("bb")) {
@@ -173,11 +193,20 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
                     }
                 }
             }
+            for (int i = 0; i < data.size(); i++) {
+                Object idata = data.get(i);
+                issue = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                scanner = issue.getScanner();
+                if (issue.getActive() && scanner == 2 || issue.getActive() && scanner == 3) {
+                    passiveprofiles.add(data.get(i));
+                }
+            }
+
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             System.out.println(e.getClass());
         }
 
-        GenericScan ps = new GenericScan(callbacks, data, burpCollaboratorData);
+        GenericScan ps = new GenericScan(callbacks, passiveprofiles, burpCollaboratorData);
         try {
             return ps.runPScan(baseRequestResponse);
         } catch (Exception ex) {
