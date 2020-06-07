@@ -3,11 +3,9 @@ package burpbounty;
 import burp.IExtensionHelpers;
 import burp.IScannerInsertionPoint;
 import java.util.List;
-import java.util.Random;
 
 public class BuildUnencodeRequest {
 
-    private Random random = new Random();
     private IExtensionHelpers helpers;
 
     BuildUnencodeRequest(IExtensionHelpers helpers) {
@@ -64,7 +62,6 @@ public class BuildUnencodeRequest {
 
     private int findCanary(byte[] canary, byte[] request) {
         int canaryPos = helpers.indexOf(request, canary, false, 0, request.length);
-        int canaryPos2 = helpers.indexOf(request, canary, false, canaryPos + 1, request.length);
         return canaryPos;
     }
 }

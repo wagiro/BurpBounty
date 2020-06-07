@@ -21,14 +21,12 @@ public class Headers {
     String match;
     String replace;
     String regex;
-    String comment;
 
-    Headers(String type, String match, String replace, String regex, String comment) {
+    Headers(String type, String match, String replace, String regex) {
         this.type = type;
         this.match = match;
         this.replace = replace;
         this.regex = regex;
-        this.comment = comment;
     }
 
 }

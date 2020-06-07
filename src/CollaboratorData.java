@@ -30,13 +30,7 @@ public class CollaboratorData {
     HashMap<String, IHttpRequestResponse> ccrequestResponse;
     HashMap<String, Properties> issues;
     Properties issueProperties;
-    private String issuename;
-    private String issuedetail;
-    private String issuebackground;
-    private String remediationdetail;
-    private String remediationbackground;
-    private String issueseverity;
-    private String issueconfidence;
+
 
     public CollaboratorData(IExtensionHelpers helpers) {
         this.helpers = helpers;
@@ -44,13 +38,6 @@ public class CollaboratorData {
         ccrequestResponse = new HashMap();
         issues = new HashMap();
         issueProperties = new Properties();
-        issuename = "";
-        issuedetail = "";
-        issuebackground = "";
-        remediationdetail = "";
-        remediationbackground = "";
-        issueseverity = "";
-        issueconfidence = "";
     }
 
     public synchronized void setIssueProperties(IHttpRequestResponse requestResponse, String bchost, String issuename, String issuedetail, String issueseverity, String issueconfidence,

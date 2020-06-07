@@ -1,4 +1,10 @@
 ##  Changelog
+**3.3.0 20200607**
+* Fixed bug with windows systems
+* New look and feel
+* A lot of code rewritten for further optimization
+
+
 **3.2.0 20200513**
 * You can filter profiles by type
 * Better and faster scroll
@@ -6,7 +12,7 @@
 * A lot of code rewritten for further optimization
 * BurpCollaborator has been improved to use fewer hosts
 
-##  Changelog
+
 **3.1.0 20200407**
 * Fixed 12 issues from github 
 * Better performance of the match algorithm
@@ -21,6 +27,7 @@
 **3.0.5beta 20190612**
 * Choose insertion points type for one profile
 * Fixed error with redirections
+
 
 **3.0.4beta 20190217**
 * "Path discovery" feature add new insertion points
@@ -38,6 +45,7 @@
 
 **3.0.2beta 20181217**
 * Fixed error with comma separated
+
 
 **3.0.1beta 20181207**
 * Fixed error with timeout
@@ -57,8 +65,10 @@
 * Improved profile manager
 * Fixed some minor problems
 
+
 **2.2 20181026**
 * Fixed some minor problems
+
 
 **2.1 20181024**
 * Replace strings in payloads
@@ -81,8 +91,10 @@
  - Add "Exclude HTTP Headers" feature
  - Add "Only in HTTP Headers" feature
  
+ 
 **1.1 20180606**
  - Some improvements for integrate with the BApps Store
+ 
  
 **1.0 20180531**
  - First public release

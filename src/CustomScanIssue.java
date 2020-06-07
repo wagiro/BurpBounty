@@ -22,16 +22,16 @@ import java.net.URL;
 
 class CustomScanIssue implements IScanIssue {
 
-    private IHttpService httpService;
-    private URL url;
-    private IHttpRequestResponse[] httpMessages;
-    private String name;
-    private String detail;
-    private String severity;
-    private String issueConfidence;
-    private String issueRemediation;
-    private String issueBackground;
-    private String issueClassification;
+    private final IHttpService httpService;
+    private final URL url;
+    private final IHttpRequestResponse[] httpMessages;
+    private final String name;
+    private final String detail;
+    private final String severity;
+    private final String issueConfidence;
+    private final String issueRemediation;
+    private final String issueBackground;
+    private final String issueClassification;
 
     public CustomScanIssue(
             IHttpService httpService,
