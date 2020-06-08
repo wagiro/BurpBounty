@@ -87,11 +87,10 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             callbacks.printOutput("- Burp Bounty v3.3");
             callbacks.printOutput("- For bugs please on the official email: burpbounty@gmail.com");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
-            
+
         });
 
     }
-
 
     public JsonArray getProfiles() {
         FileReader fr;
@@ -118,7 +117,6 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         }
     }
 
-
     @Override
     public void extensionUnloaded() {
         bct.doStop();
@@ -128,25 +126,28 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     @Override
     public List<IScannerInsertionPoint> getInsertionPoints(IHttpRequestResponse baseRequestResponse) {
         List<IScannerInsertionPoint> insertionPoints = new ArrayList();
-        IRequestInfo request = helpers.analyzeRequest(baseRequestResponse);
 
-        if (request.getMethod().equals("GET")) {
-            String url = request.getUrl().getHost();
-            byte[] match = helpers.stringToBytes("/");
-            byte[] req = baseRequestResponse.getRequest();
-            int len = helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP");
-            int beginAt = 0;
+        if (baseRequestResponse != null) {
+            IRequestInfo request = helpers.analyzeRequest(baseRequestResponse);
 
-            while (beginAt < len) {
-                beginAt = helpers.indexOf(req, match, false, beginAt, len);
-                if (beginAt == -1) {
-                    break;
+            if (request.getMethod().equals("GET")) {
+                String url = request.getUrl().getHost();
+                byte[] match = helpers.stringToBytes("/");
+                byte[] req = baseRequestResponse.getRequest();
+                int len = helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP");
+                int beginAt = 0;
+
+                while (beginAt < len) {
+                    beginAt = helpers.indexOf(req, match, false, beginAt, len);
+                    if (beginAt == -1) {
+                        break;
+                    }
+                    if (!params.contains(url + ":p4r4m" + beginAt)) {
+                        insertionPoints.add(helpers.makeScannerInsertionPoint("p4r4m" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
+                        params.add(url + ":p4r4m" + beginAt);
+                    }
+                    beginAt += match.length;
                 }
-                if (!params.contains(url + ":p4r4m" + beginAt)) {
-                    insertionPoints.add(helpers.makeScannerInsertionPoint("p4r4m" + beginAt, baseRequestResponse.getRequest(), beginAt, helpers.bytesToString(baseRequestResponse.getRequest()).indexOf(" HTTP")));
-                    params.add(url + ":p4r4m" + beginAt);
-                }
-                beginAt += match.length;
             }
         }
         return insertionPoints;
