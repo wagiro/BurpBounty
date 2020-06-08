@@ -117,7 +117,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     @Override
     public void extensionUnloaded() {
         bct.doStop();
-        callbacks.printOutput("- Burp Bounty Pro extension was unloaded");
+        callbacks.printOutput("- Burp Bounty extension was unloaded");
     }
 
     @Override
