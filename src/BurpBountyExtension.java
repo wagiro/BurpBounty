@@ -124,7 +124,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     public List<IScannerInsertionPoint> getInsertionPoints(IHttpRequestResponse baseRequestResponse) {
         List<IScannerInsertionPoint> insertionPoints = new ArrayList();
 
-        if (baseRequestResponse != null) {
+        try{
             IRequestInfo request = helpers.analyzeRequest(baseRequestResponse);
 
             if (request.getMethod().equals("GET")) {
@@ -146,6 +146,8 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
                     beginAt += match.length;
                 }
             }
+        }catch (NullPointerException e){
+            return null;
         }
         return insertionPoints;
     }
