@@ -63,12 +63,10 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
-        callbacks.setExtensionName("Burp Bounty Pro");
+        callbacks.setExtensionName("Burp Bounty");
         responses = new ArrayList();
         params = new ArrayList();
         gson = new Gson();
-        urls = new ArrayList();
-        urls.add(new String[]{"test", "test"});
         callbacks.registerScannerCheck(this);
         callbacks.registerExtensionStateListener(this);
         callbacks.registerScannerInsertionPointProvider(this);
@@ -85,7 +83,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             callbacks.addSuiteTab(this);
 
             callbacks.printOutput("- Burp Bounty v3.3");
-            callbacks.printOutput("- For bugs please on the official email: burpbounty@gmail.com");
+            callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
 
         });
