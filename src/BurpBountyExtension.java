@@ -56,7 +56,6 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
     List<String> params;
     Gson gson;
     int scanner;
-    List<String[]> urls;
     JsonArray profiles;
 
     @Override
