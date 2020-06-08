@@ -1296,7 +1296,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             onlyHTTP = profile_property.getOnlyHTTP();
             negativect = profile_property.getNegativeCT();
             negativerc = profile_property.getNegativeRC();
-            redirtype = profile_property.getRedirection(); 
+            redirtype = profile_property.getRedirection();
             maxRedir = profile_property.getMaxRedir();
             payloadsfile = profile_property.getpayloadsFile();
             grepsfile = profile_property.getgrepsFile();
@@ -1314,7 +1314,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             profile.grep.removeAllElements();
             profile.tag.removeAllElements();
 
-            profile.textgreps.setText(grepsfile); 
+            profile.textgreps.setText(grepsfile);
 
             profile.showGreps(profile_property.getGreps());
 
@@ -2178,18 +2178,30 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
                 } else {
 
-                    for (String tag : profile_property.getTags()) {
-                        if (tag.equals(Tag) || Tag.isEmpty() || Tag.equals("All")) {
-                            if (profile_property.getScanner() == 1) {
-                                model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
-                            } else if (profile_property.getScanner() == 2) {
-                                model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
-                            } else if (profile_property.getScanner() == 3) {
-                                model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                    try {
+                        for (String tag : profile_property.getTags()) {
+                            if (tag.equals(Tag) || Tag.isEmpty() || Tag.equals("All")) {
+                                if (profile_property.getScanner() == 1) {
+                                    model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                                } else if (profile_property.getScanner() == 2) {
+                                    model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                                } else if (profile_property.getScanner() == 3) {
+                                    model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+
+                                }
 
                             }
+                        }
+                    } catch (NullPointerException e) {
+                        if (profile_property.getScanner() == 1) {
+                            model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                        } else if (profile_property.getScanner() == 2) {
+                            model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                        } else if (profile_property.getScanner() == 3) {
+                            model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
 
                         }
+
                     }
                 }
             }
