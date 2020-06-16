@@ -413,10 +413,10 @@ public class GenericScan {
 
                             for (String grep : greps) {
                                 if (grep.split(",")[0].equals("true")) {
-                                    if (grep.split(",")[1].equals("Or")) {
-                                        grep_index = grep_index + 1;
+                                    if (grep.split(",")[1].equals("Or")) {                                     
                                         if (!grep.split(",")[2].equals("")) {
                                             greps_final.get(grep_index).add(grep.split(",")[2]);
+                                            grep_index = grep_index + 1;
                                         }
                                     }
                                 }
@@ -433,7 +433,7 @@ public class GenericScan {
                             responseCode = new Integer(r.getStatusCode());
 
                             if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                                for (int x = 0; x < grep_index; x++) {
+                                for (int x = 0; x <= grep_index; x++) {
                                     if (!greps_final.get(x).isEmpty()) {
                                         matches = gm.getResponseMatches(requestResponse, payload, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                 issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -470,7 +470,7 @@ public class GenericScan {
                                         responseCode = new Integer(r.getStatusCode());
 
                                         if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                                            for (int x = 0; x < grep_index; x++) {
+                                            for (int x = 0; x <= grep_index; x++) {
                                                 if (!greps_final.get(x).isEmpty()) {
                                                     matches = gm.getResponseMatches(requestResponse, payload, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
                                                             issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
@@ -578,7 +578,7 @@ public class GenericScan {
                 }
             }
 
-            for (int x = 0; x < grep_index; x++) {
+            for (int x = 0; x <= grep_index; x++) {
                 if (!greps_final.get(x).isEmpty()) {
                     matches = gm.getResponseMatches(baseRequestResponse, "", greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, "", matchtype,
                             issueseverity, issueconfidence, notresponse, casesensitive, false, excludeHTTP, onlyHTTP);
@@ -652,7 +652,7 @@ public class GenericScan {
                 }
             }
 
-            for (int x = 0; x < grep_index; x++) {
+            for (int x = 0; x <= grep_index; x++) {
                 if (!greps_final.get(x).isEmpty()) {
                     matches = gm.getRequestMatches(baseRequestResponse, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, matchtype,
                             issueseverity, issueconfidence, casesensitive, notresponse);

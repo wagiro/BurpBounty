@@ -2021,7 +2021,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 }
             }
         } else {
-            callbacks.printError("Profile directory don't exist");
+            System.out.println("Profile directory don't exist");
         }
     }
 
@@ -2269,7 +2269,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 out.write(str.concat("\n"));
                 out.close();
             } catch (IOException e) {
-                callbacks.printError("BurpBountyGui line 2497:" + e.getMessage());
+                System.out.println("BurpBountyGui line 2497:" + e.getMessage());
             }
         }
     }

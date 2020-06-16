@@ -163,7 +163,7 @@ public class RequestProfile extends javax.swing.JPanel {
         table4.getColumnModel().getColumn(1).setPreferredWidth(25);
         table4.getColumnModel().getColumn(2).setPreferredWidth(90);
         table4.getColumnModel().getColumn(3).setPreferredWidth(35);
-        table4.getColumnModel().getColumn(4).setPreferredWidth(240);;
+        table4.getColumnModel().getColumn(4).setPreferredWidth(240);
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table4.getModel());
         table4.setRowSorter(sorter);

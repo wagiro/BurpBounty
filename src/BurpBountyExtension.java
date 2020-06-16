@@ -133,7 +133,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
                 byte[] req = baseRequestResponse.getRequest();
                 int len = helpers.bytesToString(baseRequestResponse.getRequest()).indexOf("HTTP");
                 int beginAt = 0;
-
+  
                 while (beginAt < len) {
                     beginAt = helpers.indexOf(req, match, false, beginAt, len);
                     if (beginAt == -1) {
@@ -147,7 +147,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
                 }
             }
         }catch (NullPointerException e){
-            return null;
+            return insertionPoints;
         }
         return insertionPoints;
     }
