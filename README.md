@@ -3,7 +3,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/wagiro/BurpBounty.svg)](https://github.com/wagiro/BurpBounty/issues) 
 [![Github Stars](https://img.shields.io/github/stars/wagiro/BurpBounty.svg?style=social&label=Stars)](https://github.com/wagiro/BurpBounty/) 
 [![GitHub Followers](https://img.shields.io/github/followers/wagiro.svg?style=social&label=Follow)](https://github.com/wagiro/BurpBounty/)
-[![Follow on Twitter](https://img.shields.io/twitter/follow/bountyburp.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=bountyburp)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/bountyburp.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=burpbounty)
 
 
 # Burp Bounty - Scan Check Builder (BApp Store)
@@ -24,8 +24,6 @@ This Burp Suite extension allows you, in a quick and simple way, to improve the 
 ## Profiles
 
 * Profiles from [egarme](https://twitter.com/egarme) in [Github](https://github.com/wagiro/BurpBounty/tree/master/profiles/)
-
-* Profiles from [Xer0dayz](https://twitter.com/xer0dayz) in their [Github](https://github.com/1N3/IntruderPayloads/tree/master/BurpBountyPayloads)
   
 * Profiles from [Gocha](https://twitter.com/GochaOqradze) in their [Github](https://github.com/ghsec/BBProfiles)
 

@@ -20,7 +20,7 @@ import java.util.List;
 public class ProfilesProperties {
 
     private String Name;
-    private boolean Active;
+    private boolean Enabled;
     private int Scanner;
     private String Author;
     private List<String> Payloads;
@@ -44,6 +44,9 @@ public class ProfilesProperties {
     private boolean IsResponseCode;
     private String ResponseCode;
     private boolean NegativeRC;
+    private String urlextension;
+    private boolean isurlextension;
+    private boolean NegativeUrlExtension;
     private int MatchType;
     private int RedirType;
     private int MaxRedir;
@@ -60,6 +63,8 @@ public class ProfilesProperties {
     private List<Headers> Header;
     private List<String> VariationAttributes;
     private List<Integer> InsertionPointType;
+    Boolean Scanas;
+    int Scantype;
     private boolean pathDiscovery;
 
     public ProfilesProperties() {
@@ -86,12 +91,20 @@ public class ProfilesProperties {
         return Author;
     }
 
-    public boolean getActive() {
-        return Active;
+    public boolean getEnabled() {
+        return Enabled;
+    }
+    
+    public boolean getScanAs() {
+        return Scanas;
     }
 
     public int getScanner() {
         return Scanner;
+    }
+    
+    public int getScanType() {
+        return Scantype;
     }
 
     public int getPayloadPosition() {
@@ -189,6 +202,18 @@ public class ProfilesProperties {
     public boolean getNegativeRC() {
         return NegativeRC;
     }
+    
+    public boolean getIsURLExtension() {
+        return isurlextension;
+    }
+
+    public String getURLExtension() {
+        return urlextension;
+    }
+
+    public boolean getNegativeURLExtension() {
+        return NegativeUrlExtension;
+    }
 
     public boolean getUrlEncode() {
         return UrlEncode;
@@ -256,12 +281,20 @@ public class ProfilesProperties {
         Author = author;
     }
 
-    public void setActive(boolean active) {
-        Active = active;
+    public void setEnabled(boolean enabled) {
+        Enabled = enabled;
+    }
+    
+    public void setScanAs(boolean scanas) {
+        Scanas = scanas;
     }
 
     public void setScanner(int scanner) {
         Scanner = scanner;
+    }
+    
+    public void setScanType(int scantype) {
+        Scantype = scantype;
     }
 
     public void setPayloadPosition(int payloadposition) {
@@ -338,6 +371,18 @@ public class ProfilesProperties {
 
     public void setIsContentLength(boolean iscontentlength) {
         iscontentLength = iscontentlength;
+    }
+    
+    public void setURLExtension(String urlExtension) {
+        urlextension = urlExtension;
+    }
+
+    public void setIsURLExtension(boolean isurlExtension) {
+        isurlextension = isurlExtension;
+    }
+    
+    public void setNegativeURLExtension(boolean negativeurlextension) {
+        NegativeUrlExtension = negativeurlextension;
     }
 
     public void setContentType(String contenttype) {

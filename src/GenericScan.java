@@ -15,11 +15,11 @@ limitations under the License.
  */
 package burpbounty;
 
-import burp.IBurpCollaboratorClientContext;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
+import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IResponseVariations;
 import burp.IScanIssue;
@@ -75,17 +75,23 @@ public class GenericScan {
     List<String> variationAttributes;
     List<Integer> insertionPointType;
     Boolean pathDiscovery;
+    String filename;
+    JsonArray allprofiles;
+    JsonArray active_profiles;
+    BurpBountyExtension bbe;
 
-    public GenericScan(IBurpExtenderCallbacks callbacks, JsonArray data, CollaboratorData burpCollaboratorData) {
+    public GenericScan(BurpBountyExtension bbe, IBurpExtenderCallbacks callbacks, CollaboratorData burpCollaboratorData, String filename, JsonArray allprofiles) {
 
         this.callbacks = callbacks;
         helpers = callbacks.getHelpers();
-        this.data = data;
         this.burpCollaboratorData = burpCollaboratorData;
         gson = new Gson();
+        this.filename = filename;
+        this.allprofiles = allprofiles;
+        this.bbe = bbe;
     }
 
-    public List<IScanIssue> runAScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint, String bchost) {
+    public List<IScanIssue> runAScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint, JsonArray activeprofiles, String bchost) {
 
         if (helpers.analyzeResponse(baseRequestResponse.getResponse()) == null | helpers.analyzeRequest(baseRequestResponse.getRequest()) == null) {
             return null;
@@ -96,8 +102,8 @@ public class GenericScan {
         List<Integer> responseCodes = new ArrayList<>(Arrays.asList(300, 301, 303, 302, 307, 308));
         int limitredirect = 30;
 
-        for (int i = 0; i < data.size(); i++) {
-            Object idata = data.get(i);
+        for (int i = 0; i < activeprofiles.size(); i++) {
+            Object idata = activeprofiles.get(i);
             profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class);
 
             payloads = profile_property.getPayloads();
@@ -135,10 +141,6 @@ public class GenericScan {
 
             IScanIssue matches = null;
             GrepMatch gm = new GrepMatch(callbacks);
-
-            while (greps.contains("")) {//remove void greps, because get auto DOS atack ;)
-                greps.remove(greps.indexOf(""));
-            }
 
             //If encoders exist...
             if (!encoders.isEmpty()) {
@@ -199,256 +201,311 @@ public class GenericScan {
                     payload = payload.replace(" ", "%20");
                 }
 
-                switch (matchtype) {
-                    case 5://Timeout match type
-                    {
-                        long startTime, endTime, difference = 0;
-                        matches = null;
-                        IHttpRequestResponse requestResponse;
-                        Integer responseCode;
-                        Integer responseCodeBase;
-                        IResponseInfo r;
-                        IResponseInfo rbase;
+                if (matchtype == 5) {//no cambiar a switch
+                    long startTime, endTime, difference;
+                    matches = null;
+                    IHttpRequestResponse requestResponse;
+                    Integer responseCode;
+                    Integer responseCodeBase;
+                    IResponseInfo r;
+                    IResponseInfo rbase;
 
-                        try {
-                            startTime = System.currentTimeMillis();
-                            requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
-                            endTime = System.currentTimeMillis();
-                            difference = (endTime - startTime);
-                        } catch (Exception ex) {
+                    try {
+                        startTime = System.currentTimeMillis();
+                        requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
+                        endTime = System.currentTimeMillis();
+                        difference = (endTime - startTime);
+                    } catch (Exception ex) {
+                        break;
+                    }
+
+                    r = helpers.analyzeResponse(requestResponse.getResponse());
+                    rbase = helpers.analyzeResponse(baseRequestResponse.getResponse());
+
+                    responseCode = new Integer(r.getStatusCode());
+                    responseCodeBase = new Integer(rbase.getStatusCode());
+
+                    if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode) && isResponseCode(responsecode, negativerc, responseCodeBase)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
+                        Integer time = Integer.parseInt(timeout);
+                        if (difference >= time * 1000) {
+                            matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
+                                    new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, null, null)},
+                                    "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(payload)), issueseverity,
+                                    issueconfidence, remediationdetail, issuebackground, remediationbackground);
+                        }
+                    }
+
+                    try {
+                        if (matches != null) {
+                            issues.add(matches);
                             break;
                         }
+                    } catch (Exception e) {
+                        continue;
+                    }
+                } else if (matchtype == 7 || matchtype == 8)//Variations match type//Invariation match type
+                {
+                    IHttpRequestResponse requestResponse;
+                    matches = null;
+                    Integer responseCode;
+                    IResponseInfo r;
 
+                    try {
+                        requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
+                    } catch (Exception ex) {
+                        break;
+                    }
+
+                    IResponseVariations ipv = helpers.analyzeResponseVariations(baseRequestResponse.getResponse(), requestResponse.getResponse());
+                    List<String> var;
+
+                    if (matchtype == 7) {
+                        var = ipv.getVariantAttributes();
+                    } else {
+                        var = ipv.getInvariantAttributes();
+                    }
+
+                    List requestMarkers = new ArrayList();
+                    byte[] request = requestResponse.getRequest();
+                    r = helpers.analyzeResponse(requestResponse.getResponse());
+                    responseCode = new Integer(r.getStatusCode());
+
+                    if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
+                        if (var.containsAll(variationAttributes)) {
+                            int start = 0;
+                            byte[] match = helpers.stringToBytes(payload);
+                            while (start < request.length) {
+                                start = helpers.indexOf(request, match, false, start, request.length);
+                                if (start == -1) {
+                                    break;
+                                }
+                                requestMarkers.add(new int[]{start, start + match.length});
+                                start += match.length;
+                            }
+
+                            matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
+                                    new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, requestMarkers, null)},
+                                    "BurpBounty - " + issuename, issuedetail.replace("<payload>", helpers.urlEncode(payload)), issueseverity,
+                                    issueconfidence, remediationdetail, issuebackground, remediationbackground);
+                        }
+                    }
+                    try {
+                        if (matches != null) {
+                            issues.add(matches);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        continue;
+                    }
+                } else if (matchtype == 6)//Content Length difference match type
+                {
+                    IHttpRequestResponse requestResponse;
+                    matches = null;
+                    Integer responseCode;
+                    Integer responseCodeBase;
+                    IResponseInfo r;
+                    IResponseInfo rbase;
+
+                    try {
+                        requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                         r = helpers.analyzeResponse(requestResponse.getResponse());
                         rbase = helpers.analyzeResponse(baseRequestResponse.getResponse());
-
-                        responseCode = new Integer(r.getStatusCode());
-                        responseCodeBase = new Integer(rbase.getStatusCode());
-
-                        if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode) && isResponseCode(responsecode, negativerc, responseCodeBase)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                            Integer time = Integer.parseInt(timeout);
-                            if (difference >= time * 1000) {
-                                matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
-                                        new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, null, null)},
-                                        "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(payload)), issueseverity,
-                                        issueconfidence, remediationdetail, issuebackground, remediationbackground);
-                            }
-                        }
-
-                        if (matches != null) {
-                            issues.add(matches);
-                        }
+                    } catch (Exception ex) {
                         break;
                     }
-                    case 7://Variations match type
-                    case 8://Invariation match type
-                    {
-                        IHttpRequestResponse requestResponse;
-                        matches = null;
-                        Integer responseCode;
-                        IResponseInfo r;
 
-                        try {
-                            requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
-                        } catch (Exception ex) {
+                    responseCode = new Integer(r.getStatusCode());
+                    responseCodeBase = new Integer(rbase.getStatusCode());
+
+                    if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode) && isResponseCode(responsecode, negativerc, responseCodeBase)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
+                        int baseResponseContentLength = getContentLength(baseRequestResponse);
+                        int currentResponseContentLength = getContentLength(requestResponse);
+
+                        if (Math.abs(baseResponseContentLength - currentResponseContentLength) > Integer.parseInt(contentLength)) {
+                            List responseMarkers = new ArrayList(1);
+                            String grep = "CONTENT-LENGTH:";
+                            responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep),
+                                helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep) + grep.length()});
+
+                            matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
+                                    new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, null, responseMarkers)},
+                                    "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(grep)), issueseverity,
+                                    issueconfidence, remediationdetail, issuebackground, remediationbackground);
+                        }
+                    }
+                    try {
+                        if (matches != null) {
+                            issues.add(matches);
                             break;
                         }
-
-                        IResponseVariations ipv = helpers.analyzeResponseVariations(baseRequestResponse.getResponse(), requestResponse.getResponse());
-                        List<String> var;
-
-                        if (matchtype == 7) {
-                            var = ipv.getVariantAttributes();
-                        } else {
-                            var = ipv.getInvariantAttributes();
-                        }
-
-                        List requestMarkers = new ArrayList();
-                        byte[] request = requestResponse.getRequest();
-                        r = helpers.analyzeResponse(requestResponse.getResponse());
-                        responseCode = new Integer(r.getStatusCode());
-
-                        if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                            if (var.containsAll(variationAttributes)) {
-                                int start = 0;
-                                byte[] match = helpers.stringToBytes(payload);
-                                while (start < request.length) {
-                                    start = helpers.indexOf(request, match, false, start, request.length);
-                                    if (start == -1) {
-                                        break;
-                                    }
-                                    requestMarkers.add(new int[]{start, start + match.length});
-                                    start += match.length;
-                                }
-
-                                matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
-                                        new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, requestMarkers, null)},
-                                        "BurpBounty - " + issuename, issuedetail.replace("<payload>", helpers.urlEncode(payload)), issueseverity,
-                                        issueconfidence, remediationdetail, issuebackground, remediationbackground);
-                            }
-                        }
-                        if (matches != null) {
-                            issues.add(matches);
-                        }
-                        break;
+                    } catch (Exception e) {
+                        continue;
                     }
-                    case 6://Content Length difference match type
-                    {
+                } else {//String, Regex, Payload, Payload without encode match types 
+
+                    if (payload.contains("{BC}")) {
+
                         IHttpRequestResponse requestResponse;
-                        matches = null;
-                        Integer responseCode;
-                        Integer responseCodeBase;
                         IResponseInfo r;
-                        IResponseInfo rbase;
+                        Integer responseCode;
+                        int loop = 0;
+                        Boolean redirect = true;
+                        URL url;
+
+                        payload = payload.replace("{BC}", bchost);
 
                         try {
                             requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
                             r = helpers.analyzeResponse(requestResponse.getResponse());
-                            rbase = helpers.analyzeResponse(baseRequestResponse.getResponse());
                         } catch (Exception ex) {
+                            callbacks.printError("GenericScan line 371: " + ex.getMessage());
                             break;
                         }
 
                         responseCode = new Integer(r.getStatusCode());
-                        responseCodeBase = new Integer(rbase.getStatusCode());
 
-                        if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode) && isResponseCode(responsecode, negativerc, responseCodeBase)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                            int baseResponseContentLength = getContentLength(baseRequestResponse);
-                            int currentResponseContentLength = getContentLength(requestResponse);
+                        burpCollaboratorData.setIssueProperties(requestResponse, bchost, issuename, issuedetail, issueseverity, issueconfidence, remediationdetail, issuebackground, remediationbackground);
 
-                            if (Math.abs(baseResponseContentLength - currentResponseContentLength) > Integer.parseInt(contentLength)) {
-                                List responseMarkers = new ArrayList(1);
-                                String grep = "CONTENT-LENGTH:";
-                                responseMarkers.add(new int[]{helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep),
-                                    helpers.bytesToString(requestResponse.getResponse()).toUpperCase().indexOf(grep) + grep.length()});
+                        do {
+                            if (responseCodes.contains(responseCode) && loop < limitredirect) {
+                                httpService = requestResponse.getHttpService();
+                                url = getRedirection(requestResponse, httpService);
 
-                                matches = new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
-                                        new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, null, responseMarkers)},
-                                        "BurpBounty - " + issuename, issuedetail.replace("<grep>", helpers.urlEncode(grep)), issueseverity,
-                                        issueconfidence, remediationdetail, issuebackground, remediationbackground);
-                            }
-                        }
-                        if (matches != null) {
-                            issues.add(matches);
-                        }
-                        break;
-                    }
-                    default://String, Regex, Payload, Payload without encode match types 
-
-                        if (payload.contains("{BC}")) {
-
-                            IHttpRequestResponse requestResponse;
-                            IResponseInfo r;
-                            Integer responseCode;
-                            int loop = 0;
-                            Boolean redirect = true;
-                            URL url;
-
-                            payload = payload.replace("{BC}", bchost);
-
-                            do {
-                                try {
-                                    requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
-                                    r = helpers.analyzeResponse(requestResponse.getResponse());
-                                } catch (Exception ex) {
-                                    break;
-                                }
-
-                                burpCollaboratorData.setIssueProperties(requestResponse, bchost, issuename, issuedetail, issueseverity, issueconfidence, remediationdetail, issuebackground, remediationbackground);
-
-                                responseCode = new Integer(r.getStatusCode());
-
-                                if (responseCodes.contains(responseCode) && loop < limitredirect) {
-                                    httpService = requestResponse.getHttpService();
-                                    url = getRedirection(requestResponse, httpService);
-
-                                    if (url != null) {
-                                        httpService = helpers.buildHttpService(url.getHost(), httpService.getPort(), httpService.getProtocol());
-                                    } else {
-                                        redirect = false;
+                                if (url != null) {
+                                    byte[] checkRequest = helpers.buildHttpRequest(url);
+                                    checkRequest = getMatchAndReplace(headers, checkRequest, payload);
+                                    int port = 0;
+                                    if (url.getPort() == -1) {
+                                        port = url.getDefaultPort();
                                     }
-                                    loop += 1;
-                                } else {
-                                    redirect = false;
-                                }
-                            } while (redirect);
-
-                        } else {
-                            IHttpRequestResponse requestResponse;
-                            IResponseInfo r;
-                            Integer responseCode;
-                            int loop = 0;
-                            URL url;
-                            Boolean redirect = true;
-
-                            try {
-                                requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
-                                IHttpRequestResponse redirectRequestResponse = requestResponse;
-                                r = helpers.analyzeResponse(redirectRequestResponse.getResponse());
-                            } catch (NullPointerException e) {
-                                break;
-                            }
-
-                            responseCode = new Integer(r.getStatusCode());
-
-                            if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                                for (String grep : greps) {
-                                    matches = gm.getResponseMatches(requestResponse, payload, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
-                                            issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
-
-                                    if (matches != null) {
-                                        issues.add(matches);
-                                    }
-                                }
-                            }
-
-                            do {
-                                if (responseCodes.contains(responseCode) && redirtype != 1 && loop < maxredirect && maxredirect < limitredirect) {
-                                    httpService = requestResponse.getHttpService();
-                                    url = getRedirection(requestResponse, httpService);
-
-                                    if (url != null) {
-                                        byte[] checkRequest = helpers.buildHttpRequest(url);
-                                        checkRequest = getMatchAndReplace(headers, checkRequest, payload);
-                                        int port = 0;
-                                        if (url.getPort() == -1) {
-                                            port = url.getDefaultPort();
-                                        }
-                                        IHttpService newrequest = helpers.buildHttpService(url.getHost(), port, url.getProtocol());
-                                        requestResponse = callbacks.makeHttpRequest(newrequest, checkRequest);
-                                        IHttpRequestResponse redirectRequestResponse = requestResponse;
-                                        r = helpers.analyzeResponse(redirectRequestResponse.getResponse());
-                                        responseCode = new Integer(r.getStatusCode());
-
-                                    } else {
-                                        redirect = false;
-                                    }
-
-                                } else {
-                                    redirect = false;
+                                    IHttpService newrequest = helpers.buildHttpService(url.getHost(), port, url.getProtocol());
+                                    requestResponse = callbacks.makeHttpRequest(newrequest, checkRequest);
+                                    IHttpRequestResponse redirectRequestResponse = requestResponse;
+                                    r = helpers.analyzeResponse(redirectRequestResponse.getResponse());
+                                    responseCode = new Integer(r.getStatusCode());
                                 }
                                 loop += 1;
+                            } else {
+                                redirect = false;
+                            }
+                        } while (redirect);
 
-                            } while (redirect);
+                    } else {
+                        IHttpRequestResponse requestResponse;
+                        IResponseInfo r;
+                        Integer responseCode;
+                        int loop = 0;
+                        URL url;
+                        Boolean redirect = true;
+
+                        //multiarray
+                        int grep_index = 0;
+                        ArrayList<ArrayList<String>> greps_final = new ArrayList<>(greps.size());
+                        for (int index = 0; index < greps.size(); index++) {
+                            greps_final.add(new ArrayList());
                         }
+
+                        for (String grep : greps) {
+                            if (grep.split(",")[0].equals("true")) {
+                                if (grep.split(",")[1].equals("Or")) {
+                                    if (!grep.split(",")[2].equals("")) {
+                                        greps_final.get(grep_index).add(grep.split(",")[2]);
+                                        grep_index = grep_index + 1;
+                                    }
+                                }
+                            }
+                        }
+
+                        try {
+                            requestResponse = callbacks.makeHttpRequest(httpService, new BuildUnencodeRequest(helpers).buildUnencodedRequest(insertionPoint, helpers.stringToBytes(payload), headers));
+                            IHttpRequestResponse redirectRequestResponse = requestResponse;
+                            r = helpers.analyzeResponse(redirectRequestResponse.getResponse());
+                        } catch (NullPointerException e) {
+                            break;
+                        }
+
+                        responseCode = new Integer(r.getStatusCode());
+
+                        if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
+                            for (int x = 0; x <= grep_index; x++) {
+                                if (!greps_final.get(x).isEmpty()) {
+                                    matches = gm.getResponseMatches(requestResponse, payload, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
+                                            issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
+
+                                    try {
+                                        if (matches != null) {
+                                            issues.add(matches);
+                                            break;
+                                        }
+                                    } catch (Exception e) {
+                                        continue;
+                                    }
+                                }
+
+                            }
+                        }
+
+                        do {
+                            if (responseCodes.contains(responseCode) && redirtype != 1 && loop < maxredirect && maxredirect < limitredirect) {
+                                httpService = requestResponse.getHttpService();
+                                url = getRedirection(requestResponse, httpService);
+
+                                if (url != null) {
+                                    byte[] checkRequest = helpers.buildHttpRequest(url);
+                                    checkRequest = getMatchAndReplace(headers, checkRequest, payload);
+                                    int port = 0;
+                                    if (url.getPort() == -1) {
+                                        port = url.getDefaultPort();
+                                    }
+                                    IHttpService newrequest = helpers.buildHttpService(url.getHost(), port, url.getProtocol());
+                                    requestResponse = callbacks.makeHttpRequest(newrequest, checkRequest);
+                                    IHttpRequestResponse redirectRequestResponse = requestResponse;
+                                    r = helpers.analyzeResponse(redirectRequestResponse.getResponse());
+                                    responseCode = new Integer(r.getStatusCode());
+
+                                    if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
+                                        for (int x = 0; x <= grep_index; x++) {
+                                            if (!greps_final.get(x).isEmpty()) {
+                                                matches = gm.getResponseMatches(requestResponse, payload, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, charstourlencode, matchtype,
+                                                        issueseverity, issueconfidence, notresponse, casesensitive, urlencode, excludeHTTP, onlyHTTP);
+
+                                                try {
+                                                    if (matches != null) {
+                                                        issues.add(matches);
+                                                        break;
+                                                    }
+                                                } catch (Exception e) {
+                                                    continue;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                } else {
+                                    redirect = false;
+                                }
+
+                            } else {
+                                redirect = false;
+                            }
+                            loop += 1;
+
+                        } while (redirect);
+                    }
                 }
             }
         }
 
-        if (issues.size() > 0) {
-            return issues;
-        }
-        return null;
+        return issues;
     }
 
-    public List<IScanIssue> runPScan(IHttpRequestResponse baseRequestResponse) throws Exception {
+    public List<IScanIssue> runResPScan(IHttpRequestResponse baseRequestResponse, JsonArray passiveresprofiles, String bchost) throws Exception {
 
         List<IScanIssue> issues = new ArrayList<>();
 
-        for (int i = 0; i < this.data.size(); i++) {
-            Object idata = this.data.get(i);
+        for (int i = 0; i < passiveresprofiles.size(); i++) {
+            Object idata = passiveresprofiles.get(i);
             profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class);
-
             greps = profile_property.getGreps();
             issuename = profile_property.getIssueName();
             issueseverity = profile_property.getIssueSeverity();
@@ -469,57 +526,175 @@ public class GenericScan {
             negativect = profile_property.getNegativeCT();
             negativerc = profile_property.getNegativeRC();
             scanner = profile_property.getScanner();
-
+            IResponseInfo r;
             GrepMatch gm = new GrepMatch(callbacks);
+            IScanIssue matches = null;
+            int grep_index = 0;
+            ArrayList<ArrayList<String>> greps_final = new ArrayList<>(greps.size());
 
-            if (scanner == 2) {//passive response
-                IScanIssue matches = null;
-                IResponseInfo r;
+            if (baseRequestResponse == null) {
+                break;
+            }
 
-                if (baseRequestResponse == null) {
+            try {
+                r = helpers.analyzeResponse(baseRequestResponse.getResponse());
+            } catch (NullPointerException e) {
+                break;
+            }
+
+            //multiarray
+            for (int index = 0; index < greps.size(); index++) {
+                greps_final.add(new ArrayList());
+            }
+            Integer responseCode = new Integer(r.getStatusCode());
+
+            for (String grep : greps) {
+                if ((isresponsecode && !isResponseCode(responsecode, negativerc, responseCode)) || (iscontenttype && !isContentType(contenttype, negativect, r))) {
                     break;
+                }
+
+                String[] tokens = grep.split(",");
+
+                if (tokens.length > 1) {
+                    if (tokens[0].equals("true")) {
+                        if (tokens[1].equals("Or")) {
+                            if (!tokens[2].equals("")) {
+                                greps_final.get(grep_index).add(tokens[2]);
+                                grep_index = grep_index + 1;
+                            }
+                        }
+                    }
+                } else {
+                    if (!tokens[0].equals("")) {
+                        greps_final.get(grep_index).add(tokens[0]);
+                        grep_index = grep_index + 1;
+                    }
+                }
+            }
+
+            for (int x = 0; x <= grep_index; x++) {
+                if (!greps_final.get(x).isEmpty()) {
+                    matches = gm.getResponseMatches(baseRequestResponse, "", greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, "", matchtype,
+                            issueseverity, issueconfidence, notresponse, casesensitive, false, excludeHTTP, onlyHTTP);
                 }
 
                 try {
-                    r = helpers.analyzeResponse(baseRequestResponse.getResponse());
-                } catch (NullPointerException e) {
-                    break;
-                }
-
-                Integer responseCode = new Integer(r.getStatusCode());
-
-                for (String grep : greps) {
-                    if ((!isresponsecode || isresponsecode && isResponseCode(responsecode, negativerc, responseCode)) && (!iscontenttype || iscontenttype && isContentType(contenttype, negativect, r))) {
-                        matches = gm.getResponseMatches(baseRequestResponse, "", grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, "", matchtype,
-                                issueseverity, issueconfidence, notresponse, casesensitive, false, excludeHTTP, onlyHTTP);
-                    }
-
                     if (matches != null) {
                         issues.add(matches);
+                        break;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+        return issues;
+    }
+
+    public List<IScanIssue> runReqPScan(IHttpRequestResponse baseRequestResponse, JsonArray passivereqprofiles, String bchost) throws Exception {
+
+        List<IScanIssue> issues = new ArrayList<>();
+        Object[] matches = null;
+
+        for (int i = 0; i < passivereqprofiles.size(); i++) {
+            Object idata = passivereqprofiles.get(i);
+            profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class);
+            greps = profile_property.getGreps();
+            issuename = profile_property.getIssueName();
+            issueseverity = profile_property.getIssueSeverity();
+            issueconfidence = profile_property.getIssueConfidence();
+            issuedetail = profile_property.getIssueDetail();
+            issuebackground = profile_property.getIssueBackground();
+            remediationdetail = profile_property.getRemediationDetail();
+            remediationbackground = profile_property.getRemediationBackground();
+            matchtype = profile_property.getMatchType();
+            notresponse = profile_property.getNotResponse();
+            casesensitive = profile_property.getCaseSensitive();
+            scanner = profile_property.getScanner();
+
+            int grep_index = 0;
+            ArrayList<ArrayList<String>> greps_final = new ArrayList<>(greps.size());
+            GrepMatch gm = new GrepMatch(callbacks);
+
+            if (baseRequestResponse.getRequest() == null) {
+                break;
+            }
+
+            //multiarray
+            for (int index = 0; index < greps.size(); index++) {
+                greps_final.add(new ArrayList());
+            }
+
+            for (String grep : greps) {
+
+                String[] tokens = grep.split(",");
+
+                if (tokens.length > 1) {
+                    if (tokens[0].equals("true")) {
+                        if (tokens[1].equals("Or")) {
+                            if (!tokens[4].equals("")) {
+                                greps_final.get(grep_index).add(tokens[2] + "," + tokens[4]);
+                                grep_index = grep_index + 1;
+                            }
+                        }
+                    }
+                } else {
+                    if (!tokens[0].equals("")) {
+                        greps_final.get(grep_index).add("All Request" + "," + tokens[0]);
+                        grep_index = grep_index + 1;
                     }
                 }
-            } else if (scanner == 3) {//passive request
-                IScanIssue matches;
+            }
 
-                if (baseRequestResponse == null) {
-                    return null;
-                }
+            for (int x = 0; x <= grep_index; x++) {
+                if (!greps_final.get(x).isEmpty()) {
+                    matches = gm.getRequestMatches(baseRequestResponse, greps_final.get(x), issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, matchtype,
+                            issueseverity, issueconfidence, casesensitive, notresponse);
 
-                for (String grep : greps) {
-                    matches = gm.getRequestMatches(baseRequestResponse, grep, issuename, issuedetail, issuebackground, remediationdetail, remediationbackground, matchtype,
-                            issueseverity, issueconfidence, casesensitive, notresponse, excludeHTTP, onlyHTTP);
-
-                    if (matches != null) {
-                        issues.add(matches);
+                    try {
+                        if (matches[0] != null) {
+                            issues.add((IScanIssue) matches[0]);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        continue;
                     }
                 }
             }
         }
+        return issues;
+    }
 
-        if (issues.size() > 0) {
-            return issues;
+    public Boolean isUrlExtension(String urlextension, boolean NegativeUrlExtension, IRequestInfo r) {
+
+        if (urlextension.isEmpty()) {
+            return false;
         }
-        return null;
+
+        URL url = r.getUrl();
+        List<String> extensions = Arrays.asList(urlextension.toLowerCase().split(","));
+        String uri = url.getPath().toLowerCase();
+        String ext;
+
+        if (uri.contains(".")) {
+            ext = uri.substring(uri.lastIndexOf(".") + 1);
+        } else {
+            return true;
+        }
+
+        if (extensions.contains(ext)) {
+            if (!NegativeUrlExtension) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if (NegativeUrlExtension) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public URL getRedirection(IHttpRequestResponse response, IHttpService httpService) {
@@ -527,7 +702,7 @@ public class GenericScan {
         try {
             URL url = getLocation(httpService, response);
 
-            if (url.getHost().contains("burpcollaborator.net")) {
+            if (url.toString().contains("burpcollaborator.net")) {
                 return url;
             } else if (redirtype == 2) {
                 if (url.getHost().contains(httpService.getHost())) {
@@ -633,57 +808,52 @@ public class GenericScan {
 
     public boolean isResponseCode(String responsecodes, boolean negativerc, Integer responsecode) {
 
-        boolean iscode = true;
-
-        if (responsecodes.equals("")) {
-            return iscode;
+        if (responsecodes.isEmpty()) {
+            return false;
         }
-        List<String> items = Arrays.asList(responsecodes.split("\\s*,\\s*"));
 
-        for (String i : items) {
-            int code = Integer.parseInt(i);
-            if (code != responsecode && !negativerc) {
-                iscode = false;
-            } else if (code != responsecode && negativerc) {
-                iscode = true;
-                break;
-            } else if (code == responsecode && !negativerc) {
-                iscode = true;
-                break;
-            } else if (code == responsecode && negativerc) {
-                iscode = false;
-                break;
+        List<String> items = Arrays.asList(responsecodes.split("\\s*,\\s*"));
+        String code = Integer.toString(responsecode);
+
+        if (items.contains(code)) {
+            if (!negativerc) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if (negativerc) {
+                return true;
+            } else {
+                return false;
             }
         }
-
-        return iscode;
     }
 
     public boolean isContentType(String contenttype, boolean negativect, IResponseInfo r) {
         List<String> HEADERS = r.getHeaders();
-        boolean isct = true;
-        if (contenttype.isEmpty()) {
-            return isct;
-        }
-        List<String> items = Arrays.asList(contenttype.split("\\s*,\\s*"));
 
-        for (String i : items) {
-            for (String header : HEADERS) {
-                if (header.toUpperCase().contains("CONTENT-TYPE") && !header.toUpperCase().contains(i.toUpperCase()) && !negativect) {
-                    isct = false;
-                } else if (header.toUpperCase().contains("CONTENT-TYPE") && !header.toUpperCase().contains(i.toUpperCase()) && negativect) {
-                    isct = true;
-                    break;
-                } else if (header.toUpperCase().contains("CONTENT-TYPE") && header.toUpperCase().contains(i.toUpperCase()) && !negativect) {
-                    isct = true;
-                    break;
-                } else if (header.toUpperCase().contains("CONTENT-TYPE") && header.toUpperCase().contains(i.toUpperCase()) && negativect) {
-                    isct = false;
-                    break;
+        if (contenttype.isEmpty()) {
+            return false;
+        }
+
+        List<String> items = Arrays.asList(contenttype.toUpperCase().split("\\s*,\\s*"));
+
+        for (String header : HEADERS) {
+            if (header.toUpperCase().contains("CONTENT-TYPE")) {
+                String content_type = header.substring(header.lastIndexOf(":") + 1).toUpperCase();
+                if (items.contains(content_type.replace(" ", ""))) {
+                    if (negativect) {
+                        return false;
+                    }
+                } else {
+                    if (!negativect) {
+                        return false;
+                    }
                 }
             }
         }
-        return isct;
+        return true;
     }
 
     public List processPayload(List<String> payloads, List<String> encoders) {
@@ -786,5 +956,4 @@ public class GenericScan {
         }
         return out.toString();
     }
-
 }
