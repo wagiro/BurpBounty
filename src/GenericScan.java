@@ -404,12 +404,15 @@ public class GenericScan {
                         for (int index = 0; index < greps.size(); index++) {
                             greps_final.add(new ArrayList());
                         }
+                        
+                        
 
                         for (String grep : greps) {
-                            if (grep.split(",")[0].equals("true")) {
-                                if (grep.split(",")[1].equals("Or")) {
-                                    if (!grep.split(",")[2].equals("")) {
-                                        greps_final.get(grep_index).add(grep.split(",")[2]);
+                            String[] tokens = grep.split(",",3);
+                            if (tokens[0].equals("true")) {
+                                if (tokens[1].equals("Or")) {
+                                    if (!tokens[2].equals("")) {
+                                        greps_final.get(grep_index).add(tokens[2]);
                                         grep_index = grep_index + 1;
                                     }
                                 }
@@ -553,7 +556,7 @@ public class GenericScan {
                     break;
                 }
 
-                String[] tokens = grep.split(",");
+                String[] tokens = grep.split(",",3);
 
                 if (tokens.length > 1) {
                     if (tokens[0].equals("true")) {
@@ -627,7 +630,7 @@ public class GenericScan {
 
             for (String grep : greps) {
 
-                String[] tokens = grep.split(",");
+                String[] tokens = grep.split(",",3);
 
                 if (tokens.length > 1) {
                     if (tokens[0].equals("true")) {
