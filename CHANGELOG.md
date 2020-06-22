@@ -1,4 +1,8 @@
 ##  Changelog
+**3.4.0 20200621**
+* Fixed bug with delete button on windows systems
+* Fixed bug with Java array
+
 **3.3.0 20200607**
 * Fixed bug with windows systems
 * New look and feel

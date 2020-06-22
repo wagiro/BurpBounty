@@ -1599,107 +1599,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
         }
     }
 
-    public void checkProfilesProperties() {
-        //Init main comboBox with file values
-
-        Gson gson = new Gson();
-        File f = new File(profiles_directory);
-        JsonArray json2 = new JsonArray();
-        List<ProfilesProperties> newfile = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
-        }.getType());
-
-        File[] files = f.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.toLowerCase().endsWith(".bb")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        if (f.exists() && f.isDirectory()) {
-            for (File file : files) {
-                try {
-                    JsonArray data = new JsonArray();
-                    JsonReader jsons = new JsonReader(new FileReader(file.getAbsolutePath()));
-                    JsonParser parser = new JsonParser();
-                    data.addAll(parser.parse(jsons).getAsJsonArray());
-
-                    Object idata = data.get(0);
-                    ProfilesProperties profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class
-                    );
-
-                    name = profile_property.getName() != null ? profile_property.getName() : "";
-                    author = profile_property.getAuthor() != null ? profile_property.getAuthor() : "";
-                    headers = profile_property.getHeader() != null ? profile_property.getHeader() : new ArrayList();
-                    variationAttributes = profile_property.getVariationAttributes() != null ? profile_property.getVariationAttributes() : new ArrayList();
-                    insertionPointType = profile_property.getInsertionPointType() != null ? profile_property.getInsertionPointType() : new ArrayList(Arrays.asList(0));
-                    issuename = profile_property.getIssueName() != null ? profile_property.getIssueName() : "";
-                    issueseverity = profile_property.getIssueSeverity() != null ? profile_property.getIssueSeverity() : "";
-                    issueconfidence = profile_property.getIssueConfidence() != null ? profile_property.getIssueConfidence() : "";
-                    issuedetail = profile_property.getIssueDetail() != null ? profile_property.getIssueDetail() : "";
-                    issuebackground = profile_property.getIssueBackground() != null ? profile_property.getIssueBackground() : "";
-                    remediationdetail = profile_property.getRemediationDetail() != null ? profile_property.getRemediationDetail() : "";
-                    remediationbackground = profile_property.getRemediationBackground() != null ? profile_property.getRemediationBackground() : "";
-                    contenttype = profile_property.getContentType() != null ? profile_property.getContentType() : "";
-                    responsecode = profile_property.getResponseCode() != null ? profile_property.getResponseCode() : "";
-                    payloadsfile = profile_property.getpayloadsFile() != null ? profile_property.getpayloadsFile() : "";
-                    grepsfile = profile_property.getgrepsFile() != null ? profile_property.getgrepsFile() : "";
-                    timeOut = profile_property.getTime() != null ? profile_property.getTime() : "";
-                    contentLength = profile_property.getContentLength() != null ? profile_property.getContentLength() : "";
-
-                    Tags = profile_property.getTags() != null ? profile_property.getTags() : new ArrayList(Arrays.asList("All"));
-
-                    if (!Tags.contains("All")) {
-                        Tags = new ArrayList(Arrays.asList("All"));
-                    }
-
-                    if (author.length() >= 35) {
-                        profile_property.setAuthor(author.substring(0, 34));
-                    }
-
-                    if (name.length() >= 35) {
-                        profile_property.setName(name.substring(0, 34));
-                    }
-
-                    profile_property.setName(name);
-                    profile_property.setAuthor(author);
-                    profile_property.setScanner(scanner);
-                    profile_property.setHeader(headers);
-                    profile_property.setVariationAttributes(variationAttributes);
-                    profile_property.setInsertionPointType(insertionPointType);
-                    profile_property.setIssueName(issuename);
-                    profile_property.setIssueSeverity(issueseverity);
-                    profile_property.setIssueConfidence(issueconfidence);
-                    profile_property.setIssueBackground(issuebackground);
-                    profile_property.setIssueDetail(issuedetail);
-                    profile_property.setRemediationDetail(remediationdetail);
-                    profile_property.setRemediationBackground(remediationbackground);
-                    profile_property.setCharsToUrlEncode(charstourlencode);
-                    profile_property.setContentType(contenttype);
-                    profile_property.setResponseCode(responsecode);
-                    profile_property.setPayloadsFile(payloadsfile);
-                    profile_property.setGrepsFile(grepsfile);
-                    profile_property.setTime(timeOut);
-                    profile_property.setContentLength(contentLength);
-                    profile_property.setTags(Tags);
-
-                    newfile.clear();
-                    newfile.add(profile_property);
-                    FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
-                    String fjson = gson.toJson(newfile);
-                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-                    writer.write(fjson);
-                    writer.close();
-                } catch (IOException e) {
-                    callbacks.printError("BurpBountyGui line 1778:" + e.getMessage());
-
-                }
-            }
-        }
-    }
+  
 
     private List<String> readFile(String filename) {
         List<String> records = new ArrayList();
@@ -1731,6 +1631,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
                         fr.close();
+                        json.close();
                     }
 
                 }
@@ -1838,6 +1739,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                 writer.write(fjson);
                 writer.close();
+                json.close();
 
             } catch (IOException e) {
                 callbacks.printError("BurpBountyGui line 1956:" + e.getMessage());
@@ -1889,6 +1791,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                     writer.write(fjson);
                     writer.close();
+                    json.close();
                 } catch (IOException e) {
                     callbacks.printError("BurpBountyGui line 207:" + e.getMessage());
                 }
@@ -1945,6 +1848,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                     writer.write(fjson);
                     writer.close();
+                    json.close();
                 } catch (IOException e) {
                     callbacks.printError("BurpBountyGui line 2065:" + e.getMessage());
                 }
@@ -1984,7 +1888,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     if (profile_properties.getTags() != null) {
                         tags.addAll(profile_properties.getTags());
                     }
-
+                    json.close();
                 } catch (IOException e) {
                     System.out.println("BurpBountyGui line 2107:" + e.getMessage());
                 }
@@ -2063,6 +1967,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                         writer.write(fjson);
                         writer.close();
+                        json.close();
 
                     } catch (IOException ex) {
                         callbacks.printError("BurpBountyGui line 1956:" + ex.getMessage());
@@ -2092,6 +1997,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                         writer.write(fjson);
                         writer.close();
+                        json.close();
 
                     } catch (IOException ex) {
                         callbacks.printError("BurpBountyGui line 1956:" + ex.getMessage());
@@ -2240,6 +2146,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         String pname = table.getValueAt(row, 1).toString();
 
                         if (pname.equals(i.getName())) {
+                            json.close();
                             file.delete();
                             break;
                         }
