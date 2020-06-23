@@ -35,6 +35,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JScrollPane;
@@ -191,6 +192,13 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         JsonArray passivereqprofiles = new JsonArray();
         List<IScanIssue> issues = new ArrayList();
 
+        IRequestInfo requestInfo = helpers.analyzeRequest(baseRequestResponse.getHttpService(), baseRequestResponse.getRequest());
+        URL url = requestInfo.getUrl();
+        
+        String u = url.getHost()+url.getPath()+url.getQuery();
+        
+        List<String> params = requestInfo.getHeaders();
+        
         for (int i = 0; i < allprofiles.size(); i++) {
             Object idata = allprofiles.get(i);
             issue = gson.fromJson(idata.toString(), ProfilesProperties.class);

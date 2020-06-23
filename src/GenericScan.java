@@ -630,7 +630,7 @@ public class GenericScan {
 
             for (String grep : greps) {
 
-                String[] tokens = grep.split(",",3);
+                String[] tokens = grep.split(",",5);
 
                 if (tokens.length > 1) {
                     if (tokens[0].equals("true")) {
