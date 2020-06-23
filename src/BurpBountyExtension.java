@@ -192,12 +192,6 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
         JsonArray passivereqprofiles = new JsonArray();
         List<IScanIssue> issues = new ArrayList();
 
-        IRequestInfo requestInfo = helpers.analyzeRequest(baseRequestResponse.getHttpService(), baseRequestResponse.getRequest());
-        URL url = requestInfo.getUrl();
-        
-        String u = url.getHost()+url.getPath()+url.getQuery();
-        
-        List<String> params = requestInfo.getHeaders();
         
         for (int i = 0; i < allprofiles.size(); i++) {
             Object idata = allprofiles.get(i);
