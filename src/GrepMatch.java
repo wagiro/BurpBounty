@@ -203,7 +203,7 @@ public class GrepMatch {
         List<IScannerInsertionPoint> insertionPoints = new ArrayList();
 
         for (String grep : greps) {
-            String[] tokens = grep.split(",");
+            String[] tokens = grep.split(",",2);
             String value = tokens[1];
             grep = value;
             Boolean vuln = false;
