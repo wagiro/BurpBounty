@@ -242,7 +242,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
 
     @Override
     public String getTabCaption() {
-        return "Burp Bounty";
+        return "Scan Check Builder";
     }
 
     @Override

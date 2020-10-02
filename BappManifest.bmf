@@ -1,0 +1,12 @@
+Uuid: 618f0b2489564607825e93eeed8b9e0a
+ExtensionType: 1
+Name: Burp Bounty, Scan Check Builder
+RepoName: scan-check-builder
+ScreenVersion: 3.2
+SerialVersion: 21
+MinPlatformVersion: 0
+ProOnly: True
+Author: Eduardo Garcia
+ShortDescription: Extend the Burp active and passive scanner by creating custom scan checks with an intuitive graphical interface.
+EntryPoint: build/libs/scan-check-builder-all.jar
+BuildCommand: gradle fatJar
