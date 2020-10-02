@@ -149,7 +149,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     public void showGreps(List<String> greps) {
 
         for (String grepline : greps) {
-            List<String> array = Arrays.asList(grepline.split(","));
+            List<String> array = Arrays.asList(grepline.split(",",3));
             if (array.size() > 1) {
                 if (array.get(0).equals("true")) {
                     modelgrep.addRow(new Object[]{true, array.get(1), array.get(2)});

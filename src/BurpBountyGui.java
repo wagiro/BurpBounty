@@ -1149,6 +1149,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
             List tags = new ArrayList();
 
             newfile.setGrepsFile(profile.textgreps.getText());
+            String a = profile.textgreps.getText();
             for (int i = 0; i < profile.modelgrep.getRowCount(); i++) {
                 if (!profile.modelgrep.getValueAt(i, 2).toString().isEmpty()) {
                     greps.add(profile.modelgrep.getValueAt(i, 0).toString() + "," + profile.modelgrep.getValueAt(i, 1).toString() + "," + profile.modelgrep.getValueAt(i, 2).toString());

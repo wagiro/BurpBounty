@@ -175,7 +175,7 @@ public class RequestProfile extends javax.swing.JPanel {
     public void showGreps(List<String> greps) {
 
         for (String grepline : greps) {
-            List<String> array = Arrays.asList(grepline.split(","));
+            List<String> array = Arrays.asList(grepline.split(",",5));
             if (array.size() > 1) {
                 if (array.get(0).equals("true")) {
                     modelgrep.addRow(new Object[]{true, "Or", "All Request", "Name", array.get(4)});
