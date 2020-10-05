@@ -187,9 +187,9 @@ public class ActiveProfile extends javax.swing.JPanel {
                 bufferreader.close();
                 showGreps(grep);
             } catch (FileNotFoundException ex) {
-                callbacks.printError("ActivePorfile line 213:" + ex.getMessage());
+                callbacks.printError("ActiveProfile line 213:" + ex.getMessage());
             } catch (IOException ex) {
-                callbacks.printError("ActivePorfile line 215:" + ex.getMessage());
+                callbacks.printError("ActiveProfile line 215:" + ex.getMessage());
             }
         }
     }

@@ -416,11 +416,9 @@ public class GenericScan {
                         for (int index = 0; index < greps.size(); index++) {
                             greps_final.add(new ArrayList());
                         }
-                        
-                        
 
                         for (String grep : greps) {
-                            String[] tokens = grep.split(",",3);
+                            String[] tokens = grep.split(",", 3);
                             if (tokens[0].equals("true")) {
                                 if (tokens[1].equals("Or")) {
                                     if (!tokens[2].equals("")) {
@@ -568,7 +566,7 @@ public class GenericScan {
                     break;
                 }
 
-                String[] tokens = grep.split(",",3);
+                String[] tokens = grep.split(",", 3);
 
                 if (tokens.length > 1) {
                     if (tokens[0].equals("true")) {
@@ -642,7 +640,7 @@ public class GenericScan {
 
             for (String grep : greps) {
 
-                String[] tokens = grep.split(",",5);
+                String[] tokens = grep.split(",", 5);
 
                 if (tokens.length > 1) {
                     if (tokens[0].equals("true")) {
@@ -761,7 +759,7 @@ public class GenericScan {
             } else if (Location.startsWith("/")) {
                 url = new URL(httpService.getProtocol() + "://" + httpService.getHost() + Location);
                 return url;
-            } else{
+            } else {
                 url = new URL(httpService.getProtocol() + "://" + httpService.getHost() + "/" + Location);
                 return url;
             }
@@ -771,7 +769,7 @@ public class GenericScan {
         }
     }
 
-public byte[] getMatchAndReplace(List<Headers> headers, byte[] checkRequest, String payload, String bchost) {
+    public byte[] getMatchAndReplace(List<Headers> headers, byte[] checkRequest, String payload, String bchost) {
         String tempRequest = helpers.bytesToString(checkRequest);
 
         if (!headers.isEmpty()) {
@@ -815,6 +813,7 @@ public byte[] getMatchAndReplace(List<Headers> headers, byte[] checkRequest, Str
         try {
             response_info = helpers.analyzeResponse(response.getResponse());
         } catch (NullPointerException ex) {
+            callbacks.printError("GenericScan line 1279: " + ex.getMessage());
             return 0;
         }
 

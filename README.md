@@ -27,7 +27,7 @@ Download releases:
 
 ## Profiles
 
-* Thanks to [Six2dez1](https://twitter.com/Six2dez1) for collect all of the Burp Bounty profiles and also share their own. You can find the collection [HERE](https://github.com/wagiro/BurpBounty/tree/master/profiles/)
+* Thanks to [Six2dez1](https://github.com/six2dez) for collect all of the Burp Bounty profiles and also share their own. You can find the collection [HERE](https://github.com/wagiro/BurpBounty/tree/master/profiles/)
 
 * Also thanks to: 
 
@@ -53,3 +53,9 @@ All of them have contributed by sharing their Burp Bounty profiles
 
 
 <br/>
+
+
+## Special Thanks
+
+* Thanks to [Nexsus](https://twitter.com/Nexsus1985) for helping me to detect errors in the extension and thus be able to solve them.
+

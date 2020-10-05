@@ -81,7 +81,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
             optionsTab.getVerticalScrollBar().setUnitIncrement(20);
             callbacks.addSuiteTab(this);
 
-            callbacks.printOutput("- Burp Bounty v3.5");
+            callbacks.printOutput("- Burp Bounty v3.6");
             callbacks.printOutput("- For bugs please on the official github: https://github.com/wagiro/BurpBounty/");
             callbacks.printOutput("- Created by Eduardo Garcia Melia <wagiro@gmail.com>");
 
@@ -242,7 +242,7 @@ public class BurpBountyExtension implements IBurpExtender, ITab, IScannerCheck, 
 
     @Override
     public String getTabCaption() {
-        return "Scan Check Builder";
+        return "Burp Bounty";
     }
 
     @Override

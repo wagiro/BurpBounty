@@ -88,7 +88,7 @@ public class GrepMatch {
                         m = p.matcher(responseString);
                     }
                 } catch (PatternSyntaxException pse) {
-                    callbacks.printError("GrepMacth line 93 Incorrect regex: " + pse.getPattern());
+                    callbacks.printError("Grep Match line 93 Incorrect regex: " + pse.getPattern());
                     return null;
                 }
 
@@ -222,7 +222,7 @@ public class GrepMatch {
                 try {
                     p = Pattern.compile(grep, Pattern.CASE_INSENSITIVE);
                 } catch (PatternSyntaxException pse) {
-                    callbacks.printError("Grep Macth line 251 Incorrect regex: " + pse.getPattern());
+                    callbacks.printError("Grep Match line 251 Incorrect regex: " + pse.getPattern());
                     return null;
                 }
 
@@ -238,7 +238,7 @@ public class GrepMatch {
                     p = Pattern.compile(grep, Pattern.CASE_INSENSITIVE);
                     m = p.matcher(helpers.bytesToString(requestResponse.getRequest()));
                 } catch (PatternSyntaxException pse) {
-                    callbacks.printError("Grep Macth line 251 Incorrect regex: " + pse.getPattern());
+                    callbacks.printError("Grep Match line 251 Incorrect regex: " + pse.getPattern());
                     return null;
                 }
 
