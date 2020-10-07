@@ -862,8 +862,8 @@ public class GenericScan {
 
         for (String header : HEADERS) {
             if (header.toUpperCase().contains("CONTENT-TYPE")) {
-                String content_type = header.substring(header.lastIndexOf(":") + 1).toUpperCase();
-                if (items.contains(content_type.replace(" ", ""))) {
+                String content_type = header.substring(header.lastIndexOf(":") + 2).split(";")[0].toUpperCase();
+                if (items.contains(content_type)) {
                     if (negativect) {
                         return false;
                     }
