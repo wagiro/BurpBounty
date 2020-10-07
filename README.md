@@ -31,6 +31,7 @@ Download releases:
 
 * Also thanks to: 
 
+	- [Xer0Days](https://twitter.com/Xer0Days)
 	- [Gocha](https://twitter.com/GochaOqradze)
 	- [Sy3Omda](https://twitter.com/Sy3Omda) 
 	- [Syed](https://twitter.com/syed__umar) 
