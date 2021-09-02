@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
@@ -69,7 +69,7 @@ class CustomScanIssue implements IScanIssue {
 
     @Override
     public int getIssueType() {
-        return 0;
+        return 0x08000000;
     }
 
     @Override
@@ -111,5 +111,4 @@ class CustomScanIssue implements IScanIssue {
     public IHttpService getHttpService() {
         return httpService;
     }
-
 }

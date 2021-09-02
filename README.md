@@ -7,7 +7,7 @@
 [![Follow on Twitter](https://img.shields.io/twitter/follow/burpbounty.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=burpbounty)
 
 
-# Burp Bounty - Scan Check Builder (BApp Store)
+# Burp Bounty Free - Scan Check Builder (BApp Store)
 
 This Burp Suite extension allows you, in a quick and simple way, to improve the active and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.<br/>
 

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 import burp.IBurpCollaboratorClientContext;
 import burp.IBurpCollaboratorInteraction;
@@ -43,7 +43,8 @@ public class BurpCollaboratorThread extends Thread {
     private String issueconfidence;
     CollaboratorData burpCollaboratorData;
 
-    public BurpCollaboratorThread(IBurpExtenderCallbacks callbacks, CollaboratorData burpCollaboratorData) {
+    public BurpCollaboratorThread(IBurpExtenderCallbacks callbacks, CollaboratorData burpCollaboratorData)
+    {
         this.callbacks = callbacks;
         helpers = callbacks.getHelpers();
         this.burpCollaboratorData = burpCollaboratorData;
@@ -59,6 +60,9 @@ public class BurpCollaboratorThread extends Thread {
         remediationbackground = "";
         issueseverity = "";
         issueconfidence = "";
+        this.callbacks = callbacks;
+        helpers = callbacks.getHelpers();
+        this.burpCollaboratorData = burpCollaboratorData;
 
     }
 
@@ -87,6 +91,8 @@ public class BurpCollaboratorThread extends Thread {
                 BurpCollaboratorThread.sleep(10000);
             } catch (NullPointerException | InterruptedException e) {
                 System.out.println("Thread error: " + e);
+            } catch (IllegalStateException ex) {
+                this.doStop();
             }
         }
     }
@@ -98,7 +104,31 @@ public class BurpCollaboratorThread extends Thread {
         String client_ip = interactions.getProperty("client_ip");
         String time_stamp = interactions.getProperty("time_stamp");
         String query_type = interactions.getProperty("query_type");
+
+        try {
+            if (type.equals("DNS")) {
+                String raw_query = interactions.getProperty("raw_query");
+                if (raw_query != null) {
+                    String query = new String(helpers.base64Decode(raw_query));
+                    String subdomain = query.split("7")[1];
+                    subdomain = "7"+subdomain+"7";
+                    bchost = subdomain + "." + bchost;
+                }
+            } else if (type.equals("HTTP")) {
+                String query = interactions.getProperty("request");
+                String request = new String(helpers.base64Decode(query));
+                int sub_ini = request.indexOf("Host: ");
+                int sub_end = request.indexOf("\r\n", sub_ini);
+                bchost = request.substring(sub_ini+6, sub_end);
+            }
+        } catch (Exception e) {
+            System.out.println("Thread2 error: " + e);
+        }
+
         issueProperties = burpCollaboratorData.getIssueProperties(bchost);
+        if (issueProperties == null) {
+            return;
+        }
         issuename = issueProperties.getProperty("issuename");
         issuedetail = issueProperties.getProperty("issuedetail");
         issuebackground = issueProperties.getProperty("issuebackground");
@@ -109,9 +139,9 @@ public class BurpCollaboratorThread extends Thread {
         issuedetail = issuedetail + "<br><br><strong>BurpCollaborator data:</strong><br><br><strong>Interaction id: </strong>" + interaction_id + "<br><strong>type: </strong>" + type
                 + "<br><strong>client_ip: </strong>" + client_ip + "<br><strong>time_stamp: </strong>" + time_stamp + "<br><strong>query_type: </strong>" + query_type + "<br>";
 
-        IHttpRequestResponse requestResponse = burpCollaboratorData.getRequestResponse(bchost);
         List requestMarkers = new ArrayList();
         int start = 0;
+        IHttpRequestResponse requestResponse = burpCollaboratorData.getRequestResponse(bchost);
         byte[] match = helpers.stringToBytes(bchost);
         byte[] request = requestResponse.getRequest();
 
@@ -123,10 +153,10 @@ public class BurpCollaboratorThread extends Thread {
             requestMarkers.add(new int[]{start, start + match.length});
             start += match.length;
         }
+        
 
         callbacks.addScanIssue(new CustomScanIssue(requestResponse.getHttpService(), helpers.analyzeRequest(requestResponse).getUrl(),
                 new IHttpRequestResponse[]{callbacks.applyMarkers(requestResponse, requestMarkers, null)}, "BurpBounty - " + issuename,
                 issuedetail, issueseverity, issueconfidence, remediationdetail, issuebackground, remediationbackground));
-
     }
 }

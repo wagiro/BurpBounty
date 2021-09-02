@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 import burp.IBurpExtenderCallbacks;
 import java.awt.Desktop;
@@ -74,9 +74,12 @@ public class ActiveProfile extends javax.swing.JPanel {
     DefaultTableModel model4;
     DefaultTableModel model9;
     DefaultTableModel model10;
+    DefaultTableModel rulemodel;
     DefaultTableModel modelgrep;
+    DefaultTableModel modelpayload;
     IBurpExtenderCallbacks callbacks;
     String filename;
+    JComboBox operator;
 
     public ActiveProfile(IBurpExtenderCallbacks callbacks) {
 
@@ -89,10 +92,12 @@ public class ActiveProfile extends javax.swing.JPanel {
         model9 = new DefaultTableModel();
         model10 = new DefaultTableModel();
         modelgrep = new DefaultTableModel();
+        modelpayload = new DefaultTableModel();
         headers = new ArrayList();
         variationAttributes = new ArrayList();
         insertionPointType = new ArrayList();
         this.callbacks = callbacks;
+        operator = new JComboBox();
 
         modelgrep = new DefaultTableModel() {
             @Override
@@ -108,7 +113,7 @@ public class ActiveProfile extends javax.swing.JPanel {
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                if (column == 1) {
+                if (row == 0 && column == 1) {
                     return false;
                 } else {
                     return true;
@@ -116,15 +121,29 @@ public class ActiveProfile extends javax.swing.JPanel {
             }
         };
 
-        
+        modelpayload = new DefaultTableModel() {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                Class clazz = String.class;
+                switch (columnIndex) {
+                    case 0:
+                        clazz = Boolean.class;
+                        break;
+                }
+                return clazz;
+            }
+        };
+
         initComponents();
+
         if (callbacks.loadExtensionSetting("filename") != null) {
-            filename = callbacks.loadExtensionSetting("filename")+ File.separator;;
+            filename = callbacks.loadExtensionSetting("filename") + File.separator;
         } else {
-            filename = System.getProperty("user.home")+ File.separator;;
+            filename = System.getProperty("user.home") + File.separator;
         }
         showHeaders(headers);
         showGrepsTable();
+        showPayloadsTable();
 
     }
 
@@ -135,9 +154,13 @@ public class ActiveProfile extends javax.swing.JPanel {
         modelgrep.addColumn("Operator");
         modelgrep.addColumn("Value");
 
+        operator.addItem("Or");
+        operator.addItem("And");
+
         table5.getColumnModel().getColumn(0).setPreferredWidth(5);
         table5.getColumnModel().getColumn(1).setPreferredWidth(15);
         table5.getColumnModel().getColumn(2).setPreferredWidth(400);
+        table5.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(operator));
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table5.getModel());
         table5.setRowSorter(sorter);
@@ -146,19 +169,62 @@ public class ActiveProfile extends javax.swing.JPanel {
         sorter.sort();
     }
 
+    public void showPayloadsTable() {
+        modelpayload.setNumRows(0);
+        modelpayload.setColumnCount(0);
+        modelpayload.addColumn("Enabled");
+        modelpayload.addColumn("Value");
+
+        table6.getColumnModel().getColumn(0).setPreferredWidth(5);
+        table6.getColumnModel().getColumn(1).setPreferredWidth(415);
+
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table6.getModel());
+        table6.setRowSorter(sorter);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
+    }
+
     public void showGreps(List<String> greps) {
 
         for (String grepline : greps) {
-            List<String> array = Arrays.asList(grepline.split(",",3));
-            if (array.size() > 1) {
-                if (array.get(0).equals("true")) {
-                    modelgrep.addRow(new Object[]{true, array.get(1), array.get(2)});
+            if(grepline.startsWith("true,") || grepline.startsWith("false,") ){
+                List<String> array = Arrays.asList(grepline.split(",", 3));
+                if (modelgrep.getRowCount() == 0) {
+                    if (array.get(0).equals("true")) {
+                        modelgrep.addRow(new Object[]{true, "", array.get(2)});
+                    } else {
+                        modelgrep.addRow(new Object[]{false, "", array.get(2)});
+                    }
                 } else {
-                    modelgrep.addRow(new Object[]{false, array.get(1), array.get(2)});
+                    if (array.get(0).equals("true")) {
+                        modelgrep.addRow(new Object[]{true, array.get(1), array.get(2)});
+                    } else {
+                        modelgrep.addRow(new Object[]{false, array.get(1), array.get(2)});
+                    }
                 }
             } else {
+                if (modelgrep.getRowCount() == 0) {
+                    modelgrep.addRow(new Object[]{true, "", grepline});
+                } else {
+                    modelgrep.addRow(new Object[]{true, "Or", grepline});
+                }
+            }
+        }
+    }
 
-                modelgrep.addRow(new Object[]{true, "Or", grepline});
+    public void showPayloads(List<String> payloads) {
+
+        for (String payloadline : payloads) {
+            if(payloadline.startsWith("true,") || payloadline.startsWith("false,") ){
+                List<String> array = Arrays.asList(payloadline.split(",", 2));
+                if (array.get(0).equals("true")) {
+                    modelpayload.addRow(new Object[]{true, array.get(1)});
+                } else {
+                    modelpayload.addRow(new Object[]{false, array.get(1)});
+                }
+            } else {
+                modelpayload.addRow(new Object[]{true, payloadline});
             }
         }
     }
@@ -187,9 +253,40 @@ public class ActiveProfile extends javax.swing.JPanel {
                 bufferreader.close();
                 showGreps(grep);
             } catch (FileNotFoundException ex) {
-                callbacks.printError("ActiveProfile line 213:" + ex.getMessage());
+                System.out.println("ActiveProfile line 213:" + ex.getMessage());
             } catch (IOException ex) {
-                callbacks.printError("ActiveProfile line 215:" + ex.getMessage());
+                System.out.println("ActiveProfile line 215:" + ex.getMessage());
+            }
+        }
+    }
+
+    public void loadPayloadFile(DefaultTableModel model) {
+        //Load file for implement payloads and match load button
+        List<String> payloads = new ArrayList();
+        String line;
+        JFrame parentFrame = new JFrame();
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify a file to load");
+
+        int userSelection = fileChooser.showOpenDialog(parentFrame);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileload = fileChooser.getSelectedFile();
+            textpayloads.setText(fileload.getAbsolutePath());
+            try {
+                BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
+                line = bufferreader.readLine();
+
+                while (line != null) {
+                    payloads.add(line);
+                    line = bufferreader.readLine();
+                }
+                bufferreader.close();
+                showPayloads(payloads);
+            } catch (FileNotFoundException ex) {
+                System.out.println("ActiveProfile line 309:" + ex.getMessage());
+            } catch (IOException ex) {
+                System.out.println("ActiveProfile line 308:" + ex.getMessage());
             }
         }
     }
@@ -278,7 +375,7 @@ public class ActiveProfile extends javax.swing.JPanel {
             try {
                 result = (String) contents.getTransferData(DataFlavor.stringFlavor);
             } catch (UnsupportedFlavorException | IOException ex) {
-                callbacks.printError("ActivePorfile line 304:" + ex.getMessage());
+                System.out.println("ActiveProfile line 304:" + ex.getMessage());
             }
         }
         return result;
@@ -335,9 +432,9 @@ public class ActiveProfile extends javax.swing.JPanel {
                 }
                 bufferreader.close();
             } catch (FileNotFoundException ex) {
-                callbacks.printError("ActivePorfile line 361:" + ex.getMessage());
+                System.out.println("ActiveProfile line 361:" + ex.getMessage());
             } catch (IOException ex) {
-                callbacks.printError("ActivePorfile line 363:" + ex.getMessage());
+                System.out.println("ActiveProfile line 363:" + ex.getMessage());
             }
         }
     }
@@ -365,9 +462,9 @@ public class ActiveProfile extends javax.swing.JPanel {
                 }
                 bufferreader.close();
             } catch (FileNotFoundException ex) {
-                callbacks.printError("ActivePorfile line 391:" + ex.getMessage());
+                System.out.println("ActiveProfile line 391:" + ex.getMessage());
             } catch (IOException ex) {
-                callbacks.printError("ActivePorfile line 393:" + ex.getMessage());
+                System.out.println("ActiveProfile line 393:" + ex.getMessage());
             }
         }
     }
@@ -379,7 +476,7 @@ public class ActiveProfile extends javax.swing.JPanel {
                 out.write(str.concat("\n"));
                 out.close();
             } catch (IOException e) {
-                callbacks.printError("ActivePorfile line 405:" + e.getMessage());
+                System.out.println("ActiveProfile line 405:" + e.getMessage());
             }
         }
     }
@@ -391,7 +488,7 @@ public class ActiveProfile extends javax.swing.JPanel {
             File inFile = new File(file);
 
             if (!inFile.isFile()) {
-                callbacks.printError("ActivePorfile line 417:");
+                System.out.println("ActiveProfile line 417:");
                 return;
             }
 
@@ -417,19 +514,19 @@ public class ActiveProfile extends javax.swing.JPanel {
 
             //Delete the original file
             if (!inFile.delete()) {
-                callbacks.printError("Activeprofile line 443 Could not delete file");
+                System.out.println("Activeprofile line 443 Could not delete file");
                 return;
             }
 
             //Rename the new file to the filename the original file had.
             if (!tempFile.renameTo(inFile)) {
-                callbacks.printError("ActiveProfile line 449 Could not rename file");
+                System.out.println("ActiveProfile line 449 Could not rename file");
             }
 
         } catch (FileNotFoundException ex) {
-            callbacks.printError("ActivePorfile line 453:" + ex.getMessage());
+            System.out.println("ActiveProfile line 453:" + ex.getMessage());
         } catch (IOException ex) {
-            callbacks.printError("ActivePorfile line 455:" + ex.getMessage());
+            System.out.println("ActiveProfile line 455:" + ex.getMessage());
         }
     }
 
@@ -454,7 +551,7 @@ public class ActiveProfile extends javax.swing.JPanel {
             }
             reader.close();
         } catch (Exception e) {
-            callbacks.printError("ActivePorfile line 494:" + e.getMessage());
+            System.out.println("ActiveProfile line 494:" + e.getMessage());
         }
         return records;
     }
@@ -486,8 +583,6 @@ public class ActiveProfile extends javax.swing.JPanel {
         text5 = new javax.swing.JTextField();
         jButton9 = new javax.swing.JButton();
         button6 = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        list1 = new javax.swing.JList<>();
         jButton8 = new javax.swing.JButton();
         jScrollPane14 = new javax.swing.JScrollPane();
         table4 = new javax.swing.JTable();
@@ -529,7 +624,6 @@ public class ActiveProfile extends javax.swing.JPanel {
         replace = new javax.swing.JRadioButton();
         jLabel5 = new javax.swing.JLabel();
         check8 = new javax.swing.JCheckBox();
-        textfield1 = new javax.swing.JTextField();
         entirebody = new javax.swing.JCheckBox();
         All = new javax.swing.JCheckBox();
         paramxml = new javax.swing.JCheckBox();
@@ -539,24 +633,21 @@ public class ActiveProfile extends javax.swing.JPanel {
         jButton7 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
+        insert = new javax.swing.JRadioButton();
+        jScrollPane16 = new javax.swing.JScrollPane();
+        table6 = new javax.swing.JTable();
         jScrollPane6 = new javax.swing.JScrollPane();
         jPanel11 = new javax.swing.JPanel();
-        radio12 = new javax.swing.JRadioButton();
-        radio4 = new javax.swing.JRadioButton();
-        radio3 = new javax.swing.JRadioButton();
-        radio22 = new javax.swing.JRadioButton();
         check4 = new javax.swing.JCheckBox();
         check1 = new javax.swing.JCheckBox();
         excludehttp = new javax.swing.JCheckBox();
         onlyhttp = new javax.swing.JCheckBox();
         check71 = new javax.swing.JCheckBox();
         check72 = new javax.swing.JCheckBox();
-        texttime = new javax.swing.JTextField();
         text72 = new javax.swing.JTextField();
         text71 = new javax.swing.JTextField();
         negativeCT = new javax.swing.JCheckBox();
         negativeRC = new javax.swing.JCheckBox();
-        jLabel16 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
@@ -573,14 +664,8 @@ public class ActiveProfile extends javax.swing.JPanel {
         rb4 = new javax.swing.JRadioButton();
         jLabel2 = new javax.swing.JLabel();
         sp1 = new javax.swing.JSpinner();
-        radiotime = new javax.swing.JRadioButton();
         jLabel6 = new javax.swing.JLabel();
         jSeparator11 = new javax.swing.JSeparator();
-        jLabel42 = new javax.swing.JLabel();
-        radiocl = new javax.swing.JRadioButton();
-        textcl = new javax.swing.JTextField();
-        variationsRadio = new javax.swing.JRadioButton();
-        invariationsRadio = new javax.swing.JRadioButton();
         Attributes = new javax.swing.JPanel();
         status_code = new javax.swing.JCheckBox();
         input_image_labels = new javax.swing.JCheckBox();
@@ -613,7 +698,6 @@ public class ActiveProfile extends javax.swing.JPanel {
         limited_body_content = new javax.swing.JCheckBox();
         canonical_link = new javax.swing.JCheckBox();
         anchor_labels = new javax.swing.JCheckBox();
-        jSeparator12 = new javax.swing.JSeparator();
         jScrollPane15 = new javax.swing.JScrollPane();
         table5 = new javax.swing.JTable();
         button20 = new javax.swing.JButton();
@@ -622,6 +706,26 @@ public class ActiveProfile extends javax.swing.JPanel {
         button21 = new javax.swing.JButton();
         button8 = new javax.swing.JButton();
         textgreps = new javax.swing.JTextField();
+        negativeURL = new javax.swing.JCheckBox();
+        text73 = new javax.swing.JTextField();
+        check73 = new javax.swing.JCheckBox();
+        jPanel1 = new javax.swing.JPanel();
+        radiocl = new javax.swing.JRadioButton();
+        textcl = new javax.swing.JTextField();
+        radio12 = new javax.swing.JRadioButton();
+        radio22 = new javax.swing.JRadioButton();
+        jLabel42 = new javax.swing.JLabel();
+        invariationsRadio = new javax.swing.JRadioButton();
+        radiotime = new javax.swing.JRadioButton();
+        radiohttp = new javax.swing.JRadioButton();
+        radio3 = new javax.swing.JRadioButton();
+        texttime1 = new javax.swing.JTextField();
+        jLabel21 = new javax.swing.JLabel();
+        radio4 = new javax.swing.JRadioButton();
+        texttime2 = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        variationsRadio = new javax.swing.JRadioButton();
+        resposecode = new javax.swing.JTextField();
         jScrollPane10 = new javax.swing.JScrollPane();
         jPanel12 = new javax.swing.JPanel();
         jLabel32 = new javax.swing.JLabel();
@@ -671,7 +775,7 @@ public class ActiveProfile extends javax.swing.JPanel {
         jLabel47 = new javax.swing.JLabel();
         newTagb = new javax.swing.JButton();
 
-        setPreferredSize(new java.awt.Dimension(800, 600));
+        setPreferredSize(new java.awt.Dimension(831, 664));
 
         text1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
 
@@ -685,7 +789,7 @@ public class ActiveProfile extends javax.swing.JPanel {
 
         headerstab.setAutoscrolls(true);
         headerstab.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        headerstab.setPreferredSize(new java.awt.Dimension(780, 570));
+        headerstab.setPreferredSize(new java.awt.Dimension(750, 500));
         headerstab.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 headerstabStateChanged(evt);
@@ -712,9 +816,6 @@ public class ActiveProfile extends javax.swing.JPanel {
                 button6setToPayload(evt);
             }
         });
-
-        list1.setModel(payload);
-        jScrollPane3.setViewportView(list1);
 
         jButton8.setText("Up");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -858,6 +959,11 @@ public class ActiveProfile extends javax.swing.JPanel {
         });
 
         paramxml.setText("Param xml");
+        paramxml.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                paramxmlActionPerformed(evt);
+            }
+        });
 
         jLabel23.setText("You can define the encoding of payloads. You can encode each payload multiple times.");
 
@@ -877,6 +983,14 @@ public class ActiveProfile extends javax.swing.JPanel {
 
         jLabel20.setText("- {BC} token will be replaced by burpcollaborator host");
 
+        buttonGroup1.add(insert);
+        insert.setText("Insert");
+
+        table6.setFont(new java.awt.Font("Lucida Grande", 0, 13)); // NOI18N
+        table6.setModel(modelpayload);
+        table6.setShowGrid(false);
+        jScrollPane16.setViewportView(table6);
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
@@ -884,13 +998,6 @@ public class ActiveProfile extends javax.swing.JPanel {
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel22)
-                            .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel54)
-                            .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel10Layout.createSequentialGroup()
@@ -921,6 +1028,15 @@ public class ActiveProfile extends javax.swing.JPanel {
                                             .addComponent(jLabel1)
                                             .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 673, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jLabel20)))))
+                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                .addGap(47, 47, 47)
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jLabel10)
+                                        .addComponent(jLabel11))))
+                            .addComponent(jLabel5)
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(button6, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -935,53 +1051,53 @@ public class ActiveProfile extends javax.swing.JPanel {
                                         .addComponent(button2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 670, Short.MAX_VALUE)
-                                    .addComponent(textfield1)
-                                    .addComponent(textpayloads)))
-                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                .addGap(47, 47, 47)
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel10Layout.createSequentialGroup()
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(jLabel10)
-                                            .addComponent(jLabel11))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(extensionprovided)
-                                                    .addComponent(header)
-                                                    .addComponent(urlpathfilename)
-                                                    .addComponent(entirebody)
-                                                    .addComponent(paramxml)
-                                                    .addComponent(All))
-                                                .addGap(42, 42, 42)
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(paramjson)
-                                                    .addComponent(parambody)
-                                                    .addComponent(paramcookie)
-                                                    .addComponent(urlpathfolder)
-                                                    .addComponent(paramamf)
-                                                    .addComponent(paramxmlattr))
-                                                .addGap(39, 39, 39)
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(unknown)
-                                                    .addComponent(parammultipartattr)
-                                                    .addComponent(paramnamebody)
-                                                    .addComponent(paramnameurl)
-                                                    .addComponent(userprovided)
-                                                    .addComponent(paramurl)))
-                                            .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addComponent(replace)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(append))))))
-                            .addComponent(jLabel5))
-                        .addContainerGap(15, Short.MAX_VALUE))))
+                                    .addComponent(textpayloads, javax.swing.GroupLayout.DEFAULT_SIZE, 670, Short.MAX_VALUE)
+                                    .addComponent(jScrollPane16))))
+                        .addContainerGap(15, Short.MAX_VALUE))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel22)
+                            .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel54)
+                            .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
             .addComponent(jSeparator2)
             .addComponent(jSeparator4)
             .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(183, 183, 183)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(extensionprovided)
+                            .addComponent(header)
+                            .addComponent(urlpathfilename)
+                            .addComponent(entirebody)
+                            .addComponent(paramxml)
+                            .addComponent(All))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(paramjson)
+                            .addComponent(parambody)
+                            .addComponent(paramcookie)
+                            .addComponent(urlpathfolder)
+                            .addComponent(paramamf)
+                            .addComponent(paramxmlattr))
+                        .addGap(51, 51, 51)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(unknown)
+                            .addComponent(parammultipartattr)
+                            .addComponent(paramnamebody)
+                            .addComponent(paramnameurl)
+                            .addComponent(userprovided)
+                            .addComponent(paramurl)))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(replace)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(append)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(insert)))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -997,16 +1113,15 @@ public class ActiveProfile extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(button6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button5))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button6)
-                    .addComponent(textfield1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(button5)
+                        .addGap(0, 96, Short.MAX_VALUE))
+                    .addComponent(jScrollPane16, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1017,12 +1132,13 @@ public class ActiveProfile extends javax.swing.JPanel {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(append)
-                    .addComponent(replace))
-                .addGap(32, 32, 32)
+                    .addComponent(replace)
+                    .addComponent(insert))
+                .addGap(23, 23, 23)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(jLabel11)
-                        .addGap(154, 154, 154)
+                        .addGap(151, 151, 151)
                         .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1094,7 +1210,7 @@ public class ActiveProfile extends javax.swing.JPanel {
                             .addComponent(paramxml)
                             .addComponent(paramxmlattr)
                             .addComponent(unknown))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jScrollPane5.setViewportView(jPanel10);
@@ -1105,38 +1221,6 @@ public class ActiveProfile extends javax.swing.JPanel {
         jScrollPane6.getVerticalScrollBar().setUnitIncrement(20);
 
         jPanel11.setAutoscrolls(true);
-
-        buttonGroup3.add(radio12);
-        radio12.setText("Payload");
-        radio12.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radio12payloadMatchType(evt);
-            }
-        });
-
-        buttonGroup3.add(radio4);
-        radio4.setText("Simple string");
-        radio4.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radio4stringMatchType(evt);
-            }
-        });
-
-        buttonGroup3.add(radio3);
-        radio3.setText("Regex");
-        radio3.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radio3regexMatchType(evt);
-            }
-        });
-
-        buttonGroup3.add(radio22);
-        radio22.setText("Payload without encode");
-        radio22.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radio22payloadencodeMatchType(evt);
-            }
-        });
 
         check4.setText("Negative match");
 
@@ -1153,8 +1237,6 @@ public class ActiveProfile extends javax.swing.JPanel {
         negativeCT.setText("Negative match");
 
         negativeRC.setText("Negative match");
-
-        jLabel16.setText("Seconds");
 
         jLabel24.setText("You can define one or more greps. For each payload response, each grep will be searched with specific grep options.");
 
@@ -1194,46 +1276,7 @@ public class ActiveProfile extends javax.swing.JPanel {
 
         jLabel2.setText("Max redirections:");
 
-        buttonGroup3.add(radiotime);
-        radiotime.setText("Timeout equal or more than ");
-        radiotime.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radiotimeTimeoutSelect(evt);
-            }
-        });
-
         jLabel6.setText("Follow redirections: ");
-
-        jLabel42.setText("Bytes");
-
-        buttonGroup3.add(radiocl);
-        radiocl.setText("Content Length difference");
-        radiocl.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                radioclSelect(evt);
-            }
-        });
-        radiocl.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioclActionPerformed(evt);
-            }
-        });
-
-        buttonGroup3.add(variationsRadio);
-        variationsRadio.setText("Variations");
-        variationsRadio.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                variationsRadiovariations(evt);
-            }
-        });
-
-        buttonGroup3.add(invariationsRadio);
-        invariationsRadio.setText("Invariations");
-        invariationsRadio.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                invariationsRadioinvariations(evt);
-            }
-        });
 
         Attributes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Attributes", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
 
@@ -1464,42 +1507,176 @@ public class ActiveProfile extends javax.swing.JPanel {
             }
         });
 
+        negativeURL.setText("Negative match");
+
+        check73.setText("URL Extension");
+
+        buttonGroup3.add(radiocl);
+        radiocl.setText("Content Length difference");
+        radiocl.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radioclSelect(evt);
+            }
+        });
+        radiocl.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioclActionPerformed(evt);
+            }
+        });
+
+        buttonGroup3.add(radio12);
+        radio12.setText("Payload");
+        radio12.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radio12payloadMatchType(evt);
+            }
+        });
+
+        buttonGroup3.add(radio22);
+        radio22.setText("Payload without encode");
+        radio22.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radio22payloadencodeMatchType(evt);
+            }
+        });
+
+        jLabel42.setText("Bytes");
+
+        buttonGroup3.add(invariationsRadio);
+        invariationsRadio.setText("Invariations");
+        invariationsRadio.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                invariationsRadioinvariations(evt);
+            }
+        });
+
+        buttonGroup3.add(radiotime);
+        radiotime.setText("Timeout between");
+        radiotime.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radiotimeTimeoutSelect(evt);
+            }
+        });
+
+        buttonGroup3.add(radiohttp);
+        radiohttp.setText("HTTP response codes");
+
+        buttonGroup3.add(radio3);
+        radio3.setText("Regex");
+        radio3.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radio3regexMatchType(evt);
+            }
+        });
+
+        jLabel21.setText("and");
+
+        buttonGroup3.add(radio4);
+        radio4.setText("Simple string");
+        radio4.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radio4stringMatchType(evt);
+            }
+        });
+
+        jLabel16.setText("Seconds");
+
+        buttonGroup3.add(variationsRadio);
+        variationsRadio.setText("Variations");
+        variationsRadio.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                variationsRadiovariations(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(radio4)
+                        .addGap(58, 58, 58))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(radio12, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(radio3, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(variationsRadio)
+                    .addComponent(invariationsRadio)
+                    .addComponent(radio22))
+                .addGap(36, 36, 36)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(radiotime)
+                            .addComponent(radiohttp))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(texttime1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel21)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(texttime2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(resposecode, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(radiocl)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radiocl)
+                            .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel42)
+                            .addComponent(radio22))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radiohttp)
+                            .addComponent(resposecode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(texttime2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(texttime1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel21)
+                            .addComponent(jLabel16)
+                            .addComponent(radiotime)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(radio4)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radio3)
+                            .addComponent(variationsRadio))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(radio12)
+                            .addComponent(invariationsRadio))))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator5)
             .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addComponent(jSeparator12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 846, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jSeparator11, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(radio12)
-                        .addGap(151, 151, 151)
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(radio22)
-                            .addComponent(invariationsRadio)))
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(radio4)
-                            .addComponent(radio3))
-                        .addGap(116, 116, 116)
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(radiotime)
-                            .addComponent(radiocl))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(texttime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(textcl, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel42, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1521,29 +1698,26 @@ public class ActiveProfile extends javax.swing.JPanel {
                             .addComponent(check4)
                             .addComponent(check1)
                             .addComponent(excludehttp)
+                            .addComponent(jLabel29)
+                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel11Layout.createSequentialGroup()
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(check72)
                                     .addComponent(check71))
                                 .addGap(15, 15, 15)
-                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
-                                    .addComponent(text72))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(negativeCT)
-                                    .addComponent(negativeRC)))
-                            .addComponent(jLabel29)
-                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel25)
-                            .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel27)
-                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Attributes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(variationsRadio)))
+                                    .addGroup(jPanel11Layout.createSequentialGroup()
+                                        .addComponent(text73, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(negativeURL))
+                                    .addGroup(jPanel11Layout.createSequentialGroup()
+                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
+                                            .addComponent(text72))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(negativeCT)
+                                            .addComponent(negativeRC)))))))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -1558,8 +1732,22 @@ public class ActiveProfile extends javax.swing.JPanel {
                                     .addComponent(button7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(button21, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
-                                .addComponent(jScrollPane15, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jScrollPane15, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(check73))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel25)
+                            .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Attributes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel27)))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(50, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1568,36 +1756,12 @@ public class ActiveProfile extends javax.swing.JPanel {
                 .addComponent(jLabel27)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel26)
-                .addGap(25, 25, 25)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addComponent(radio4)
-                        .addGap(18, 18, 18)
-                        .addComponent(radio3)
-                        .addGap(18, 18, 18)
-                        .addComponent(radio12))
-                    .addGroup(jPanel11Layout.createSequentialGroup()
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(radiotime)
-                            .addComponent(texttime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel16))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(radiocl)
-                            .addComponent(jLabel42)
-                            .addComponent(textcl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(radio22)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(variationsRadio)
-                    .addComponent(invariationsRadio))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(Attributes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jSeparator12)
-                    .addComponent(jSeparator11))
+                .addComponent(jSeparator11, javax.swing.GroupLayout.PREFERRED_SIZE, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel25)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1607,16 +1771,16 @@ public class ActiveProfile extends javax.swing.JPanel {
                     .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button8))
                 .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane15, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addComponent(button21)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button10)
+                        .addComponent(button20)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button20))
-                    .addComponent(jScrollPane15, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(button10)))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1641,6 +1805,11 @@ public class ActiveProfile extends javax.swing.JPanel {
                     .addComponent(check72)
                     .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(negativeRC))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(check73)
+                    .addComponent(text73, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(negativeURL))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1991,14 +2160,14 @@ public class ActiveProfile extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel12)
                     .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel18))
-                .addGap(18, 18, 18)
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(headerstab, javax.swing.GroupLayout.DEFAULT_SIZE, 606, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -2010,10 +2179,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton9removeEncoder
 
     private void button6setToPayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button6setToPayload
-        if (!textfield1.getText().isEmpty()) {
-            payload.addElement(textfield1.getText());
-            textfield1.setText("");
-        }
+        modelpayload.addRow(new Object[]{true, "Value"});
     }//GEN-LAST:event_button6setToPayload
 
     private void jButton8upEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8upEncoder
@@ -2031,26 +2197,26 @@ public class ActiveProfile extends javax.swing.JPanel {
     }//GEN-LAST:event_button3loadPayloads
 
     private void button2pastePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2pastePayload
-
         String element = getClipboardContents();
-        String[] lines = element.split("\n");
-        for (String line : lines) {
-            payload.addElement(line);
-        }
+        List<String> lines = Arrays.asList(element.split("\n"));
+        showPayloads(lines);
     }//GEN-LAST:event_button2pastePayload
 
     private void jLabel17goWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel17goWeb
         try {
             Desktop.getDesktop().browse(new URI("https://portswigger.net/burp/extender/api/burp/IScannerInsertionPoint.html"));
         } catch (URISyntaxException | IOException e) {
-            callbacks.printError("Active profile line 2109 Help web not opened: " + e);
+            System.out.println("Active profile line 2109 Help web not opened: " + e);
         }
     }//GEN-LAST:event_jLabel17goWeb
 
     private void button4removePayload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button4removePayload
-        int selectedIndex = list1.getSelectedIndex();
-        if (selectedIndex != -1) {
-            payload.remove(selectedIndex);
+        int[] rows = table6.getSelectedRows();
+        Arrays.sort(rows);
+        for (int i = rows.length - 1; i >= 0; i--) {
+            int row = rows[i];
+            int modelRow = table6.convertRowIndexToModel(row);
+            modelpayload.removeRow(modelRow);
         }
     }//GEN-LAST:event_button4removePayload
 
@@ -2078,7 +2244,10 @@ public class ActiveProfile extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton6addEncoder
 
     private void button5removeAllPayloads(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5removeAllPayloads
-        payload.removeAllElements();
+        int rowCount = modelpayload.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            modelpayload.removeRow(i);
+        }
     }//GEN-LAST:event_button5removeAllPayloads
 
     private void AllItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_AllItemStateChanged
@@ -2121,6 +2290,10 @@ public class ActiveProfile extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_AllItemStateChanged
 
+    private void paramxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paramxmlActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_paramxmlActionPerformed
+
     private void jButton7downEncoder(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7downEncoder
         int selectedIndex = list3.getSelectedIndex();
         if (selectedIndex != encoder.getSize() - 1) {
@@ -2130,66 +2303,6 @@ public class ActiveProfile extends javax.swing.JPanel {
 
         }
     }//GEN-LAST:event_jButton7downEncoder
-
-    private void radio12payloadMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio12payloadMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_radio12payloadMatchType
-
-    private void radio4stringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio4stringMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_radio4stringMatchType
-
-    private void radio3regexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio3regexMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_radio3regexMatchType
-
-    private void radio22payloadencodeMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio22payloadencodeMatchType
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        }
-    }//GEN-LAST:event_radio22payloadencodeMatchType
-
-    private void radiotimeTimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radiotimeTimeoutSelect
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVariations(true);
-        }
-    }//GEN-LAST:event_radiotimeTimeoutSelect
-
-    private void radioclSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radioclSelect
-        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVariations(true);
-        }
-    }//GEN-LAST:event_radioclSelect
-
-    private void radioclActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioclActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioclActionPerformed
-
-    private void variationsRadiovariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_variationsRadiovariations
-        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(true);
-        }
-    }//GEN-LAST:event_variationsRadiovariations
-
-    private void invariationsRadioinvariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_invariationsRadioinvariations
-        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            setEnabledVariations(false);
-        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            setEnabledVariations(true);
-        }
-    }//GEN-LAST:event_invariationsRadioinvariations
 
     private void removetag(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removetag
         int selectedIndex = listtag.getSelectedIndex();
@@ -2228,6 +2341,31 @@ public class ActiveProfile extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_headerstabStateChanged
 
+    private void button8loadGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button8loadGrep
+        loadGrepsFile(modelgrep);
+    }//GEN-LAST:event_button8loadGrep
+
+    private void button21addGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button21addGrep
+        if (modelgrep.getRowCount() == 0) {
+            modelgrep.addRow(new Object[]{true, "", "Value"});
+        } else {
+            modelgrep.addRow(new Object[]{true, "Or", "Value"});
+        }
+    }//GEN-LAST:event_button21addGrep
+
+    private void button7pasteGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button7pasteGrep
+        String element = getClipboardContents();
+        List<String> lines = Arrays.asList(element.split("\n"));
+        showGreps(lines);
+    }//GEN-LAST:event_button7pasteGrep
+
+    private void button10removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button10removeAllGrep
+        int rowCount = modelgrep.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            modelgrep.removeRow(i);
+        }
+    }//GEN-LAST:event_button10removeAllGrep
+
     private void button20removeMatchReplace(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button20removeMatchReplace
         int[] rows = table5.getSelectedRows();
         Arrays.sort(rows);
@@ -2238,26 +2376,65 @@ public class ActiveProfile extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_button20removeMatchReplace
 
-    private void button10removeAllGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button10removeAllGrep
-        int rowCount = modelgrep.getRowCount();
-        for (int i = rowCount - 1; i >= 0; i--) {
-            modelgrep.removeRow(i);
+    private void invariationsRadioinvariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_invariationsRadioinvariations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(true);
         }
-    }//GEN-LAST:event_button10removeAllGrep
+    }//GEN-LAST:event_invariationsRadioinvariations
 
-    private void button7pasteGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button7pasteGrep
-        String element = getClipboardContents();
-        List<String> lines = Arrays.asList(element.split("\n"));
-        showGreps(lines);
-    }//GEN-LAST:event_button7pasteGrep
+    private void variationsRadiovariations(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_variationsRadiovariations
+        if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_variationsRadiovariations
 
-    private void button21addGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button21addGrep
-        modelgrep.addRow(new Object[]{true, "Or", "Value"});
-    }//GEN-LAST:event_button21addGrep
+    private void radioclActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioclActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_radioclActionPerformed
 
-    private void button8loadGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button8loadGrep
-        loadGrepsFile(modelgrep);
-    }//GEN-LAST:event_button8loadGrep
+    private void radioclSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radioclSelect
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_radioclSelect
+
+    private void radiotimeTimeoutSelect(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radiotimeTimeoutSelect
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
+            setEnabledVariations(true);
+        }
+    }//GEN-LAST:event_radiotimeTimeoutSelect
+
+    private void radio22payloadencodeMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio22payloadencodeMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_radio22payloadencodeMatchType
+
+    private void radio3regexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio3regexMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_radio3regexMatchType
+
+    private void radio4stringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio4stringMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_radio4stringMatchType
+
+    private void radio12payloadMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radio12payloadMatchType
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            setEnabledVariations(false);
+        }
+    }//GEN-LAST:event_radio12payloadMatchType
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2278,18 +2455,19 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JButton button6;
     private javax.swing.JButton button7;
     private javax.swing.JButton button8;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.ButtonGroup buttonGroup5;
-    private javax.swing.ButtonGroup buttonGroup6;
+    public javax.swing.ButtonGroup buttonGroup1;
+    public javax.swing.ButtonGroup buttonGroup2;
+    public javax.swing.ButtonGroup buttonGroup3;
+    public javax.swing.ButtonGroup buttonGroup4;
+    public javax.swing.ButtonGroup buttonGroup5;
+    public javax.swing.ButtonGroup buttonGroup6;
     public javax.swing.JCheckBox button_submit_labels;
     public javax.swing.JCheckBox canonical_link;
     public javax.swing.JCheckBox check1;
     public javax.swing.JCheckBox check4;
     public javax.swing.JCheckBox check71;
     public javax.swing.JCheckBox check72;
+    public javax.swing.JCheckBox check73;
     public javax.swing.JCheckBox check8;
     public javax.swing.JComboBox<String> combo2;
     public javax.swing.JCheckBox comments;
@@ -2309,6 +2487,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JCheckBox initial_body_content;
     public javax.swing.JCheckBox input_image_labels;
     public javax.swing.JCheckBox input_submit_labels;
+    public javax.swing.JRadioButton insert;
     public javax.swing.JRadioButton invariationsRadio;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
@@ -2327,6 +2506,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
@@ -2360,8 +2540,9 @@ public class ActiveProfile extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
     public javax.swing.JPanel jPanel10;
-    private javax.swing.JPanel jPanel11;
+    public javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -2369,7 +2550,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane11;
     private javax.swing.JScrollPane jScrollPane14;
     private javax.swing.JScrollPane jScrollPane15;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane16;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
@@ -2378,7 +2559,6 @@ public class ActiveProfile extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator11;
-    private javax.swing.JSeparator jSeparator12;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
@@ -2390,12 +2570,12 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JCheckBox last_modified_header;
     public javax.swing.JCheckBox limited_body_content;
     public javax.swing.JCheckBox line_count;
-    public javax.swing.JList<String> list1;
     public javax.swing.JList<String> list3;
     public javax.swing.JList<String> listtag;
     public javax.swing.JCheckBox location;
     public javax.swing.JCheckBox negativeCT;
     public javax.swing.JCheckBox negativeRC;
+    public javax.swing.JCheckBox negativeURL;
     public javax.swing.JComboBox<String> newTagCombo;
     private javax.swing.JButton newTagb;
     public javax.swing.JCheckBox non_hidden_form_input_types;
@@ -2425,6 +2605,7 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JRadioButton radio8;
     public javax.swing.JRadioButton radio9;
     public javax.swing.JRadioButton radiocl;
+    public javax.swing.JRadioButton radiohttp;
     public javax.swing.JRadioButton radiotime;
     public javax.swing.JRadioButton rb1;
     public javax.swing.JRadioButton rb2;
@@ -2432,11 +2613,13 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JRadioButton rb4;
     private javax.swing.JButton removetag;
     public javax.swing.JRadioButton replace;
+    public javax.swing.JTextField resposecode;
     public javax.swing.JCheckBox set_cookie_names;
     public javax.swing.JSpinner sp1;
     public javax.swing.JCheckBox status_code;
     public javax.swing.JTable table4;
     public javax.swing.JTable table5;
+    public javax.swing.JTable table6;
     public javax.swing.JCheckBox tag_ids;
     public javax.swing.JCheckBox tag_names;
     public javax.swing.JTextField text1;
@@ -2444,16 +2627,17 @@ public class ActiveProfile extends javax.swing.JPanel {
     public javax.swing.JTextField text5;
     public javax.swing.JTextField text71;
     public javax.swing.JTextField text72;
+    public javax.swing.JTextField text73;
     public javax.swing.JTextArea textarea1;
     public javax.swing.JTextArea textarea2;
     public javax.swing.JTextArea textarea3;
     public javax.swing.JTextArea textarea4;
     public javax.swing.JTextField textauthor;
     public javax.swing.JTextField textcl;
-    public javax.swing.JTextField textfield1;
     public javax.swing.JTextField textgreps;
     public javax.swing.JTextField textpayloads;
-    public javax.swing.JTextField texttime;
+    public javax.swing.JTextField texttime1;
+    public javax.swing.JTextField texttime2;
     public javax.swing.JCheckBox unknown;
     public javax.swing.JCheckBox urlpathfilename;
     public javax.swing.JCheckBox urlpathfolder;

@@ -13,10 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
+import burp.IResponseInfo;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,8 +47,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -54,6 +58,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -63,1510 +69,143 @@ import javax.swing.table.TableRowSorter;
 public class BurpBountyGui extends javax.swing.JPanel {
 
     private IBurpExtenderCallbacks callbacks;
+    private IExtensionHelpers helpers;
     public String filename;
-    private String name;
-    private String issuename;
-    private String issuedetail;
-    private String issuebackground;
-    private String remediationdetail;
-    private String remediationbackground;
-    private String charstourlencode;
-    private int scanner;
-    private int matchtype;
-    private String issueseverity;
-    private String issueconfidence;
-    private String responsecode;
-    private String contenttype;
-    private boolean negativect;
-    private boolean negativerc;
-    private boolean notresponse;
-    private boolean casesensitive;
-    private boolean excludeHTTP;
-    private boolean onlyHTTP;
-    private boolean urlencode;
-    private boolean isresponsecode;
-    private boolean iscontenttype;
-    private int redirtype;
-    private int maxRedir;
-    private int payloadPosition;
-    private String payloadsfile;
-    private String grepsfile;
-    private String timeOut;
-    private String contentLength;
-    private String author;
-    private DefaultListModel tagmanager;
-    private List<Headers> headers;
-    private List<String> variationAttributes;
-    private List<Integer> insertionPointType;
-    private List<String> Tags;
-    Boolean pathDiscovery;
 
+    Boolean pathDiscovery;
+    JsonArray allrules;
+    JsonArray allprofiles;
+    JsonArray activeprofiles;
+    JsonArray passiveresprofiles;
+    JsonArray passivereqprofiles;
     DefaultTableModel model;
     DefaultTableModel model1;
     DefaultTableModel model2;
     DefaultTableModel model4;
     DefaultTableModel model9;
     DefaultTableModel model10;
+    DefaultTableModel rulemodel;
     DefaultTableModel modeltagmanager;
+    DefaultTableModel dashboardmodel;
+    DefaultListModel tagmanager;
     String profiles_directory;
     BurpBountyExtension parent;
 
     public BurpBountyGui(BurpBountyExtension parent) {
-        this.callbacks = parent.callbacks;
-        this.parent = parent;
-        filename = "";
-        name = "";
-        issuename = "";
-        issuedetail = "";
-        issuebackground = "";
-        remediationdetail = "";
-        remediationbackground = "";
-        charstourlencode = "";
-        scanner = 0;
-        matchtype = 0;
-        issueseverity = "";
-        issueconfidence = "";
-        responsecode = "";
-        contenttype = "";
-        negativect = false;
-        negativerc = false;
-        notresponse = false;
-        casesensitive = false;
-        excludeHTTP = false;
-        onlyHTTP = false;
-        urlencode = false;
-        isresponsecode = false;
-        iscontenttype = false;
-        redirtype = 0;
-        maxRedir = 0;
-        payloadPosition = 0;
-        payloadsfile = "";
-        grepsfile = "";
-        timeOut = "";
-        contentLength = "";
-        author = "";
-        tagmanager = new DefaultListModel();
-        model4 = new DefaultTableModel();
-        model9 = new DefaultTableModel();
-        model10 = new DefaultTableModel();
-        modeltagmanager = new DefaultTableModel();
-        headers = new ArrayList();
-        variationAttributes = new ArrayList();
-        insertionPointType = new ArrayList();
+        try {
+            this.callbacks = parent.callbacks;
+            this.helpers = callbacks.getHelpers();
+            this.parent = parent;
+            filename = "";
+            model4 = new DefaultTableModel();
+            model9 = new DefaultTableModel();
+            model10 = new DefaultTableModel();
+            modeltagmanager = new DefaultTableModel();
+            dashboardmodel = new DefaultTableModel();
+            rulemodel = new DefaultTableModel();
+            allprofiles = new JsonArray();
+            allrules = new JsonArray();
+            activeprofiles = new JsonArray();
+            passiveresprofiles = new JsonArray();
+            passivereqprofiles = new JsonArray();
+            tagmanager = new DefaultListModel();
 
-        if (callbacks.loadExtensionSetting("filename") != null) {
-            filename = callbacks.loadExtensionSetting("filename");
-            profiles_directory = filename + File.separator;
-        } else {
-            filename = System.getProperty("user.home");
-            profiles_directory = filename + File.separator;
-        }
-        
-
-        model = new DefaultTableModel() {
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                Class clazz = String.class;
-                switch (columnIndex) {
-                    case 0:
-                        clazz = Boolean.class;
-                        break;
+            if (callbacks.loadExtensionSetting("filename") != null) {
+                filename = callbacks.loadExtensionSetting("filename");
+                if (filename.endsWith(File.separator)) {
+                    profiles_directory = filename ;
+                } else {
+                    profiles_directory = filename + File.separator ;
                 }
-                return clazz;
-            }
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 0;
-            }
-        };
-
-        model1 = new DefaultTableModel() {
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                Class clazz = String.class;
-                switch (columnIndex) {
-                    case 0:
-                        clazz = Boolean.class;
-                        break;
+            } else {
+                filename = System.getProperty("user.home");
+                if (filename.endsWith(File.separator)) {
+                    profiles_directory = filename ;
+                } else {
+                    profiles_directory = filename + File.separator;
                 }
-                return clazz;
             }
 
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 0;
-            }
-        };
+            createDirectories(profiles_directory);
 
-        model2 = new DefaultTableModel() {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                Class clazz = String.class;
-                switch (columnIndex) {
-                    case 0:
-                        clazz = Boolean.class;
-                        break;
+            model = new DefaultTableModel() {
+
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    Class clazz = String.class;
+                    switch (columnIndex) {
+                        case 0:
+                            clazz = Boolean.class;
+                            break;
+                    }
+                    return clazz;
                 }
-                return clazz;
-            }
 
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 0;
-            }
-        };
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 0;
+                }
+            };
 
-        //main
-        initComponents();
-        text11.setText(filename);
+            model1 = new DefaultTableModel() {
+
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    Class clazz = String.class;
+                    switch (columnIndex) {
+                        case 0:
+                            clazz = Boolean.class;
+                            break;
+                    }
+                    return clazz;
+                }
+
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 0;
+                }
+            };
+
+            model2 = new DefaultTableModel() {
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    Class clazz = String.class;
+                    switch (columnIndex) {
+                        case 0:
+                            clazz = Boolean.class;
+                            break;
+                    }
+                    return clazz;
+                }
+
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 0;
+                }
+            };
+
+            //main
+            initComponents();
+            text11.setText(filename);
+            checkProfilesProperties(profiles_directory);
         makeTagsFile();
         showTags();
         showProfiles("All");
-    }
-
-    public void setActiveAttackValues(String profiles, ActiveProfile profile) {
-        //Set Attack values when select from main combobox
-        try {
-            Gson gson = new Gson();
-            JsonArray json = initJson();
-            ProfilesProperties profile_property = new ProfilesProperties();
-
-            if (json != null) {
-                for (JsonElement pa : json) {
-                    JsonObject bbObj = pa.getAsJsonObject();
-                    if (bbObj.get("Name").getAsString().equals(profiles)) {
-                        profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class
-                        );
-                    }
-
-                }
-            }
-
-            name = profile_property.getName();
-            scanner = profile_property.getScanner();
-            casesensitive = profile_property.getCaseSensitive();
-            notresponse = profile_property.getNotResponse();
-            matchtype = profile_property.getMatchType();
-            issuename = profile_property.getIssueName();
-            issueseverity = profile_property.getIssueSeverity();
-            issueconfidence = profile_property.getIssueConfidence();
-            issuedetail = profile_property.getIssueDetail();
-            issuebackground = profile_property.getIssueBackground();
-            remediationdetail = profile_property.getRemediationDetail();
-            remediationbackground = profile_property.getRemediationBackground();
-            urlencode = profile_property.getUrlEncode();
-            charstourlencode = profile_property.getCharsToUrlEncode();
-            iscontenttype = profile_property.getIsContentType();
-            isresponsecode = profile_property.getIsResponseCode();
-            contenttype = profile_property.getContentType();
-            responsecode = profile_property.getResponseCode();
-            excludeHTTP = profile_property.getExcludeHTTP();
-            onlyHTTP = profile_property.getOnlyHTTP();
-            negativect = profile_property.getNegativeCT();
-            negativerc = profile_property.getNegativeRC();
-            redirtype = profile_property.getRedirection();
-            maxRedir = profile_property.getMaxRedir();
-            payloadsfile = profile_property.getpayloadsFile();
-            grepsfile = profile_property.getgrepsFile();
-            payloadPosition = profile_property.getPayloadPosition();
-            timeOut = profile_property.getTime();
-            author = profile_property.getAuthor();
-            contentLength = profile_property.getContentLength();
-            headers = profile_property.getHeader();
-            variationAttributes = profile_property.getVariationAttributes();
-            insertionPointType = profile_property.getInsertionPointType();
-
-            profile.textauthor.setText(author);
-            profile.text1.setText(name);
-
-            if (payloadPosition == 1) {
-                buttonGroup9.setSelected(profile.replace.getModel(), true);
-            } else if (payloadPosition == 2) {
-                buttonGroup9.setSelected(profile.append.getModel(), true);
-            }
-
-            profile.grep.removeAllElements();
-            profile.payload.removeAllElements();
-            profile.encoder.removeAllElements();
-            profile.tag.removeAllElements();
-
-            profile.textpayloads.setText(payloadsfile);
-            profile.textgreps.setText(grepsfile);
-
-            profile.showGreps(profile_property.getGreps());
-
-            if (!payloadsfile.isEmpty()) {
-                loadPath(payloadsfile, profile.payload);
-                updatePayloads(payloadsfile, profile_property);
-
-            } else {
-                for (String pay : profile_property.getPayloads()) {
-                    profile.payload.addElement(pay);
-                }
-            }
-
-            if (profile_property.getTags() != null) {
-                for (String t : profile_property.getTags()) {
-                    profile.tag.addElement(t);
-                }
-            }
-
-            for (String enc : profile_property.getEncoder()) {
-                profile.encoder.addElement(enc);
-            }
-
-            profile.text71.setText(contenttype);
-            profile.text72.setText(responsecode);
-
-            profile.check8.setSelected(urlencode);
-            profile.text5.setText(charstourlencode);
-            profile.excludehttp.setSelected(excludeHTTP);
-            profile.onlyhttp.setSelected(onlyHTTP);
-
-            if (timeOut.equals("0")) {
-                profile.texttime.setText("");
-            } else {
-                profile.texttime.setText(timeOut);
-            }
-
-            if (contentLength.equals("0")) {
-                profile.textcl.setText("");
-            } else {
-                profile.textcl.setText(contentLength);
-            }
-
-            switch (matchtype) {
-                case 1:
-                    buttonGroup4.setSelected(profile.radio4.getModel(), true);
-                    break;
-                case 2:
-                    buttonGroup4.setSelected(profile.radio3.getModel(), true);
-                    break;
-                case 3:
-                    buttonGroup4.setSelected(profile.radio12.getModel(), true);
-                    break;
-                case 4:
-                    buttonGroup4.setSelected(profile.radio22.getModel(), true);
-                    break;
-                case 5:
-                    buttonGroup4.setSelected(profile.radiotime.getModel(), true);
-                    break;
-                case 6:
-                    buttonGroup4.setSelected(profile.radiocl.getModel(), true);
-                    break;
-                case 7:
-                    buttonGroup4.setSelected(profile.variationsRadio.getModel(), true);
-                    break;
-                case 8:
-                    buttonGroup4.setSelected(profile.invariationsRadio.getModel(), true);
-                    break;
-                default:
-                    buttonGroup4.clearSelection();
-                    break;
-            }
-
-            switch (redirtype) {
-                case 1:
-                    buttonGroup8.setSelected(profile.rb1.getModel(), true);
-                    break;
-                case 2:
-                    buttonGroup8.setSelected(profile.rb2.getModel(), true);
-                    break;
-                case 3:
-                    buttonGroup8.setSelected(profile.rb3.getModel(), true);
-                    break;
-                case 4:
-                    buttonGroup8.setSelected(profile.rb4.getModel(), true);
-                    break;
-                default:
-                    buttonGroup8.clearSelection();
-                    break;
-            }
-
-            profile.showHeaders(headers);
-
-            setSelectedVariations(false, profile);
-
-            if (variationAttributes.contains("status_code")) {
-                profile.status_code.setSelected(true);
-            }
-            if (variationAttributes.contains("input_image_labels")) {
-                profile.input_image_labels.setSelected(true);
-            }
-            if (variationAttributes.contains("non_hidden_form_input_types")) {
-                profile.non_hidden_form_input_types.setSelected(true);
-            }
-            if (variationAttributes.contains("page_title")) {
-                profile.page_title.setSelected(true);
-            }
-            if (variationAttributes.contains("visible_text")) {
-                profile.visible_text.setSelected(true);
-            }
-            if (variationAttributes.contains("button_submit_labels")) {
-                profile.button_submit_labels.setSelected(true);
-            }
-            if (variationAttributes.contains("div_ids")) {
-                profile.div_ids.setSelected(true);
-            }
-            if (variationAttributes.contains("word_count")) {
-                profile.word_count.setSelected(true);
-            }
-            if (variationAttributes.contains("content_type")) {
-                profile.content_type.setSelected(true);
-            }
-            if (variationAttributes.contains("outbound_edge_tag_names")) {
-                profile.outbound_edge_tag_names.setSelected(true);
-            }
-            if (variationAttributes.contains("whole_body_content")) {
-                profile.whole_body_content.setSelected(true);
-            }
-            if (variationAttributes.contains("etag_header")) {
-                profile.etag_header.setSelected(true);
-            }
-            if (variationAttributes.contains("visible_word_count")) {
-                profile.visible_word_count.setSelected(true);
-            }
-            if (variationAttributes.contains("content_length")) {
-                profile.content_length.setSelected(true);
-            }
-            if (variationAttributes.contains("header_tags")) {
-                profile.header_tags.setSelected(true);
-            }
-            if (variationAttributes.contains("tag_ids")) {
-                profile.tag_ids.setSelected(true);
-            }
-            if (variationAttributes.contains("comments")) {
-                profile.comments.setSelected(true);
-            }
-            if (variationAttributes.contains("line_count")) {
-                profile.line_count.setSelected(true);
-            }
-            if (variationAttributes.contains("set_cookie_names")) {
-                profile.set_cookie_names.setSelected(true);
-            }
-            if (variationAttributes.contains("last_modified_header")) {
-                profile.last_modified_header.setSelected(true);
-            }
-            if (variationAttributes.contains("first_header_tag")) {
-                profile.first_header_tag.setSelected(true);
-            }
-            if (variationAttributes.contains("tag_names")) {
-                profile.tag_names.setSelected(true);
-            }
-            if (variationAttributes.contains("input_submit_labels")) {
-                profile.input_submit_labels.setSelected(true);
-            }
-            if (variationAttributes.contains("outbound_edge_count")) {
-                profile.outbound_edge_count.setSelected(true);
-            }
-            if (variationAttributes.contains("initial_body_content")) {
-                profile.initial_body_content.setSelected(true);
-            }
-            if (variationAttributes.contains("content_location")) {
-                profile.content_location.setSelected(true);
-            }
-            if (variationAttributes.contains("limited_body_content")) {
-                profile.limited_body_content.setSelected(true);
-            }
-            if (variationAttributes.contains("canonical_link")) {
-                profile.canonical_link.setSelected(true);
-            }
-            if (variationAttributes.contains("css_classes")) {
-                profile.css_classes.setSelected(true);
-            }
-            if (variationAttributes.contains("location")) {
-                profile.location.setSelected(true);
-            }
-            if (variationAttributes.contains("anchor_labels")) {
-                profile.anchor_labels.setSelected(true);
-            }
-
-            profile.setSelectedInsertionPointType(false);
-
-            if (insertionPointType.contains(18)) {
-                profile.All.setSelected(true);
-            }
-            if (insertionPointType.contains(65)) {
-                profile.extensionprovided.setSelected(true);
-            }
-            if (insertionPointType.contains(32)) {
-                profile.header.setSelected(true);
-            }
-            if (insertionPointType.contains(36)) {
-                profile.entirebody.setSelected(true);
-            }
-            if (insertionPointType.contains(7)) {
-                profile.paramamf.setSelected(true);
-            }
-            if (insertionPointType.contains(1)) {
-                profile.parambody.setSelected(true);
-            }
-            if (insertionPointType.contains(2)) {
-                profile.paramcookie.setSelected(true);
-            }
-            if (insertionPointType.contains(6)) {
-                profile.paramjson.setSelected(true);
-            }
-            if (insertionPointType.contains(33)) {
-                profile.urlpathfolder.setSelected(true);
-            }
-            if (insertionPointType.contains(5)) {
-                profile.parammultipartattr.setSelected(true);
-            }
-            if (insertionPointType.contains(35)) {
-                profile.paramnamebody.setSelected(true);
-            }
-            if (insertionPointType.contains(34)) {
-                profile.paramnameurl.setSelected(true);
-            }
-            if (insertionPointType.contains(64)) {
-                profile.userprovided.setSelected(true);
-            }
-            if (insertionPointType.contains(0)) {
-                profile.paramurl.setSelected(true);
-            }
-            if (insertionPointType.contains(3)) {
-                profile.paramxml.setSelected(true);
-            }
-            if (insertionPointType.contains(4)) {
-                profile.paramxmlattr.setSelected(true);
-            }
-            if (insertionPointType.contains(37)) {
-                profile.urlpathfilename.setSelected(true);
-            }
-            if (insertionPointType.contains(127)) {
-                profile.unknown.setSelected(true);
-            }
-
-            profile.check1.setSelected(casesensitive);
-            profile.check4.setSelected(notresponse);
-            profile.check71.setSelected(iscontenttype);
-            profile.check72.setSelected(isresponsecode);
-            profile.negativeCT.setSelected(negativect);
-            profile.negativeRC.setSelected(negativerc);
-            profile.text4.setText(issuename);
-            profile.textarea1.setText(issuedetail);
-            profile.textarea2.setText(issuebackground);
-            profile.textarea3.setText(remediationdetail);
-            profile.textarea4.setText(remediationbackground);
-            text11.setText(filename);
-            profile.sp1.setValue(maxRedir);
-
-            switch (issueseverity) {
-                case "High":
-                    buttonGroup2.setSelected(profile.radio5.getModel(), true);
-                    break;
-                case "Medium":
-                    buttonGroup2.setSelected(profile.radio6.getModel(), true);
-                    break;
-                case "Low":
-                    buttonGroup2.setSelected(profile.radio7.getModel(), true);
-                    break;
-                case "Information":
-                    buttonGroup2.setSelected(profile.radio8.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
-
-            switch (issueconfidence) {
-                case "Certain":
-                    buttonGroup3.setSelected(profile.radio9.getModel(), true);
-                    break;
-                case "Firm":
-                    buttonGroup3.setSelected(profile.radio10.getModel(), true);
-                    break;
-                case "Tentative":
-                    buttonGroup3.setSelected(profile.radio11.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
+           
         } catch (Exception e) {
-            callbacks.printError("BurpBountyGui line 658:" + e.getMessage());
+            System.out.println("BurpBountyGui: line 461");
+            for (StackTraceElement element : e.getStackTrace()) {
+                System.out.println(element);
+            }
         }
     }
 
-    public void saveActiveAttackValues(ActiveProfile profile) {
-        headers = new ArrayList();
-        variationAttributes = new ArrayList();
-        insertionPointType = new ArrayList();
-        //Save attack with fields values
-        try {
-            //get GUI values
-            ProfilesProperties newfile = new ProfilesProperties();
+    public void createDirectories(String profiles_directory) {
 
-            if (profile.text1.getText().length() >= 35) {
-                newfile.setName(profile.text1.getText().substring(0, 34));
-            } else {
-                newfile.setName(profile.text1.getText());
-            }
+        File profiles = new File(profiles_directory);
 
-            if (profile.textauthor.getText().length() >= 35) {
-                newfile.setAuthor(profile.textauthor.getText().substring(0, 34));
-            } else {
-                newfile.setAuthor(profile.textauthor.getText());
-            }
-
-            newfile.setScanner(1);
-
-            if (profile.replace.isSelected()) {
-                newfile.setPayloadPosition(1);
-            } else if (profile.append.isSelected()) {
-                newfile.setPayloadPosition(2);
-            } else {
-                newfile.setPayloadPosition(1);
-            }
-
-            newfile.setEnabled(true);
-            List encoders = new ArrayList();
-            List payloads = new ArrayList();
-            List greps = new ArrayList();
-            List tags = new ArrayList();
-
-            newfile.setPayloadsFile(profile.textpayloads.getText());
-            for (int i = 0; i < profile.list1.getModel().getSize(); i++) {
-                Object item = profile.list1.getModel().getElementAt(i);
-                if (!item.toString().isEmpty()) {
-                    payloads.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
-                }
-            }
-            newfile.setPayloads(payloads);
-
-            newfile.setGrepsFile(profile.textgreps.getText());
-            for (int i = 0; i < profile.modelgrep.getRowCount(); i++) {
-                if (!profile.modelgrep.getValueAt(i, 2).toString().isEmpty()) {
-                    greps.add(profile.modelgrep.getValueAt(i, 0).toString() + "," + profile.modelgrep.getValueAt(i, 1).toString() + "," + profile.modelgrep.getValueAt(i, 2).toString());
-                }
-            }
-            newfile.setGreps(greps);
-
-            for (int row = 0; row < profile.model4.getRowCount(); row++) {
-                headers.add(new Headers((String) profile.model4.getValueAt(row, 0), (String) profile.model4.getValueAt(row, 1), (String) profile.model4.getValueAt(row, 2), (String) profile.model4.getValueAt(row, 3)));
-            }
-            newfile.setHeader(headers);
-
-            for (int i = 0; i < profile.listtag.getModel().getSize(); i++) {
-                Object item = profile.listtag.getModel().getElementAt(i);
-                if (!item.toString().isEmpty()) {
-                    tags.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
-                }
-            }
-            if (!tags.contains("All")) {
-                tags.add("All");
-                newfile.setTags(tags);
-            } else {
-                newfile.setTags(tags);
-            }
-
-            for (int i = 0; i < profile.list3.getModel().getSize(); i++) {
-                Object item = profile.list3.getModel().getElementAt(i);
-                if (!item.toString().isEmpty()) {
-                    encoders.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
-                }
-            }
-
-            newfile.setEncoder(encoders);
-            newfile.setCharsToUrlEncode(profile.text5.getText());
-            newfile.setUrlEncode(profile.check8.isSelected());
-            newfile.setExcludeHTTP(profile.excludehttp.isSelected());
-            newfile.setOnlyHTTP(profile.onlyhttp.isSelected());
-            newfile.setContentType(profile.text71.getText());
-            newfile.setResponseCode(profile.text72.getText());
-
-            if (profile.texttime.getText().isEmpty()) {
-                newfile.setTime(profile.texttime.getText());
-            } else {
-                newfile.setTime(profile.texttime.getText());
-            }
-
-            if (profile.textcl.getText().isEmpty()) {
-                newfile.setContentLength(profile.textcl.getText());
-            } else {
-                newfile.setContentLength(profile.textcl.getText());
-            }
-
-            if (profile.radio4.isSelected()) {
-                newfile.setMatchType(1);
-            } else if (profile.radio3.isSelected()) {
-                newfile.setMatchType(2);
-            } else if (profile.radio12.isSelected()) {
-                newfile.setMatchType(3);
-            } else if (profile.radio22.isSelected()) {
-                newfile.setMatchType(4);
-            } else if (profile.radiotime.isSelected()) {
-                newfile.setMatchType(5);
-            } else if (profile.radiocl.isSelected()) {
-                newfile.setMatchType(6);
-            } else if (profile.variationsRadio.isSelected()) {
-                newfile.setMatchType(7);
-            } else if (profile.invariationsRadio.isSelected()) {
-                newfile.setMatchType(8);
-            } else {
-                newfile.setMatchType(0);
-            }
-
-            if (profile.rb1.isSelected()) {
-                newfile.setRedirType(1);
-            } else if (profile.rb2.isSelected()) {
-                newfile.setRedirType(2);
-            } else if (profile.rb3.isSelected()) {
-                newfile.setRedirType(3);
-            } else if (profile.rb4.isSelected()) {
-                newfile.setRedirType(4);
-            } else {
-                newfile.setRedirType(0);
-            }
-
-            if (profile.status_code.isSelected()) {
-                variationAttributes.add("status_code");
-            }
-            if (profile.input_image_labels.isSelected()) {
-                variationAttributes.add("input_image_labels");
-            }
-            if (profile.non_hidden_form_input_types.isSelected()) {
-                variationAttributes.add("non_hidden_form_input_types");
-            }
-            if (profile.page_title.isSelected()) {
-                variationAttributes.add("page_title");
-            }
-            if (profile.visible_text.isSelected()) {
-                variationAttributes.add("visible_text");
-            }
-            if (profile.button_submit_labels.isSelected()) {
-                variationAttributes.add("button_submit_labels");
-            }
-            if (profile.div_ids.isSelected()) {
-                variationAttributes.add("div_ids");
-            }
-            if (profile.word_count.isSelected()) {
-                variationAttributes.add("word_count");
-            }
-            if (profile.content_type.isSelected()) {
-                variationAttributes.add("content_type");
-            }
-            if (profile.outbound_edge_tag_names.isSelected()) {
-                variationAttributes.add("outbound_edge_tag_names");
-            }
-            if (profile.whole_body_content.isSelected()) {
-                variationAttributes.add("whole_body_content");
-            }
-            if (profile.etag_header.isSelected()) {
-                variationAttributes.add("etag_header");
-            }
-            if (profile.visible_word_count.isSelected()) {
-                variationAttributes.add("visible_word_count");
-            }
-            if (profile.content_length.isSelected()) {
-                variationAttributes.add("content_length");
-            }
-            if (profile.header_tags.isSelected()) {
-                variationAttributes.add("header_tags");
-            }
-            if (profile.tag_ids.isSelected()) {
-                variationAttributes.add("tag_ids");
-            }
-            if (profile.comments.isSelected()) {
-                variationAttributes.add("comments");
-            }
-            if (profile.line_count.isSelected()) {
-                variationAttributes.add("line_count");
-            }
-            if (profile.set_cookie_names.isSelected()) {
-                variationAttributes.add("set_cookie_names");
-            }
-            if (profile.last_modified_header.isSelected()) {
-                variationAttributes.add("last_modified_header");
-            }
-            if (profile.first_header_tag.isSelected()) {
-                variationAttributes.add("first_header_tag");
-            }
-            if (profile.tag_names.isSelected()) {
-                variationAttributes.add("tag_names");
-            }
-            if (profile.input_submit_labels.isSelected()) {
-                variationAttributes.add("input_submit_labels");
-            }
-            if (profile.outbound_edge_count.isSelected()) {
-                variationAttributes.add("outbound_edge_count");
-            }
-            if (profile.initial_body_content.isSelected()) {
-                variationAttributes.add("initial_body_content");
-            }
-            if (profile.content_location.isSelected()) {
-                variationAttributes.add("content_location");
-            }
-            if (profile.limited_body_content.isSelected()) {
-                variationAttributes.add("limited_body_content");
-            }
-            if (profile.canonical_link.isSelected()) {
-                variationAttributes.add("canonical_link");
-            }
-            if (profile.css_classes.isSelected()) {
-                variationAttributes.add("css_classes");
-            }
-            if (profile.location.isSelected()) {
-                variationAttributes.add("location");
-            }
-            if (profile.anchor_labels.isSelected()) {
-                variationAttributes.add("anchor_labels");
-            }
-
-            newfile.setVariationAttributes(variationAttributes);
-
-            if (profile.All.isSelected()) {
-                insertionPointType.add(18);
-                insertionPointType.add(65);
-                insertionPointType.add(32);
-                insertionPointType.add(36);
-                insertionPointType.add(7);
-                insertionPointType.add(1);
-                insertionPointType.add(2);
-                insertionPointType.add(6);
-                insertionPointType.add(33);
-                insertionPointType.add(5);
-                insertionPointType.add(35);
-                insertionPointType.add(34);
-                insertionPointType.add(64);
-                insertionPointType.add(0);
-                insertionPointType.add(3);
-                insertionPointType.add(4);
-                insertionPointType.add(37);
-                insertionPointType.add(127);
-            }
-
-            if (profile.extensionprovided.isSelected()) {
-                insertionPointType.add(65);
-            }
-            if (profile.header.isSelected()) {
-                insertionPointType.add(32);
-            }
-            if (profile.entirebody.isSelected()) {
-                insertionPointType.add(36);
-            }
-            if (profile.paramamf.isSelected()) {
-                insertionPointType.add(7);
-            }
-            if (profile.parambody.isSelected()) {
-                insertionPointType.add(1);
-            }
-            if (profile.paramcookie.isSelected()) {
-                insertionPointType.add(2);
-            }
-            if (profile.paramjson.isSelected()) {
-                insertionPointType.add(6);
-            }
-            if (profile.urlpathfolder.isSelected()) {
-                insertionPointType.add(33);
-            }
-            if (profile.parammultipartattr.isSelected()) {
-                insertionPointType.add(5);
-            }
-            if (profile.paramnamebody.isSelected()) {
-                insertionPointType.add(35);
-            }
-            if (profile.paramnameurl.isSelected()) {
-                insertionPointType.add(34);
-            }
-            if (profile.userprovided.isSelected()) {
-                insertionPointType.add(64);
-            }
-            if (profile.paramurl.isSelected()) {
-                insertionPointType.add(0);
-            }
-            if (profile.paramxml.isSelected()) {
-                insertionPointType.add(3);
-            }
-            if (profile.paramxmlattr.isSelected()) {
-                insertionPointType.add(4);
-            }
-            if (profile.urlpathfilename.isSelected()) {
-                insertionPointType.add(37);
-            }
-            if (profile.unknown.isSelected()) {
-                insertionPointType.add(127);
-            }
-            if (insertionPointType.isEmpty()) {
-                insertionPointType.add(18);
-                insertionPointType.add(65);
-                insertionPointType.add(32);
-                insertionPointType.add(36);
-                insertionPointType.add(7);
-                insertionPointType.add(1);
-                insertionPointType.add(2);
-                insertionPointType.add(6);
-                insertionPointType.add(33);
-                insertionPointType.add(5);
-                insertionPointType.add(35);
-                insertionPointType.add(34);
-                insertionPointType.add(64);
-                insertionPointType.add(0);
-                insertionPointType.add(3);
-                insertionPointType.add(4);
-                insertionPointType.add(37);
-                insertionPointType.add(127);
-            } else {
-                newfile.setInsertionPointType(insertionPointType);
-            }
-
-            newfile.setCaseSensitive(profile.check1.isSelected());
-            newfile.setNotResponse(profile.check4.isSelected());
-            newfile.setIsContentType(profile.check71.isSelected());
-            newfile.setIsResponseCode(profile.check72.isSelected());
-            newfile.setNegativeCT(profile.negativeCT.isSelected());
-            newfile.setNegativeRC(profile.negativeRC.isSelected());
-            newfile.setIssueName(profile.text4.getText());
-            newfile.setIssueDetail(profile.textarea1.getText());
-            newfile.setIssueBackground(profile.textarea2.getText());
-            newfile.setRemediationDetail(profile.textarea3.getText());
-            newfile.setRemediationBackground(profile.textarea4.getText());
-            newfile.setMaxRedir((Integer) profile.sp1.getValue());
-
-            if (profile.radio5.isSelected()) {
-                newfile.setIssueSeverity("High");
-            } else if (profile.radio6.isSelected()) {
-                newfile.setIssueSeverity("Medium");
-            } else if (profile.radio7.isSelected()) {
-                newfile.setIssueSeverity("Low");
-            } else if (profile.radio8.isSelected()) {
-                newfile.setIssueSeverity("Information");
-            } else {
-                newfile.setIssueSeverity("");
-            }
-
-            if (profile.radio9.isSelected()) {
-                newfile.setIssueConfidence("Certain");
-            } else if (profile.radio10.isSelected()) {
-                newfile.setIssueConfidence("Firm");
-            } else if (profile.radio11.isSelected()) {
-                newfile.setIssueConfidence("Tentative");
-            } else {
-                newfile.setIssueConfidence("");
-            }
-
-            //Save start
-            Gson gson = new Gson();
-
-            JsonArray ijson = new JsonArray();
-            List<ProfilesProperties> newjson = gson.fromJson(ijson, new TypeToken<List<ProfilesProperties>>() {
-            }.getType());
-            newjson.add(newfile);
-
-            String json = gson.toJson(newjson);
-
-            //Write JSON String to file
-            FileOutputStream fileStream;
-
-            if (profile.text1.getText().length() >= 35) {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().substring(0, 34).concat(".bb")));
-            } else {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().concat(".bb")));
-            }
-
-            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-            writer.write(json);
-            writer.close();
-            fileStream.close();
-
-        } catch (IOException e) {
-            callbacks.printError("BurpBountyGui line 1027:");
-        }
-    }
-
-    public void setResponseAttackValues(String profiles, ResponseProfile profile) {
-        //Set Attack values when select from main combobox
-        try {
-            Gson gson = new Gson();
-            JsonArray json = initJson();
-            ProfilesProperties profile_property = new ProfilesProperties();
-
-            if (json != null) {
-                for (JsonElement pa : json) {
-                    JsonObject bbObj = pa.getAsJsonObject();
-                    if (bbObj.get("Name").getAsString().equals(profiles)) {
-                        profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class
-                        );
-                    }
-
-                }
-            }
-
-            name = profile_property.getName();
-            scanner = profile_property.getScanner();
-            casesensitive = profile_property.getCaseSensitive();
-            notresponse = profile_property.getNotResponse();
-            matchtype = profile_property.getMatchType();
-            issuename = profile_property.getIssueName();
-            issueseverity = profile_property.getIssueSeverity();
-            issueconfidence = profile_property.getIssueConfidence();
-            issuedetail = profile_property.getIssueDetail();
-            issuebackground = profile_property.getIssueBackground();
-            remediationdetail = profile_property.getRemediationDetail();
-            remediationbackground = profile_property.getRemediationBackground();
-            iscontenttype = profile_property.getIsContentType();
-            isresponsecode = profile_property.getIsResponseCode();
-            contenttype = profile_property.getContentType();
-            responsecode = profile_property.getResponseCode();
-            excludeHTTP = profile_property.getExcludeHTTP();
-            onlyHTTP = profile_property.getOnlyHTTP();
-            negativect = profile_property.getNegativeCT();
-            negativerc = profile_property.getNegativeRC();
-            redirtype = profile_property.getRedirection();
-            maxRedir = profile_property.getMaxRedir();
-            payloadsfile = profile_property.getpayloadsFile();
-            grepsfile = profile_property.getgrepsFile();
-            payloadPosition = profile_property.getPayloadPosition();
-            timeOut = profile_property.getTime();
-            author = profile_property.getAuthor();
-            contentLength = profile_property.getContentLength();
-            headers = profile_property.getHeader();
-            variationAttributes = profile_property.getVariationAttributes();
-            insertionPointType = profile_property.getInsertionPointType();
-
-            profile.textauthor.setText(author);
-            profile.text1.setText(name);
-
-            if (profile_property.getTags() != null) {
-                for (String t : profile_property.getTags()) {
-                    profile.tag.addElement(t);
-                }
-            }
-
-            profile.showGreps(profile_property.getGreps());
-
-            profile.text71.setText(contenttype);
-            profile.text72.setText(responsecode);
-
-            profile.excludehttp.setSelected(excludeHTTP);
-            profile.onlyhttp.setSelected(onlyHTTP);
-
-            switch (matchtype) {
-                case 1:
-                    buttonGroup4.setSelected(profile.radio4.getModel(), true);
-                    break;
-                case 2:
-                    buttonGroup4.setSelected(profile.radio3.getModel(), true);
-                    break;
-                default:
-                    buttonGroup4.clearSelection();
-                    break;
-            }
-
-            switch (redirtype) {
-                case 1:
-                    buttonGroup8.setSelected(profile.rb1.getModel(), true);
-                    break;
-                case 2:
-                    buttonGroup8.setSelected(profile.rb2.getModel(), true);
-                    break;
-                case 3:
-                    buttonGroup8.setSelected(profile.rb3.getModel(), true);
-                    break;
-                case 4:
-                    buttonGroup8.setSelected(profile.rb4.getModel(), true);
-                    break;
-                default:
-                    buttonGroup8.clearSelection();
-                    break;
-            }
-
-            profile.check1.setSelected(casesensitive);
-            profile.check4.setSelected(notresponse);
-            profile.check71.setSelected(iscontenttype);
-            profile.check72.setSelected(isresponsecode);
-            profile.negativeCT.setSelected(negativect);
-            profile.negativeRC.setSelected(negativerc);
-            profile.text4.setText(issuename);
-            profile.textarea1.setText(issuedetail);
-            profile.textarea2.setText(issuebackground);
-            profile.textarea3.setText(remediationdetail);
-            profile.textarea4.setText(remediationbackground);
-            text11.setText(filename);
-            profile.sp1.setValue(maxRedir);
-
-            switch (issueseverity) {
-                case "High":
-                    buttonGroup2.setSelected(profile.radio5.getModel(), true);
-                    break;
-                case "Medium":
-                    buttonGroup2.setSelected(profile.radio6.getModel(), true);
-                    break;
-                case "Low":
-                    buttonGroup2.setSelected(profile.radio7.getModel(), true);
-                    break;
-                case "Information":
-                    buttonGroup2.setSelected(profile.radio8.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
-
-            switch (issueconfidence) {
-                case "Certain":
-                    buttonGroup3.setSelected(profile.radio9.getModel(), true);
-                    break;
-                case "Firm":
-                    buttonGroup3.setSelected(profile.radio10.getModel(), true);
-                    break;
-                case "Tentative":
-                    buttonGroup3.setSelected(profile.radio11.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception e) {
-            callbacks.printError("BurpBountyGui line 1180:" + e.getMessage());
-        }
-    }
-
-    public void saveResponseAttackValues(ResponseProfile profile) {
-        variationAttributes = new ArrayList();
-        insertionPointType = new ArrayList();
-        //Save attack with fields values
-        try {
-            //get GUI values
-            ProfilesProperties newfile = new ProfilesProperties();
-
-            if (profile.text1.getText().length() >= 35) {
-                newfile.setName(profile.text1.getText().substring(0, 34));
-            } else {
-                newfile.setName(profile.text1.getText());
-            }
-
-            if (profile.textauthor.getText().length() >= 35) {
-                newfile.setAuthor(profile.textauthor.getText().substring(0, 34));
-            } else {
-                newfile.setAuthor(profile.textauthor.getText());
-            }
-
-            newfile.setScanner(2);
-
-            newfile.setEnabled(true);
-            List greps = new ArrayList();
-            List tags = new ArrayList();
-
-            newfile.setGrepsFile(profile.textgreps.getText());
-            String a = profile.textgreps.getText();
-            for (int i = 0; i < profile.modelgrep.getRowCount(); i++) {
-                if (!profile.modelgrep.getValueAt(i, 2).toString().isEmpty()) {
-                    greps.add(profile.modelgrep.getValueAt(i, 0).toString() + "," + profile.modelgrep.getValueAt(i, 1).toString() + "," + profile.modelgrep.getValueAt(i, 2).toString());
-                }
-            }
-            newfile.setGreps(greps);
-
-            for (int i = 0; i < profile.listtag.getModel().getSize(); i++) {
-                Object item = profile.listtag.getModel().getElementAt(i);
-                if (!item.toString().isEmpty()) {
-                    tags.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
-                }
-            }
-            if (!tags.contains("All")) {
-                tags.add("All");
-                newfile.setTags(tags);
-            } else {
-                newfile.setTags(tags);
-            }
-
-            if (profile.radio4.isSelected()) {
-                newfile.setMatchType(1);
-            } else if (profile.radio3.isSelected()) {
-                newfile.setMatchType(2);
-            } else {
-                newfile.setMatchType(0);
-            }
-
-            newfile.setExcludeHTTP(profile.excludehttp.isSelected());
-            newfile.setOnlyHTTP(profile.onlyhttp.isSelected());
-            newfile.setContentType(profile.text71.getText());
-            newfile.setResponseCode(profile.text72.getText());
-
-            if (profile.rb1.isSelected()) {
-                newfile.setRedirType(1);
-            } else if (profile.rb2.isSelected()) {
-                newfile.setRedirType(2);
-            } else if (profile.rb3.isSelected()) {
-                newfile.setRedirType(3);
-            } else if (profile.rb4.isSelected()) {
-                newfile.setRedirType(4);
-            } else {
-                newfile.setRedirType(0);
-            }
-
-            newfile.setVariationAttributes(variationAttributes);
-
-            newfile.setInsertionPointType(insertionPointType);
-
-            newfile.setCaseSensitive(profile.check1.isSelected());
-            newfile.setNotResponse(profile.check4.isSelected());
-            newfile.setIsContentType(profile.check71.isSelected());
-            newfile.setIsResponseCode(profile.check72.isSelected());
-            newfile.setNegativeCT(profile.negativeCT.isSelected());
-            newfile.setNegativeRC(profile.negativeRC.isSelected());
-            newfile.setIssueName(profile.text4.getText());
-            newfile.setIssueDetail(profile.textarea1.getText());
-            newfile.setIssueBackground(profile.textarea2.getText());
-            newfile.setRemediationDetail(profile.textarea3.getText());
-            newfile.setRemediationBackground(profile.textarea4.getText());
-            newfile.setMaxRedir((Integer) profile.sp1.getValue());
-
-            if (profile.radio5.isSelected()) {
-                newfile.setIssueSeverity("High");
-            } else if (profile.radio6.isSelected()) {
-                newfile.setIssueSeverity("Medium");
-            } else if (profile.radio7.isSelected()) {
-                newfile.setIssueSeverity("Low");
-            } else if (profile.radio8.isSelected()) {
-                newfile.setIssueSeverity("Information");
-            } else {
-                newfile.setIssueSeverity("");
-            }
-
-            if (profile.radio9.isSelected()) {
-                newfile.setIssueConfidence("Certain");
-            } else if (profile.radio10.isSelected()) {
-                newfile.setIssueConfidence("Firm");
-            } else if (profile.radio11.isSelected()) {
-                newfile.setIssueConfidence("Tentative");
-            } else {
-                newfile.setIssueConfidence("");
-            }
-
-            //Save start
-            Gson gson = new Gson();
-
-            JsonArray ijson = new JsonArray();
-            List<ProfilesProperties> newjson = gson.fromJson(ijson, new TypeToken<List<ProfilesProperties>>() {
-            }.getType());
-            newjson.add(newfile);
-
-            String json = gson.toJson(newjson);
-
-            //Write JSON String to file
-            FileOutputStream fileStream;
-
-            if (profile.text1.getText().length() >= 35) {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().substring(0, 34).concat(".bb")));
-            } else {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().concat(".bb")));
-            }
-
-            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-            writer.write(json);
-            writer.close();
-            fileStream.close();
-
-        } catch (IOException e) {
-            callbacks.printError("BurpBountyGui line 1323:");
-        }
-    }
-
-    public void setRequestAttackValues(String profiles, RequestProfile profile) {
-        //Set Attack values when select from main combobox
-        try {
-            Gson gson = new Gson();
-            JsonArray json = initJson();
-            ProfilesProperties profile_property = new ProfilesProperties();
-
-            if (json != null) {
-                for (JsonElement pa : json) {
-                    JsonObject bbObj = pa.getAsJsonObject();
-                    if (bbObj.get("Name").getAsString().equals(profiles)) {
-                        profile_property = gson.fromJson(bbObj.toString(), ProfilesProperties.class
-                        );
-                    }
-
-                }
-            }
-
-            name = profile_property.getName();
-            scanner = profile_property.getScanner();
-            casesensitive = profile_property.getCaseSensitive();
-            notresponse = profile_property.getNotResponse();
-            matchtype = profile_property.getMatchType();
-            issuename = profile_property.getIssueName();
-            issueseverity = profile_property.getIssueSeverity();
-            issueconfidence = profile_property.getIssueConfidence();
-            issuedetail = profile_property.getIssueDetail();
-            issuebackground = profile_property.getIssueBackground();
-            remediationdetail = profile_property.getRemediationDetail();
-            remediationbackground = profile_property.getRemediationBackground();
-            iscontenttype = profile_property.getIsContentType();
-            isresponsecode = profile_property.getIsResponseCode();
-            contenttype = profile_property.getContentType();
-            responsecode = profile_property.getResponseCode();
-            excludeHTTP = profile_property.getExcludeHTTP();
-            onlyHTTP = profile_property.getOnlyHTTP();
-            negativect = profile_property.getNegativeCT();
-            negativerc = profile_property.getNegativeRC();
-            redirtype = profile_property.getRedirection();
-            maxRedir = profile_property.getMaxRedir();
-            payloadsfile = profile_property.getpayloadsFile();
-            grepsfile = profile_property.getgrepsFile();
-            payloadPosition = profile_property.getPayloadPosition();
-            timeOut = profile_property.getTime();
-            author = profile_property.getAuthor();
-            contentLength = profile_property.getContentLength();
-            headers = profile_property.getHeader();
-            variationAttributes = profile_property.getVariationAttributes();
-            insertionPointType = profile_property.getInsertionPointType();
-
-            profile.textauthor.setText(author);
-            profile.text1.setText(name);
-
-            profile.grep.removeAllElements();
-            profile.tag.removeAllElements();
-
-            profile.textgreps.setText(grepsfile);
-
-            profile.showGreps(profile_property.getGreps());
-
-            if (profile_property.getTags() != null) {
-                for (String t : profile_property.getTags()) {
-                    profile.tag.addElement(t);
-                }
-            }
-
-            switch (matchtype) {
-                case 1:
-                    buttonGroup4.setSelected(profile.radio4.getModel(), true);
-                    break;
-                case 2:
-                    buttonGroup4.setSelected(profile.radio3.getModel(), true);
-                    break;
-                default:
-                    buttonGroup4.clearSelection();
-                    break;
-            }
-
-            profile.check1.setSelected(casesensitive);
-            profile.check4.setSelected(notresponse);
-            profile.text4.setText(issuename);
-            profile.textarea1.setText(issuedetail);
-            profile.textarea2.setText(issuebackground);
-            profile.textarea3.setText(remediationdetail);
-            profile.textarea4.setText(remediationbackground);
-            text11.setText(filename);
-
-            switch (issueseverity) {
-                case "High":
-                    buttonGroup2.setSelected(profile.radio5.getModel(), true);
-                    break;
-                case "Medium":
-                    buttonGroup2.setSelected(profile.radio6.getModel(), true);
-                    break;
-                case "Low":
-                    buttonGroup2.setSelected(profile.radio7.getModel(), true);
-                    break;
-                case "Information":
-                    buttonGroup2.setSelected(profile.radio8.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
-
-            switch (issueconfidence) {
-                case "Certain":
-                    buttonGroup3.setSelected(profile.radio9.getModel(), true);
-                    break;
-                case "Firm":
-                    buttonGroup3.setSelected(profile.radio10.getModel(), true);
-                    break;
-                case "Tentative":
-                    buttonGroup3.setSelected(profile.radio11.getModel(), true);
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception e) {
-            callbacks.printError("BurpBountyGui line 1823:" + e.getMessage());
-        }
-    }
-
-    public void saveRequestAttackValues(RequestProfile profile) {
-        variationAttributes = new ArrayList();
-        insertionPointType = new ArrayList();
-        //Save attack with fields values
-        try {
-            //get GUI values
-            ProfilesProperties newfile = new ProfilesProperties();
-
-            if (profile.text1.getText().length() >= 35) {
-                newfile.setName(profile.text1.getText().substring(0, 34));
-            } else {
-                newfile.setName(profile.text1.getText());
-            }
-
-            if (profile.textauthor.getText().length() >= 35) {
-                newfile.setAuthor(profile.textauthor.getText().substring(0, 34));
-            } else {
-                newfile.setAuthor(profile.textauthor.getText());
-            }
-
-            newfile.setScanner(3);
-
-            newfile.setEnabled(true);
-            List greps = new ArrayList();
-            List tags = new ArrayList();
-
-            newfile.setGrepsFile(profile.textgreps.getText());
-
-            for (int i = 0; i < profile.modelgrep.getRowCount(); i++) {
-                if (!profile.modelgrep.getValueAt(i, 3).toString().isEmpty()) {
-                    greps.add(profile.modelgrep.getValueAt(i, 0).toString() + "," + profile.modelgrep.getValueAt(i, 1).toString() + "," + profile.modelgrep.getValueAt(i, 2).toString() + "," + profile.modelgrep.getValueAt(i, 3).toString() + "," + profile.modelgrep.getValueAt(i, 4).toString());
-                }
-            }
-            newfile.setGreps(greps);
-
-            for (int i = 0; i < profile.listtag.getModel().getSize(); i++) {
-                Object item = profile.listtag.getModel().getElementAt(i);
-                if (!item.toString().isEmpty()) {
-                    tags.add(item.toString().replaceAll("\r", "").replaceAll("\n", ""));
-                }
-            }
-            if (!tags.contains("All")) {
-                tags.add("All");
-                newfile.setTags(tags);
-            } else {
-                newfile.setTags(tags);
-            }
-
-            if (profile.radio4.isSelected()) {
-                newfile.setMatchType(1);
-            } else if (profile.radio3.isSelected()) {
-                newfile.setMatchType(2);
-            } else {
-                newfile.setMatchType(0);
-            }
-
-            newfile.setVariationAttributes(variationAttributes);
-
-            newfile.setCaseSensitive(profile.check1.isSelected());
-            newfile.setNotResponse(profile.check4.isSelected());
-            newfile.setIssueName(profile.text4.getText());
-            newfile.setIssueDetail(profile.textarea1.getText());
-            newfile.setIssueBackground(profile.textarea2.getText());
-            newfile.setRemediationDetail(profile.textarea3.getText());
-            newfile.setRemediationBackground(profile.textarea4.getText());
-
-            if (profile.radio5.isSelected()) {
-                newfile.setIssueSeverity("High");
-            } else if (profile.radio6.isSelected()) {
-                newfile.setIssueSeverity("Medium");
-            } else if (profile.radio7.isSelected()) {
-                newfile.setIssueSeverity("Low");
-            } else if (profile.radio8.isSelected()) {
-                newfile.setIssueSeverity("Information");
-            } else {
-                newfile.setIssueSeverity("");
-            }
-
-            if (profile.radio9.isSelected()) {
-                newfile.setIssueConfidence("Certain");
-            } else if (profile.radio10.isSelected()) {
-                newfile.setIssueConfidence("Firm");
-            } else if (profile.radio11.isSelected()) {
-                newfile.setIssueConfidence("Tentative");
-            } else {
-                newfile.setIssueConfidence("");
-            }
-
-            //Save start
-            Gson gson = new Gson();
-
-            JsonArray ijson = new JsonArray();
-            List<ProfilesProperties> newjson = gson.fromJson(ijson, new TypeToken<List<ProfilesProperties>>() {
-            }.getType());
-            newjson.add(newfile);
-
-            String json = gson.toJson(newjson);
-
-            //Write JSON String to file
-            FileOutputStream fileStream;
-
-            if (profile.text1.getText().length() >= 35) {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().substring(0, 34).concat(".bb")));
-            } else {
-                fileStream = new FileOutputStream(new File(profiles_directory + profile.text1.getText().concat(".bb")));
-            }
-
-            OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-            writer.write(json);
-            writer.close();
-            fileStream.close();
-
-        } catch (IOException e) {
-            callbacks.printError("BurpBountyGui line 1571:");
-        }
-    }
-
-    public void setSelectedVariations(boolean state, ActiveProfile profile) {
-        profile.status_code.setSelected(state);
-        profile.input_image_labels.setSelected(state);
-        profile.non_hidden_form_input_types.setSelected(state);
-        profile.page_title.setSelected(state);
-        profile.visible_text.setSelected(state);
-        profile.button_submit_labels.setSelected(state);
-        profile.div_ids.setSelected(state);
-        profile.word_count.setSelected(state);
-        profile.content_type.setSelected(state);
-        profile.outbound_edge_tag_names.setSelected(state);
-        profile.whole_body_content.setSelected(state);
-        profile.etag_header.setSelected(state);
-        profile.visible_word_count.setSelected(state);
-        profile.content_length.setSelected(state);
-        profile.header_tags.setSelected(state);
-        profile.tag_ids.setSelected(state);
-        profile.comments.setSelected(state);
-        profile.line_count.setSelected(state);
-        profile.set_cookie_names.setSelected(state);
-        profile.last_modified_header.setSelected(state);
-        profile.first_header_tag.setSelected(state);
-        profile.tag_names.setSelected(state);
-        profile.input_submit_labels.setSelected(state);
-        profile.outbound_edge_count.setSelected(state);
-        profile.initial_body_content.setSelected(state);
-        profile.content_location.setSelected(state);
-        profile.limited_body_content.setSelected(state);
-        profile.canonical_link.setSelected(state);
-        profile.css_classes.setSelected(state);
-        profile.location.setSelected(state);
-        profile.anchor_labels.setSelected(state);
-    }
-
-    public void updatePayloads(String file, ProfilesProperties issue) {
-
-        //Load file for implement payloads
-        List payloads = new ArrayList();
-        String line;
-        File fileload = new File(file);
-
-        try {
-            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
-            line = bufferreader.readLine();
-
-            while (line != null) {
-                payloads.add(line);
-                line = bufferreader.readLine();
-            }
-            bufferreader.close();
-
-            issue.setPayloads(payloads);
-
-            Gson gson = new Gson();
-            String strJson = gson.toJson(issue);
-            FileWriter writer = null;
-
-            writer = new FileWriter(profiles_directory + issue.getName().concat(".bb"));
-            writer.write("[" + strJson + "]");
-
-            writer.close();
-        } catch (FileNotFoundException ex) {
-            callbacks.printError("BurpBountyGui line 1639:");
-        } catch (IOException ex) {
-            callbacks.printError("BurpBountyGui line 1042:");
+        if (!profiles.exists()) {
+            profiles.mkdir();
         }
     }
 
@@ -1589,63 +228,177 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             issue.setGreps(greps);
 
-            Gson gson = new Gson();
+            GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+            Gson gson = builder.create();
             String strJson = gson.toJson(issue);
             FileWriter writer = null;
 
-            writer = new FileWriter(profiles_directory + issue.getName().concat(".bb"));
+            writer = new FileWriter(profiles_directory + File.separator + issue.getProfileName().concat(".bb"));
             writer.write("[" + strJson + "]");
 
             writer.close();
         } catch (FileNotFoundException ex) {
-            callbacks.printError("BurpBountyGui line 1675:" + ex.getMessage());
+            System.out.println("BurpBountyGui line 1675:" + ex.getMessage());
+            for (StackTraceElement element : ex.getStackTrace()) {
+                System.out.println(element);
+            }
         } catch (IOException ex) {
-            callbacks.printError("BurpBountyGui line 1078:" + ex.getMessage());
+            System.out.println("BurpBountyGui line 1078:" + ex.getMessage());
+            for (StackTraceElement element : ex.getStackTrace()) {
+                System.out.println(element);
+            }
         }
     }
-
-  
 
     private List<String> readFile(String filename) {
         List<String> records = new ArrayList();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            FileReader reader2 = new FileReader(filename);
+            BufferedReader reader = new BufferedReader(reader2);
             String line;
             while ((line = reader.readLine()) != null) {
                 records.add(line);
             }
+            reader2.close();
             reader.close();
         } catch (Exception e) {
             System.out.println("BurpBountyGui line 1882:" + e.getMessage());
+            for (StackTraceElement element : e.getStackTrace()) {
+                System.out.println(element);
+            }
         }
         return records;
     }
 
-    public JsonArray initJson() {
-        //Init json form filename
+    public void checkProfilesProperties(String profiles_directory) {
         FileReader fr;
 
-        try {
-            JsonArray data = new JsonArray();
-            File f = new File(profiles_directory);
-            if (f.exists() && f.isDirectory()) {
-                for (File file : f.listFiles()) {
-                    if (file.getName().endsWith(".bb")) {
+        JsonArray alldata = new JsonArray();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
+        File f = new File(profiles_directory);
+
+        if (f.exists() && f.isDirectory()) {
+            for (File file : f.listFiles()) {
+                if (file.getName().endsWith(".bb")) {
+                    try {
                         fr = new FileReader(file.getAbsolutePath());
+                    } catch (IOException ex) {
+                        System.out.println("BurpBountyGui line 1796:" + ex.getMessage());
+                        for (StackTraceElement element : ex.getStackTrace()) {
+                            System.out.println(element);
+                        }
+                        continue;
+                    }
+
+                    JsonParser parser = new JsonParser();
+                    JsonArray data = new JsonArray();
+                    ProfilesProperties profile_property;
+
+                    try {
                         JsonReader json = new JsonReader((fr));
-                        JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
+                        Object idata = data.get(0);
+                        profile_property = gson.fromJson(idata.toString(), ProfilesProperties.class);
+
+                        String name = "";
+                        name = profile_property.getProfileName();
+                        JsonObject bbObj = data.get(0).getAsJsonObject();
+                        if (name == null) {
+                            name = profile_property.getName();
+                            if (name == null) {
+                                System.out.println("Profile name corrupted");
+                                continue;
+                            } else {
+                                bbObj.remove("Name");
+                                bbObj.addProperty("ProfileName", name);
+                            }
+                        }
+                        data = new JsonArray();
+                        data.add(bbObj);
+                        alldata.addAll(data);
+                    } catch (Exception e) {
+                        System.out.println("BurpBountyGui line 1939");
+                        for (StackTraceElement element : e.getStackTrace()) {
+                            System.out.println(element);
+                        }
+                        continue;
+                    }
+
+                    try {
                         fr.close();
-                        json.close();
+                    } catch (IOException ex) {
+                        System.out.println("BurpBountyGui line 1825:" + ex.getMessage());
+                        for (StackTraceElement element : ex.getStackTrace()) {
+                            System.out.println(element);
+                        }
+                        continue;
                     }
 
                 }
             }
-            return data;
-        } catch (Exception e) {
-            callbacks.printError("BurpBountyGui line 1823:" + e.getMessage());
-            return null;
         }
+        parent.setAllProfiles(alldata);
+        allprofiles = alldata;
+        setActiveProfiles(allprofiles);
+        setPassiveProfiles(allprofiles);
+    }
+
+    public void setActiveProfiles(JsonArray allprofiles) {
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
+        int scanner = 0;
+        ProfilesProperties issue;
+        Boolean enabled = false;
+        activeprofiles = new JsonArray();
+
+        for (int i = 0; i < allprofiles.size(); i++) {
+            try {
+                Object idata = allprofiles.get(i);
+                issue = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                scanner = issue.getScanner();
+                enabled = issue.getEnabled();
+            } catch (Exception ex) {
+                System.out.println("BurpBountyExtension line 399: " + ex.getMessage());
+                continue;
+            }
+
+            if (scanner == 1 && enabled) {
+                activeprofiles.add(allprofiles.get(i));
+            }
+        }
+    }
+
+    public void setPassiveProfiles(JsonArray allprofiles) {
+        passiveresprofiles = new JsonArray();
+        passivereqprofiles = new JsonArray();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
+        int scanner = 0;
+        Boolean enabled = false;
+        ProfilesProperties issue;
+
+        for (int i = 0; i < allprofiles.size(); i++) {
+            try {
+                Object idata = allprofiles.get(i);
+                issue = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                scanner = issue.getScanner();
+                enabled = issue.getEnabled();
+            } catch (Exception ex) {
+                System.out.println("BurpBountyExtension line 341: " + ex.getMessage());
+                continue;
+            }
+            if (enabled && scanner == 2) {
+                passiveresprofiles.add(allprofiles.get(i));
+            } else if (enabled && scanner == 3) {
+                passivereqprofiles.add(allprofiles.get(i));
+            }
+        }
+    }
+
+    public JsonArray getProfiles() {
+        parent.setAllProfiles(allprofiles);
+        return allprofiles;
     }
 
     public String getClipboardContents() {
@@ -1659,7 +412,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
             try {
                 result = (String) contents.getTransferData(DataFlavor.stringFlavor);
             } catch (UnsupportedFlavorException | IOException ex) {
-                callbacks.printError("BurpBountyGui line 1866:" + ex.getMessage());
+                System.out.println("BurpBountyGui line 1866:" + ex.getMessage());
+                for (StackTraceElement element : ex.getStackTrace()) {
+                    System.out.println(element);
+                }
             }
         }
         return result;
@@ -1680,39 +436,20 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             text11.setText(file);
 
+            checkProfilesProperties(profiles_directory);
             makeTagsFile();
             showTags();
             showProfiles("All");
+            filename = file;
             this.callbacks.saveExtensionSetting("filename", file);
 
         }
     }
 
-    public void loadPath(String file, DefaultListModel list) {
-        //Load file for implement payloads
-        DefaultListModel List = list;
-        String line;
-        File fileload = new File(file);
-
-        try {
-            BufferedReader bufferreader = new BufferedReader(new FileReader(fileload.getAbsolutePath()));
-            line = bufferreader.readLine();
-
-            while (line != null) {
-                List.addElement(line);
-                line = bufferreader.readLine();
-            }
-            bufferreader.close();
-        } catch (FileNotFoundException ex) {
-            callbacks.printError("BurpBountyGui line 1912:" + ex.getMessage());
-        } catch (IOException ex) {
-            callbacks.printError("BurpBountyGui line 1815:" + ex.getMessage());
-        }
-    }
-
     public void setEnableDisableProfile(String enable, JTable table) {
 
-        Gson gson = new Gson();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
 
         JsonArray json2 = new JsonArray();
         List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
@@ -1724,7 +461,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
             try {
                 String profile_name = table.getValueAt(row, 1).toString();
                 JsonArray data = new JsonArray();
-                JsonReader json = new JsonReader(new FileReader(profiles_directory.concat(profile_name.concat(".bb"))));
+                FileReader reader = new FileReader(profiles_directory + File.separator + profile_name.concat(".bb"));
+                JsonReader json = new JsonReader(reader);
                 JsonParser parser = new JsonParser();
                 data.addAll(parser.parse(json).getAsJsonArray());
 
@@ -1739,75 +477,32 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 }
                 newjson.clear();
                 newjson.add(profile_properties);
-                FileOutputStream fileStream = new FileOutputStream(profiles_directory.concat(profile_name.concat(".bb")));
+                FileOutputStream fileStream = new FileOutputStream(profiles_directory + File.separator + profile_name.concat(".bb"));
                 String fjson = gson.toJson(newjson);
                 OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                 writer.write(fjson);
-                writer.close();
+                reader.close();
                 json.close();
+                writer.close();
 
             } catch (IOException e) {
-                callbacks.printError("BurpBountyGui line 1956:" + e.getMessage());
-            }
-        }
-        showProfiles("All");
-    }
-
-    public void setEnableDisableAllProfiles(String enable) {
-
-        Gson gson = new Gson();
-        File f = new File(profiles_directory);
-
-        JsonArray json2 = new JsonArray();
-        List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
-        }.getType());
-
-        File[] files = f.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.toLowerCase().endsWith(".bb")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        if (f.exists() && f.isDirectory()) {
-            for (File file : files) {
-                try {
-                    JsonArray data = new JsonArray();
-                    JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
-                    JsonParser parser = new JsonParser();
-                    data.addAll(parser.parse(json).getAsJsonArray());
-
-                    Object idata = data.get(0);
-                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
-                    );
-                    if (enable.contains("Yes")) {
-                        profile_properties.setEnabled(true);
-                    } else {
-                        profile_properties.setEnabled(false);
-                    }
-                    newjson.clear();
-                    newjson.add(profile_properties);
-                    FileOutputStream fileStream = new FileOutputStream(file.getAbsoluteFile());
-                    String fjson = gson.toJson(newjson);
-                    OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-                    writer.write(fjson);
-                    writer.close();
-                    json.close();
-                } catch (IOException e) {
-                    callbacks.printError("BurpBountyGui line 207:" + e.getMessage());
+                System.out.println("BurpBountyGui line 1956:" + e.getMessage());
+                for (StackTraceElement element : e.getStackTrace()) {
+                    System.out.println(element);
                 }
             }
         }
+        checkProfilesProperties(profiles_directory);
         showProfiles("All");
+
     }
+
+ 
 
     public void deleteTagProfiles(String tag) {
 
-        Gson gson = new Gson();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
         File f = new File(profiles_directory);
 
         JsonArray json2 = new JsonArray();
@@ -1829,13 +524,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
             for (File file : files) {
                 try {
                     JsonArray data = new JsonArray();
-                    JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                    FileReader reader = new FileReader(file.getAbsolutePath());
+                    JsonReader json = new JsonReader(reader);
                     JsonParser parser = new JsonParser();
                     data.addAll(parser.parse(json).getAsJsonArray());
 
                     Object idata = data.get(0);
-                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
-                    );
+                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
                     List<String> tags = profile_properties.getTags();
                     List<String> finaltags = new ArrayList();
                     if (tags != null) {
@@ -1852,85 +547,70 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     String fjson = gson.toJson(newjson);
                     OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
                     writer.write(fjson);
+                    reader.close();
                     writer.close();
                     json.close();
                 } catch (IOException e) {
-                    callbacks.printError("BurpBountyGui line 2065:" + e.getMessage());
+                    System.out.println("BurpBountyGui line 2065:" + e.getMessage());
+                    for (StackTraceElement element : e.getStackTrace()) {
+                        System.out.println(element);
+                    }
                 }
             }
         }
+        checkProfilesProperties(profiles_directory);
         showProfiles("All");
     }
 
     public void makeTagsFile() {
 
-        Gson gson = new Gson();
-        File f = new File(profiles_directory);
-
-        File[] files = f.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.toLowerCase().endsWith(".bb")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
-
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
+        allprofiles = getProfiles();
         List<String> tags = new ArrayList();
-        if (f.exists() && f.isDirectory()) {
-            for (File file : files) {
-                try {
-                    JsonArray data = new JsonArray();
-                    JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
-                    JsonParser parser = new JsonParser();
-                    data.addAll(parser.parse(json).getAsJsonArray());
 
-                    Object idata = data.get(0);
-                    ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
-                    );
-                    if (profile_properties.getTags() != null) {
-                        tags.addAll(profile_properties.getTags());
-                    }
-                    json.close();
-                } catch (IOException e) {
-                    System.out.println("BurpBountyGui line 2107:" + e.getMessage());
+        for (int i = 0; i < allprofiles.size(); i++) {
+            Object idata = allprofiles.get(0);
+            ProfilesProperties profile_properties;
+            try {
+                profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class);
+                tags.addAll(profile_properties.getTags());
+            } catch (IllegalStateException e) {
+                for (StackTraceElement element : e.getStackTrace()) {
+                    System.out.println(element);
                 }
-
+                continue;
             }
+        }
 
-            Set<String> singles = new TreeSet<>();
-            Set<String> multiples = new TreeSet<>();
+        Set<String> singles = new TreeSet<>();
+        Set<String> multiples = new TreeSet<>();
 
-            for (String x : tags) {
-                if (!multiples.contains(x)) {
-                    if (singles.contains(x)) {
-                        singles.remove(x);
-                        multiples.add(x);
-                    } else {
-                        singles.add(x);
-                    }
+        for (String x : tags) {
+            if (!multiples.contains(x)) {
+                if (singles.contains(x)) {
+                    singles.remove(x);
+                    multiples.add(x);
+                } else {
+                    singles.add(x);
                 }
             }
+        }
 
-            tags.clear();
-            tags.addAll(singles);
-            tags.addAll(multiples);
-            File file = new File(profiles_directory + File.separator + "tags.txt");
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
+        tags.clear();
+        tags.addAll(singles);
+        tags.addAll(multiples);
+        File file = new File(profiles_directory + File.separator + "tags.txt");
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        List<String> existenttags = readFile(profiles_directory + File.separator + "tags.txt");
+        for (String tag : tags) {
+            if (!existenttags.contains(tag)) {
+                addNewTag(tag);
+
             }
-
-            List<String> existenttags = readFile(profiles_directory + File.separator + "tags.txt");
-            for (String tag : tags) {
-                if (!existenttags.contains(tag)) {
-                    addNewTag(tag);
-
-                }
-            }
-        } else {
-            System.out.println("Profile directory don't exist");
         }
     }
 
@@ -1947,7 +627,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
                 if (checked) {
                     try {
-                        Gson gson = new Gson();
+                        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+                        Gson gson = builder.create();
                         JsonArray json2 = new JsonArray();
                         List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
                         }.getType());
@@ -1955,67 +636,102 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         String profile_name = model.getValueAt(row, 1).toString();
 
                         JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new FileReader(profiles_directory.concat(profile_name.concat(".bb"))));
-                        JsonParser parser = new JsonParser();
-                        data.addAll(parser.parse(json).getAsJsonArray());
-
-                        Object idata = data.get(0);
-                        ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
-                        );
-
-                        profile_properties.setEnabled(true);
-
-                        newjson.clear();
-                        newjson.add(profile_properties);
-                        FileOutputStream fileStream = new FileOutputStream(profiles_directory.concat(profile_name.concat(".bb")));
-                        String fjson = gson.toJson(newjson);
-                        OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-                        writer.write(fjson);
+                        JsonReader json;
+                        OutputStreamWriter writer;
+                        try ( FileReader reader = new FileReader(profiles_directory + File.separator + profile_name.concat(".bb"))) {
+                            json = new JsonReader(reader);
+                            JsonParser parser = new JsonParser();
+                            data.addAll(parser.parse(json).getAsJsonArray());
+                            Object idata = data.get(0);
+                            ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
+                            );
+                            profile_properties.setEnabled(true);
+                            newjson.clear();
+                            newjson.add(profile_properties);
+                            FileOutputStream fileStream = new FileOutputStream(profiles_directory + File.separator + profile_name.concat(".bb"));
+                            String fjson = gson.toJson(newjson);
+                            writer = new OutputStreamWriter(fileStream, "UTF-8");
+                            writer.write(fjson);
+                        }
                         writer.close();
                         json.close();
+                        checkProfilesProperties(profiles_directory);
 
-                    } catch (IOException ex) {
-                        callbacks.printError("BurpBountyGui line 1956:" + ex.getMessage());
+                    } catch (Exception ex) {
+                        System.out.println("BurpBountyGui line 1956:" + ex.getMessage());
+                        for (StackTraceElement element : ex.getStackTrace()) {
+                            System.out.println(element);
+                        }
                     }
                 } else {
                     try {
-                        Gson gson = new Gson();
+                        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+                        Gson gson = builder.create();
                         JsonArray json2 = new JsonArray();
                         List<ProfilesProperties> newjson = gson.fromJson(json2, new TypeToken<List<ProfilesProperties>>() {
                         }.getType());
                         String profile_name = model.getValueAt(row, 1).toString();
                         JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new FileReader(profiles_directory.concat(profile_name.concat(".bb"))));
-                        JsonParser parser = new JsonParser();
-                        data.addAll(parser.parse(json).getAsJsonArray());
-
-                        Object idata = data.get(0);
-                        ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
-                        );
-
-                        profile_properties.setEnabled(false);
-
-                        newjson.clear();
-                        newjson.add(profile_properties);
-                        FileOutputStream fileStream = new FileOutputStream(profiles_directory.concat(profile_name.concat(".bb")));
-                        String fjson = gson.toJson(newjson);
-                        OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");
-                        writer.write(fjson);
-                        writer.close();
+                        JsonReader json;
+                        try ( FileReader reader = new FileReader(profiles_directory + File.separator + profile_name.concat(".bb"))) {
+                            json = new JsonReader(reader);
+                            JsonParser parser = new JsonParser();
+                            data.addAll(parser.parse(json).getAsJsonArray());
+                            Object idata = data.get(0);
+                            ProfilesProperties profile_properties = gson.fromJson(idata.toString(), ProfilesProperties.class
+                            );
+                            profile_properties.setEnabled(false);
+                            newjson.clear();
+                            newjson.add(profile_properties);
+                            FileOutputStream fileStream = new FileOutputStream(profiles_directory + File.separator + profile_name.concat(".bb"));
+                            String fjson = gson.toJson(newjson);
+                            try ( OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8")) {
+                                writer.write(fjson);
+                            }
+                        }
                         json.close();
+                        checkProfilesProperties(profiles_directory);
 
-                    } catch (IOException ex) {
-                        callbacks.printError("BurpBountyGui line 1956:" + ex.getMessage());
+                    } catch (Exception ex) {
+                        System.out.println("BurpBountyGui line 1956:" + ex.getMessage());
+                        for (StackTraceElement element : ex.getStackTrace()) {
+                            System.out.println(element);
+                        }
                     }
                 }
+
             }
 
         }
     }
 
+
+    public int getContentLength(IHttpRequestResponse response) {
+        IResponseInfo response_info;
+        try {
+            response_info = helpers.analyzeResponse(response.getResponse());
+        } catch (NullPointerException ex) {
+            System.out.println("Utils line 1279: " + ex.getMessage());
+            return 0;
+        }
+
+        int ContentLength = 0;
+
+        for (String headers : response_info.getHeaders()) {
+            if (headers.toUpperCase().startsWith("CONTENT-LENGTH:")) {
+                ContentLength = Integer.parseInt(headers.split("\\s+")[1]);
+                break;
+            }
+        }
+        return ContentLength;
+    }
+
+   
+
     public void showProfiles(String Tag) {
-        JsonArray json = initJson();
-        Gson gson = new Gson();
+        JsonArray json = getProfiles();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
         ProfilesProperties profile_property;
         //model for active profiles
         model.setNumRows(0);
@@ -2030,8 +746,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
         table3.getColumnModel().getColumn(2).setMaxWidth(150);
         table3.getColumnModel().getColumn(1).setPreferredWidth(850);
 
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table3.getModel());
-        table3.setRowSorter(sorter);
+        TableRowSorter<TableModel> sorter3 = new TableRowSorter<>(table3.getModel());
+        table3.setRowSorter(sorter3);
+        List<RowSorter.SortKey> sortKeys3 = new ArrayList<>();
+        sortKeys3.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        sorter3.setSortKeys(sortKeys3);
+        sorter3.sort();
+
         table3.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table3.getModel().addTableModelListener(new profilesModelListener());
 
@@ -2050,6 +771,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         TableRowSorter<TableModel> sorter1 = new TableRowSorter<>(table1.getModel());
         table1.setRowSorter(sorter1);
+        List<RowSorter.SortKey> sortKeys1 = new ArrayList<>();
+        sortKeys1.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        sorter1.setSortKeys(sortKeys1);
+        sorter1.sort();
         table1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table1.getModel().addTableModelListener(new profilesModelListener());
 
@@ -2068,6 +793,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         TableRowSorter<TableModel> sorter2 = new TableRowSorter<>(table2.getModel());
         table2.setRowSorter(sorter2);
+        List<RowSorter.SortKey> sortKeys2 = new ArrayList<>();
+        sortKeys2.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        sorter2.setSortKeys(sortKeys1);
+        sorter2.sort();
         table2.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table2.getModel().addTableModelListener(new profilesModelListener());
 
@@ -2079,11 +808,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
                 if (Tag.equals("All")) {
                     if (profile_property.getScanner() == 1) {
-                        model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                        model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                     } else if (profile_property.getScanner() == 2) {
-                        model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                        model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                     } else if (profile_property.getScanner() == 3) {
-                        model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                        model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
 
                     }
 
@@ -2093,23 +822,26 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         for (String tag : profile_property.getTags()) {
                             if (tag.equals(Tag) || Tag.isEmpty() || Tag.equals("All")) {
                                 if (profile_property.getScanner() == 1) {
-                                    model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                                    model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                                 } else if (profile_property.getScanner() == 2) {
-                                    model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                                    model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                                 } else if (profile_property.getScanner() == 3) {
-                                    model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                                    model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
 
                                 }
 
                             }
                         }
                     } catch (NullPointerException e) {
+                        for (StackTraceElement element : e.getStackTrace()) {
+                            System.out.println(element);
+                        }
                         if (profile_property.getScanner() == 1) {
-                            model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                            model.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                         } else if (profile_property.getScanner() == 2) {
-                            model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                            model2.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
                         } else if (profile_property.getScanner() == 3) {
-                            model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getName(), profile_property.getAuthor()});
+                            model1.addRow(new Object[]{profile_property.getEnabled(), profile_property.getProfileName(), profile_property.getAuthor()});
 
                         }
 
@@ -2121,7 +853,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     public void deleteProfile(JTable table) {
 
-        Gson gson = new Gson();
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        Gson gson = builder.create();
         File f = new File(profiles_directory);
 
         File[] files = f.listFiles(new FilenameFilter() {
@@ -2141,7 +874,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 for (Integer row : rows) {
                     try {
                         JsonArray data = new JsonArray();
-                        JsonReader json = new JsonReader(new FileReader(file.getAbsolutePath()));
+                        FileReader reader = new FileReader(file.getAbsolutePath());
+                        JsonReader json = new JsonReader(reader);
                         JsonParser parser = new JsonParser();
                         data.addAll(parser.parse(json).getAsJsonArray());
 
@@ -2150,17 +884,24 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         );
                         String pname = table.getValueAt(row, 1).toString();
 
-                        if (pname.equals(i.getName())) {
+                        if (pname.equals(i.getProfileName())) {
+                            reader.close();
                             json.close();
-                            file.delete();
+                            Files.delete(file.toPath());
                             break;
                         }
+
+                        reader.close();
                     } catch (IOException e) {
-                        callbacks.printError("BurpBountyGui line 2490:" + e.getMessage());
+                        System.out.println("BurpBountyGui line 2490:" + e.getMessage());
+                        for (StackTraceElement element : e.getStackTrace()) {
+                            System.out.println(element);
+                        }
                     }
                 }
             }
         }
+        checkProfilesProperties(profiles_directory);
         showProfiles("All");
     }
 
@@ -2170,30 +911,32 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }
 
     public String getFilename() {
-
         return filename;
     }
 
     public void addNewTag(String str) {
         if (!str.isEmpty()) {
             try {
-                BufferedWriter out = new BufferedWriter(new FileWriter(profiles_directory.concat("tags.txt"), true));
+                BufferedWriter out = new BufferedWriter(new FileWriter(profiles_directory + File.separator + "tags.txt", true));
                 out.write(str.concat("\n"));
                 out.close();
             } catch (IOException e) {
                 System.out.println("BurpBountyGui line 2497:" + e.getMessage());
+                for (StackTraceElement element : e.getStackTrace()) {
+                    System.out.println(element);
+                }
             }
         }
     }
 
     public void removeTag(String tag) {
-        String file = profiles_directory.concat("tags.txt");
+        String file = profiles_directory + File.separator + "tags.txt";
         try {
 
             File inFile = new File(file);
 
             if (!inFile.isFile()) {
-                callbacks.printError("BurpBountyGui line 2509:");
+                System.out.println("BurpBountyGui line 2509:");
                 return;
             }
 
@@ -2219,31 +962,34 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             //Delete the original file
             if (!inFile.delete()) {
-                callbacks.printError("Could not delete file, line 2535");
+                System.out.println("Could not delete file, line 2535");
                 return;
             }
 
             //Rename the new file to the filename the original file had.
             if (!tempFile.renameTo(inFile)) {
-                callbacks.printError("Could not rename file line 2541");
+                System.out.println("Could not rename file line 2541");
             }
 
         } catch (FileNotFoundException ex) {
-            callbacks.printError("BurpBountyGui line 2559:" + ex.getMessage());
+            System.out.println("BurpBountyGui line 2559:" + ex.getMessage());
+            for (StackTraceElement element : ex.getStackTrace()) {
+                System.out.println(element);
+            }
         } catch (IOException ex) {
-            callbacks.printError("BurpBountyGui line 2562:" + ex.getMessage());
+            System.out.println("BurpBountyGui line 2562:" + ex.getMessage());
+            for (StackTraceElement element : ex.getStackTrace()) {
+                System.out.println(element);
+            }
         }
     }
 
     public void showTags() {
 
-        List<String> tags = readFile(profiles_directory.concat("tags.txt"));
+        List<String> tags = readFile(profiles_directory + File.separator + "tags.txt");
 
         newTagCombo2.removeAllItems();
         tagmanager.removeAllElements();
-        if (!tags.contains("All")) {
-            tags.add("All");
-        }
         for (String tag : tags) {
             newTagCombo2.addItem(tag);
             tagmanager.addElement(tag);
@@ -2251,11 +997,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
         newTagCombo2.setSelectedItem("All");
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -2280,6 +1021,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jPopupMenu3 = new javax.swing.JPopupMenu();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jPopupMenu4 = new javax.swing.JPopupMenu();
+        jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jSplitPane1 = new javax.swing.JSplitPane();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
@@ -2319,13 +1064,20 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jButton11 = new javax.swing.JButton();
         jLabel48 = new javax.swing.JLabel();
         jLabel49 = new javax.swing.JLabel();
-        jPanel8 = new javax.swing.JPanel();
-        jLabel53 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel57 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel58 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -2380,6 +1132,22 @@ public class BurpBountyGui extends javax.swing.JPanel {
         });
         jPopupMenu3.add(jMenuItem7);
 
+        jMenuItem8.setText("Enable");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        jPopupMenu4.add(jMenuItem8);
+
+        jMenuItem9.setText("Disable");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        jPopupMenu4.add(jMenuItem9);
+
         setAutoscrolls(true);
 
         jTabbedPane2.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -2414,8 +1182,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
         jtabpane.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
 
         table3.setAutoCreateRowSorter(true);
-        table3.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        table3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         table3.setModel(model);
+        table3.setComponentPopupMenu(jPopupMenu1);
         table3.getTableHeader().setReorderingAllowed(false);
         table3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -2458,11 +1227,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(button13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton16, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(997, Short.MAX_VALUE))
+                .addContainerGap(860, Short.MAX_VALUE))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
                     .addGap(133, 133, 133)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 967, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 830, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         jPanel3Layout.setVerticalGroup(
@@ -2474,15 +1243,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(jButton2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(button13)
-                .addContainerGap(506, Short.MAX_VALUE))
+                .addContainerGap(743, Short.MAX_VALUE))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 835, Short.MAX_VALUE))
         );
 
         jtabpane.addTab("     Active Profiles     ", jPanel3);
 
         table1.setAutoCreateRowSorter(true);
-        table1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        table1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         table1.setModel(model1);
         table1.setRowSorter(null);
         table1.getTableHeader().setReorderingAllowed(false);
@@ -2527,11 +1296,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(button14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton17, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(997, Short.MAX_VALUE))
+                .addContainerGap(860, Short.MAX_VALUE))
             .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel5Layout.createSequentialGroup()
                     .addGap(133, 133, 133)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 967, Short.MAX_VALUE)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 830, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         jPanel5Layout.setVerticalGroup(
@@ -2543,15 +1312,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(button14)
-                .addContainerGap(506, Short.MAX_VALUE))
+                .addContainerGap(743, Short.MAX_VALUE))
             .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 835, Short.MAX_VALUE))
         );
 
         jtabpane.addTab("   Passive Request Profiles   ", jPanel5);
 
         table2.setAutoCreateRowSorter(true);
-        table2.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        table2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         table2.setModel(model2);
         table2.setRowSorter(null);
         table2.getTableHeader().setReorderingAllowed(false);
@@ -2596,11 +1365,11 @@ public class BurpBountyGui extends javax.swing.JPanel {
                     .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(button15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(997, Short.MAX_VALUE))
+                .addContainerGap(860, Short.MAX_VALUE))
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel7Layout.createSequentialGroup()
                     .addGap(133, 133, 133)
-                    .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 967, Short.MAX_VALUE)
+                    .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 830, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         jPanel7Layout.setVerticalGroup(
@@ -2612,9 +1381,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(jButton4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(button15)
-                .addContainerGap(506, Short.MAX_VALUE))
+                .addContainerGap(743, Short.MAX_VALUE))
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE))
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 835, Short.MAX_VALUE))
         );
 
         jtabpane.addTab("   Passive Response Profiles   ", jPanel7);
@@ -2728,7 +1497,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addContainerGap()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel50, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel51)
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -2736,6 +1504,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(text11, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel49)
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -2743,7 +1512,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                                     .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 297, Short.MAX_VALUE)))
+                        .addGap(0, 160, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -2761,7 +1530,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator13, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel49)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel48)
@@ -2772,79 +1541,148 @@ public class BurpBountyGui extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton12))
                     .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(329, Short.MAX_VALUE))
+                .addContainerGap(544, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButton1, jButton5});
 
         jTabbedPane2.addTab("     Options     ", jPanel4);
 
-        jLabel53.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
-        jLabel53.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel53.setText("About");
-
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jLabel1.setText("<html>Burp Bounty is a web application vulnerability scanner. This Burp Suite extension allows you, in a quick and simple way, to improve the active <br/>and passive burpsuite scanner by means of personalized rules through a very intuitive graphical interface.Through an advanced search of<br/> patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.</html>");
-
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel3.setText("<html>More info at: <a href=\\\"\\\">https://burpbounty.net</a></html>");
-        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+        jPanel10.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel3gowebBurp(evt);
+                goWebBurp(evt);
             }
         });
 
+        jLabel57.setFont(new java.awt.Font("Lucida Grande", 1, 36)); // NOI18N
+        jLabel57.setForeground(new java.awt.Color(229, 92, 58));
+        jLabel57.setText("About Pro.");
+
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel12.setText("<html><p style=\"text-align: justify;\"> Burp Bounty Pro is a Burp Suite Pro extension that improves the active and passive scanner by means of advanced and customized vulnerability profiles through a very intuitive graphical interface.  <br><br> On the one hand, it acts as a the most advanced and flexible web application vulnerability scanner, being able to add your own vulnerability profiles, or add your own custom payloads/requests to the existing vulnerability profiles.  <br><br> On the other hand, it can simulate a manual pentest in search of maximum efficiency, without making unnecessary requests, it scans the targets only for those potentially vulnerable parameters, with the most effective payloads.   <br><br> Finally, this extension also helps you by collecting valuable information when performing the manual pentest, such as possible vulnerable parameters, versions detection and more.</p></html>");
+        jLabel12.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel6.setText("<html>Burp Bounty version 3.6</html>");
+        jLabel6.setForeground(new java.awt.Color(0, 78, 112));
+        jLabel6.setText("You are using Burp Bounty Free 4.0");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 102, 51));
-        jLabel7.setText("<html>Same scanner, different vulnerabilities</html>");
+        jLabel22.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel22.setText("By using this software your are accepting the");
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jLabel2.setText("<html>If you need more power, I invite you to try the new Burp Bounty Pro, which gives you more power and automation during your manual pentests.</html>");
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 30)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(229, 99, 58));
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel7.setText("<html>Ride First<br> on Bug Hunting.</html>");
+
+        jLabel23.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/logo_free.png"))); // NOI18N
+
+        jLabel24.setText("<html><a href=\\\"\\\">EULA</a></html>");
+        jLabel24.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel24goWeb(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel1.setText("<html><p style=\"text-align: justify;\"> Burp Bounty Free is a Burp Suite extension that allows you, in a quick and simple way, to improve the active and passive Burp Suite scanner by means of personalized profiles through a very intuitive graphical interface. Through an advanced search of patterns and an improvement of the payload to send, we can create our own issue profiles both in the active scanner and in the passive.</p></html>");
+
+        jLabel58.setFont(new java.awt.Font("Lucida Grande", 1, 36)); // NOI18N
+        jLabel58.setForeground(new java.awt.Color(229, 92, 58));
+        jLabel58.setText("About Free.");
+
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel3.setText("<html><p style=\"text-align: justify;\">If you need more power, I invite you to try the new Burp Bounty Pro, which gives you more power and automation during your manual pentests.</p></html>");
+
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(0, 78, 112));
+        jLabel10.setText("<html>More information at: <a href=\\\"\\\">https://burpbounty.net</a></html>");
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel58)
+                            .addComponent(jLabel57)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                .addComponent(jLabel23, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(202, 202, 202))))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGap(206, 206, 206)
+                        .addComponent(jLabel22)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGap(131, 131, 131)
+                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(1138, Short.MAX_VALUE))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addComponent(jLabel58)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel57)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(133, Short.MAX_VALUE))
+        );
+
+        jTabbedPane2.addTab("     About     ", jPanel10);
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Tabla.png"))); // NOI18N
+        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                goImageWeb(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel53)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(230, Short.MAX_VALUE))
+                .addGap(19, 19, 19)
+                .addComponent(jLabel5)
+                .addContainerGap(789, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel53)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(473, Short.MAX_VALUE))
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 714, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 271, Short.MAX_VALUE))
         );
 
-        jTabbedPane2.addTab("     About     ", jPanel8);
+        jTabbedPane2.addTab("     Burp Bounty Pro     ", jPanel8);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -2859,17 +1697,15 @@ public class BurpBountyGui extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void showprofiles(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_showprofiles
-//        if (jTabbedPane2.isShowing()) {
-//            showProfiles("All");
-//            showTags();
-//        }
+
     }//GEN-LAST:event_showprofiles
 
     private void profilesReload(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_profilesReload
-        //checkProfilesProperties();
+
         String fileload = text11.getText();
 
-        profiles_directory = fileload + File.separator;
+        profiles_directory = fileload;
+        checkProfilesProperties(profiles_directory);
 
         makeTagsFile();
         showTags();
@@ -2879,7 +1715,6 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
     private void loadConfigFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadConfigFile
         loadConfigFile();
-        //checkProfilesProperties();
     }//GEN-LAST:event_loadConfigFile
 
     private void removeTagManager(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTagManager
@@ -2915,6 +1750,7 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private void selectTag(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selectTag
         if ((evt.getStateChange() == java.awt.event.ItemEvent.SELECTED)) {
             showProfiles(newTagCombo2.getItemAt(newTagCombo2.getSelectedIndex()));
+
         }
     }//GEN-LAST:event_selectTag
 
@@ -2957,11 +1793,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             if (result == JOptionPane.OK_OPTION) {
                 if (!profile.text1.getText().isEmpty()) {
-                    saveActiveAttackValues(profile);
+                    ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+                    profile_manager.saveActiveAttackValues(profile);
+                    checkProfilesProperties(profiles_directory);
                     showProfiles("All");
                     showTags();
                 }
-
             }
         }
     }//GEN-LAST:event_addActiveProfile
@@ -3037,12 +1874,12 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         JDialog dialog = jopane1.createDialog(jopane1, "Edit Active Profile");
 
-        dialog.setSize(new Dimension(900, 760));
+        dialog.setSize(new Dimension(920, 760));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(null);
-        profile.text1.setEditable(false);
 
-        setActiveAttackValues(profile_name, profile);
+        ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+        profile_manager.setActiveAttackValues(profile_name, allprofiles, profile);
 
         dialog.setVisible(true);
         Object selectedValue = jopane1.getValue();
@@ -3051,8 +1888,8 @@ public class BurpBountyGui extends javax.swing.JPanel {
             result = ((Integer) selectedValue).intValue();
 
             if (result == JOptionPane.OK_OPTION) {
-
-                saveActiveAttackValues(profile);
+                profile_manager.saveActiveAttackValues(profile);
+                checkProfilesProperties(profiles_directory);
                 showProfiles("All");
                 showTags();
             }
@@ -3077,7 +1914,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             if (result == JOptionPane.OK_OPTION) {
                 if (!profile.text1.getText().isEmpty()) {
-                    saveRequestAttackValues(profile);
+                    ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+                    profile_manager.saveRequestAttackValues(profile);
+                    checkProfilesProperties(profiles_directory);
                     showProfiles("All");
                     showTags();
                 }
@@ -3095,22 +1934,21 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         JDialog dialog = jopane1.createDialog(jopane1, "Edit Passive Request Profile");
 
-        dialog.setSize(new Dimension(900, 760));
+        dialog.setSize(new Dimension(920, 760));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(null);
-        profile.text1.setEditable(false);
 
-        setRequestAttackValues(profile_name, profile);
+        ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+        profile_manager.setRequestAttackValues(profile_name, allprofiles, profile);
 
         dialog.setVisible(true);
         Object selectedValue = jopane1.getValue();
 
         if (selectedValue != null) {
             result = ((Integer) selectedValue).intValue();
-
             if (result == JOptionPane.OK_OPTION) {
-
-                saveRequestAttackValues(profile);
+                profile_manager.saveRequestAttackValues(profile);
+                checkProfilesProperties(profiles_directory);
                 showProfiles("All");
                 showTags();
             }
@@ -3135,7 +1973,9 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
             if (result == JOptionPane.OK_OPTION) {
                 if (!profile.text1.getText().isEmpty()) {
-                    saveResponseAttackValues(profile);
+                    ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+                    profile_manager.saveResponseAttackValues(profile);
+                    checkProfilesProperties(profiles_directory);
                     showProfiles("All");
                     showTags();
                 }
@@ -3152,35 +1992,62 @@ public class BurpBountyGui extends javax.swing.JPanel {
 
         JDialog dialog = jopane1.createDialog(jopane1, "Edit Passive Response Profile");
 
-        dialog.setSize(new Dimension(900, 760));
+        dialog.setSize(new Dimension(920, 760));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(null);
-        profile.text1.setEditable(false);
 
-        setResponseAttackValues(profile_name, profile);
+        ProfilesManager profile_manager = new ProfilesManager(profiles_directory);
+        profile_manager.setResponseAttackValues(profile_name, allprofiles, profile);
 
         dialog.setVisible(true);
         Object selectedValue = jopane1.getValue();
 
         if (selectedValue != null) {
             result = ((Integer) selectedValue).intValue();
-
             if (result == JOptionPane.OK_OPTION) {
-
-                saveResponseAttackValues(profile);
+                profile_manager.saveResponseAttackValues(profile);
+                checkProfilesProperties(profiles_directory);
                 showProfiles("All");
                 showTags();
             }
         }
     }//GEN-LAST:event_editResponseProfile
 
-    private void jLabel3gowebBurp(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3gowebBurp
+
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
+
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void jLabel24goWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel24goWeb
+        try {
+            Desktop.getDesktop().browse(new URI("https://burpbounty.net/legal"));
+        } catch (URISyntaxException | IOException e) {
+            callbacks.printError("Burp Bounty Gui 4383 Help web not opened: " + e);
+        }
+    }//GEN-LAST:event_jLabel24goWeb
+
+    private void goWebBurp(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goWebBurp
         try {
             Desktop.getDesktop().browse(new URI("https://burpbounty.net"));
         } catch (URISyntaxException | IOException e) {
-            callbacks.printError("Active profile line 3178 Help web not opened: " + e);
+           callbacks.printError("Active profile line 2109 Help web not opened: " + e);
         }
-    }//GEN-LAST:event_jLabel3gowebBurp
+    }//GEN-LAST:event_goWebBurp
+
+    private void goImageWeb(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goImageWeb
+          try {
+            Desktop.getDesktop().browse(new URI("https://burpbounty.net"));
+        } catch (URISyntaxException | IOException e) {
+            callbacks.printError("Burp Bounty Gui 4383 Help web not opened: " + e);
+        }
+    }//GEN-LAST:event_goImageWeb
+
+    
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -3208,16 +2075,22 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel22;
+    public javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
-    private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel57;
+    private javax.swing.JLabel jLabel58;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JMenuItem jMenuItem1;
@@ -3227,7 +2100,10 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     public javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel3;
     public javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -3237,11 +2113,13 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JPopupMenu jPopupMenu3;
+    private javax.swing.JPopupMenu jPopupMenu4;
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane13;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JSeparator jSeparator13;
+    private javax.swing.JSplitPane jSplitPane1;
     public javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jtabpane;
     public javax.swing.JList<String> listtagmanager;
@@ -3251,4 +2129,5 @@ public class BurpBountyGui extends javax.swing.JPanel {
     private javax.swing.JTable table3;
     public javax.swing.JTextField text11;
     // End of variables declaration//GEN-END:variables
+
 }

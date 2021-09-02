@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 public class Headers {
 
-    String type;
-    String match;
-    String replace;
-    String regex;
+    String type = "";
+    String match = "";
+    String replace = "";
+    String regex = "";
 
     Headers(String type, String match, String replace, String regex) {
         this.type = type;

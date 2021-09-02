@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
 import burp.IBurpExtenderCallbacks;
 import com.google.gson.JsonArray;
@@ -35,7 +35,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -72,8 +74,10 @@ public class ResponseProfile extends javax.swing.JPanel {
     DefaultTableModel model9;
     DefaultTableModel model10;
     DefaultTableModel modelgrep;
+    DefaultTableModel rulemodel;
     IBurpExtenderCallbacks callbacks;
     String filename;
+    JComboBox operator;
 
     public ResponseProfile(IBurpExtenderCallbacks callbacks) {
 
@@ -89,6 +93,7 @@ public class ResponseProfile extends javax.swing.JPanel {
         headers = new ArrayList();
         variationAttributes = new ArrayList();
         insertionPointType = new ArrayList();
+        operator = new JComboBox();
         this.callbacks = callbacks;
 
         modelgrep = new DefaultTableModel() {
@@ -102,12 +107,12 @@ public class ResponseProfile extends javax.swing.JPanel {
                 }
                 return clazz;
             }
-
+            
             @Override
             public boolean isCellEditable(int row, int column) {
-                if (column == 1) {
+                if(row == 0 && column == 1){
                     return false;
-                } else {
+                }else{
                     return true;
                 }
             }
@@ -116,15 +121,18 @@ public class ResponseProfile extends javax.swing.JPanel {
 
         initComponents();
 
-        if (callbacks.loadExtensionSetting("filename") != null) {
-            filename = callbacks.loadExtensionSetting("filename")+ File.separator;;
+       if (callbacks.loadExtensionSetting("filename") != null) {
+            filename = callbacks.loadExtensionSetting("filename") + File.separator;
         } else {
-            filename = System.getProperty("user.home")+ File.separator;;
+            filename = System.getProperty("user.home") + File.separator;
         }
         showTags();
         showGrepsTable();
 
     }
+
+   
+  
 
     public String getClipboardContents() {
         //Get clipboard contents for implement grep and match paste button
@@ -137,7 +145,7 @@ public class ResponseProfile extends javax.swing.JPanel {
             try {
                 result = (String) contents.getTransferData(DataFlavor.stringFlavor);
             } catch (UnsupportedFlavorException | IOException ex) {
-                callbacks.printError("ResponseProfile line 151: " + ex.getMessage());
+                System.out.println("ResponseProfile line 151: "+ex.getMessage());
             }
         }
         return result;
@@ -174,9 +182,9 @@ public class ResponseProfile extends javax.swing.JPanel {
                 bufferreader.close();
                 showGreps(grep);
             } catch (FileNotFoundException ex) {
-                callbacks.printError("ResponseProfile line 189:");
+                System.out.println("ResponseProfile line 189:");
             } catch (IOException ex) {
-                callbacks.printError("ResponseProfile line 193:");
+                System.out.println("ResponseProfile line 193:");
             }
         }
     }
@@ -202,29 +210,33 @@ public class ResponseProfile extends javax.swing.JPanel {
             }
             return data;
         } catch (Exception e) {
-            callbacks.printError("ResponseProfile line 216: " + e.getMessage());
+            System.out.println("ResponseProfile line 216: "+e.getMessage());
             return null;
         }
     }
 
     public void showGrepsTable() {
-
+        
         modelgrep.setNumRows(0);
         modelgrep.setColumnCount(0);
         modelgrep.addColumn("Enabled");
         modelgrep.addColumn("Operator");
-        modelgrep.addColumn("Grep Value");
+        modelgrep.addColumn("Value");
+        
+        operator.addItem("Or");
+        operator.addItem("And");
 
         table4.getColumnModel().getColumn(0).setPreferredWidth(7);
         table4.getColumnModel().getColumn(1).setPreferredWidth(15);
         table4.getColumnModel().getColumn(2).setPreferredWidth(460);
+        table4.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(operator));
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table4.getModel());
         table4.setRowSorter(sorter);
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
         sorter.setSortKeys(sortKeys);
         sorter.sort();
-
+        
     }
 
     public void showGreps(List<String> greps) {
@@ -232,13 +244,25 @@ public class ResponseProfile extends javax.swing.JPanel {
         for (String grepline : greps) {
             List<String> array = Arrays.asList(grepline.split(",",3));
             if (array.size() > 1) {
-                if (array.get(0).equals("true")) {
-                    modelgrep.addRow(new Object[]{true, array.get(1), array.get(2)});
+                if (modelgrep.getRowCount() == 0) {
+                    if (array.get(0).equals("true")) {
+                        modelgrep.addRow(new Object[]{true, "", array.get(2)});
+                    } else {
+                        modelgrep.addRow(new Object[]{false, "", array.get(2)});
+                    }
                 } else {
-                    modelgrep.addRow(new Object[]{false, array.get(1), array.get(2)});
+                    if (array.get(0).equals("true")) {
+                        modelgrep.addRow(new Object[]{true, array.get(1), array.get(2)});
+                    } else {
+                        modelgrep.addRow(new Object[]{false, array.get(1), array.get(2)});
+                    }
                 }
             } else {
-                modelgrep.addRow(new Object[]{true, "Or", grepline});
+                if (modelgrep.getRowCount() == 0) {
+                    modelgrep.addRow(new Object[]{true, "", grepline});
+                } else {
+                    modelgrep.addRow(new Object[]{true, "Or", grepline});
+                }
             }
         }
     }
@@ -250,7 +274,7 @@ public class ResponseProfile extends javax.swing.JPanel {
                 out.write(str.concat("\n"));
                 out.close();
             } catch (IOException e) {
-                callbacks.printError("ResponseProfile line 281: " + "exception occoured" + e.getMessage());
+                System.out.println("ResponseProfile line 281: "+"exception occoured" + e.getMessage());
             }
         }
     }
@@ -262,7 +286,7 @@ public class ResponseProfile extends javax.swing.JPanel {
             File inFile = new File(file);
 
             if (!inFile.isFile()) {
-                callbacks.printError("ResponseProfile line 293: " + "Parameter is not an existing file");
+                System.out.println("ResponseProfile line 293: "+"Parameter is not an existing file");
                 return;
             }
 
@@ -288,19 +312,19 @@ public class ResponseProfile extends javax.swing.JPanel {
 
             //Delete the original file
             if (!inFile.delete()) {
-                callbacks.printError("ResponseProfile line 319: " + "Could not delete file");
+                System.out.println("ResponseProfile line 319: "+"Could not delete file");
                 return;
             }
 
             //Rename the new file to the filename the original file had.
             if (!tempFile.renameTo(inFile)) {
-                callbacks.printError("ResponseProfile line 325: " + "Could not rename file");
+                System.out.println("ResponseProfile line 325: "+"Could not rename file");
             }
 
         } catch (FileNotFoundException ex) {
-            callbacks.printError("ResponseProfile line 329:");
+            System.out.println("ResponseProfile line 329:");
         } catch (IOException ex) {
-            callbacks.printError("ResponseProfile line 333:");
+            System.out.println("ResponseProfile line 333:");
         }
     }
 
@@ -325,9 +349,9 @@ public class ResponseProfile extends javax.swing.JPanel {
                 records.add(line);
             }
             reader.close();
-
+            
         } catch (Exception e) {
-            callbacks.printError("ResponsePorfile line 372:" + e.getMessage());
+            System.out.println("ResponsePorfile line 372:"+e.getMessage());
         }
         return records;
     }
@@ -347,6 +371,7 @@ public class ResponseProfile extends javax.swing.JPanel {
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
+        buttonGroup7 = new javax.swing.ButtonGroup();
         text1 = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
@@ -390,6 +415,12 @@ public class ResponseProfile extends javax.swing.JPanel {
         button8 = new javax.swing.JButton();
         button7 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        check73 = new javax.swing.JCheckBox();
+        text73 = new javax.swing.JTextField();
+        negativeURL = new javax.swing.JCheckBox();
+        first_match = new javax.swing.JRadioButton();
+        jLabel5 = new javax.swing.JLabel();
+        all_matches = new javax.swing.JRadioButton();
         jScrollPane10 = new javax.swing.JScrollPane();
         jPanel12 = new javax.swing.JPanel();
         jLabel32 = new javax.swing.JLabel();
@@ -439,8 +470,6 @@ public class ResponseProfile extends javax.swing.JPanel {
         jLabel47 = new javax.swing.JLabel();
         newTagb = new javax.swing.JButton();
 
-        setPreferredSize(new java.awt.Dimension(800, 600));
-
         text1.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
 
         jLabel18.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
@@ -453,7 +482,7 @@ public class ResponseProfile extends javax.swing.JPanel {
 
         headerstab.setAutoscrolls(true);
         headerstab.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        headerstab.setPreferredSize(new java.awt.Dimension(780, 570));
+        headerstab.setPreferredSize(new java.awt.Dimension(800, 600));
         headerstab.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 headerstabStateChanged(evt);
@@ -573,6 +602,28 @@ public class ResponseProfile extends javax.swing.JPanel {
 
         jLabel1.setText("Match Type: ");
 
+        check73.setText("URL Extension");
+
+        negativeURL.setText("Negative match");
+
+        buttonGroup7.add(first_match);
+        first_match.setText("Only once per domain");
+        first_match.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                first_matchstringMatchType(evt);
+            }
+        });
+
+        jLabel5.setText("Show issue:");
+
+        buttonGroup7.add(all_matches);
+        all_matches.setText("All times in a domain");
+        all_matches.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                all_matchesregexMatchType(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
@@ -610,12 +661,18 @@ public class ResponseProfile extends javax.swing.JPanel {
                                         .addComponent(check71))
                                     .addGap(15, 15, 15)
                                     .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(text71, javax.swing.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
-                                        .addComponent(text72))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(negativeCT)
-                                        .addComponent(negativeRC)))
+                                        .addGroup(jPanel11Layout.createSequentialGroup()
+                                            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(text71)
+                                                .addComponent(text72))
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(negativeCT)
+                                                .addComponent(negativeRC)))
+                                        .addGroup(jPanel11Layout.createSequentialGroup()
+                                            .addComponent(text73, javax.swing.GroupLayout.PREFERRED_SIZE, 547, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(negativeURL))))
                                 .addComponent(jLabel30, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addContainerGap()
@@ -629,18 +686,29 @@ public class ResponseProfile extends javax.swing.JPanel {
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(jLabel24, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(jLabel1)
-                                            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                .addComponent(button18, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(button10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(button7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(button19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(button18, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(button7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGap(18, 18, 18)
                                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(radio3)
-                                            .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(radio4))))))))
+                                            .addGroup(jPanel11Layout.createSequentialGroup()
+                                                .addComponent(jLabel1)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(radio3)
+                                                    .addComponent(radio4))
+                                                .addGap(85, 85, 85)
+                                                .addComponent(jLabel5)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(all_matches)
+                                                    .addComponent(first_match)))
+                                            .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(check73)))
                 .addContainerGap(42, Short.MAX_VALUE))
         );
 
@@ -657,8 +725,9 @@ public class ResponseProfile extends javax.swing.JPanel {
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textgreps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button8))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addComponent(button19)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -666,15 +735,22 @@ public class ResponseProfile extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button18))
-                    .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(button18)))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(radio4))
-                .addGap(1, 1, 1)
-                .addComponent(radio3)
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(radio4))
+                        .addGap(1, 1, 1)
+                        .addComponent(radio3))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(first_match))
+                        .addGap(1, 1, 1)
+                        .addComponent(all_matches)))
+                .addGap(18, 18, 18)
                 .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel31)
@@ -698,7 +774,12 @@ public class ResponseProfile extends javax.swing.JPanel {
                     .addComponent(check72)
                     .addComponent(text72, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(negativeRC))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(check73)
+                    .addComponent(text73, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(negativeURL))
+                .addGap(26, 26, 26)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel29)
@@ -718,7 +799,7 @@ public class ResponseProfile extends javax.swing.JPanel {
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(sp1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         jPanel11Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {button10, button18, button19, button7, button8});
@@ -1043,21 +1124,22 @@ public class ResponseProfile extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel18)
                 .addGap(18, 18, 18)
-                .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addComponent(headerstab, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(70, 70, 70))
+            .addComponent(headerstab, javax.swing.GroupLayout.DEFAULT_SIZE, 831, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(text1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel12)
                     .addComponent(textauthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel18))
-                .addGap(18, 18, 18)
-                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(headerstab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1114,8 +1196,11 @@ public class ResponseProfile extends javax.swing.JPanel {
     }//GEN-LAST:event_headerstabStateChanged
 
     private void addGrep(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addGrep
-
-        modelgrep.addRow(new Object[]{true, "Or", "Value"});
+        if (modelgrep.getRowCount() == 0) {
+            modelgrep.addRow(new Object[]{true, "", "Value"});
+        } else {
+            modelgrep.addRow(new Object[]{true, "Or", "Value"});
+        }
 
     }//GEN-LAST:event_addGrep
 
@@ -1139,25 +1224,37 @@ public class ResponseProfile extends javax.swing.JPanel {
         showGreps(lines);
     }//GEN-LAST:event_button7pasteGrep
 
+    private void first_matchstringMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_first_matchstringMatchType
+        // TODO add your handling code here:
+    }//GEN-LAST:event_first_matchstringMatchType
+
+    private void all_matchesregexMatchType(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_all_matchesregexMatchType
+        // TODO add your handling code here:
+    }//GEN-LAST:event_all_matchesregexMatchType
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTag;
+    public javax.swing.JRadioButton all_matches;
     private javax.swing.JButton button10;
     private javax.swing.JButton button18;
     private javax.swing.JButton button19;
     private javax.swing.JButton button7;
     private javax.swing.JButton button8;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.ButtonGroup buttonGroup5;
-    private javax.swing.ButtonGroup buttonGroup6;
+    public javax.swing.ButtonGroup buttonGroup1;
+    public javax.swing.ButtonGroup buttonGroup2;
+    public javax.swing.ButtonGroup buttonGroup3;
+    public javax.swing.ButtonGroup buttonGroup4;
+    public javax.swing.ButtonGroup buttonGroup5;
+    public javax.swing.ButtonGroup buttonGroup6;
+    public javax.swing.ButtonGroup buttonGroup7;
     public javax.swing.JCheckBox check1;
     public javax.swing.JCheckBox check4;
     public javax.swing.JCheckBox check71;
     public javax.swing.JCheckBox check72;
+    public javax.swing.JCheckBox check73;
     public javax.swing.JCheckBox excludehttp;
+    public javax.swing.JRadioButton first_match;
     public javax.swing.JTabbedPane headerstab;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel12;
@@ -1186,6 +1283,7 @@ public class ResponseProfile extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
@@ -1209,6 +1307,7 @@ public class ResponseProfile extends javax.swing.JPanel {
     public javax.swing.JList<String> listtag;
     public javax.swing.JCheckBox negativeCT;
     public javax.swing.JCheckBox negativeRC;
+    public javax.swing.JCheckBox negativeURL;
     public javax.swing.JComboBox<String> newTagCombo;
     private javax.swing.JButton newTagb;
     public javax.swing.JCheckBox onlyhttp;
@@ -1232,6 +1331,7 @@ public class ResponseProfile extends javax.swing.JPanel {
     public javax.swing.JTextField text4;
     public javax.swing.JTextField text71;
     public javax.swing.JTextField text72;
+    public javax.swing.JTextField text73;
     public javax.swing.JTextArea textarea1;
     public javax.swing.JTextArea textarea2;
     public javax.swing.JTextArea textarea3;

@@ -13,67 +13,77 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package burpbounty;
+package burpbountyfree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProfilesProperties {
 
-    private String Name;
-    private boolean Enabled;
-    private int Scanner;
-    private String Author;
-    private List<String> Payloads;
-    private List<String> Encoder;
-    private boolean UrlEncode;
-    private String CharsToUrlEncode;
-    private List<String> Grep;
-    private List<String> Tags;
-    private boolean PayloadResponse;
-    private boolean NotResponse;
-    private String TimeOut;
-    private boolean isTime;
-    private String contentLength;
-    private boolean iscontentLength;
-    private boolean CaseSensitive;
-    private boolean ExcludeHTTP;
-    private boolean OnlyHTTP;
-    private boolean IsContentType;
-    private String ContentType;
-    private boolean NegativeCT;
-    private boolean IsResponseCode;
-    private String ResponseCode;
-    private boolean NegativeRC;
-    private String urlextension;
-    private boolean isurlextension;
-    private boolean NegativeUrlExtension;
-    private int MatchType;
-    private int RedirType;
-    private int MaxRedir;
+    private String ProfileName;
+    private String Name = "";
+    private boolean Enabled = false;
+    private int Scanner = 0;
+    private String Author = "";
+    private List<String> Payloads = new ArrayList();
+    private List<String> Encoder = new ArrayList();
+    private boolean UrlEncode = false;
+    private String CharsToUrlEncode = "";
+    private List<String> Grep = new ArrayList();
+    private List<String> Tags = new ArrayList();
+    private boolean PayloadResponse = false;
+    private boolean NotResponse = false;
+    private String TimeOut1 = "";
+    private String TimeOut2 = "";
+    private boolean isTime = false;
+    private String contentLength = "";
+    private boolean iscontentLength = false;
+    private boolean CaseSensitive = false;
+    private boolean ExcludeHTTP = false;
+    private boolean OnlyHTTP = false;
+    private boolean IsContentType = false;
+    private String ContentType = "";
+    private String HttpResponseCode = "";
+    private boolean NegativeCT = false;
+    private boolean IsResponseCode = false;
+    private String ResponseCode = "";
+    private boolean NegativeRC = false;
+    private String urlextension = "";
+    private boolean isurlextension = false;
+    private boolean NegativeUrlExtension = false;
+    private int MatchType = 0;
+    private int Scope = 0;
+    private int RedirType = 0;
+    private int MaxRedir = 0;
     private int payloadPosition;
-    private String payloadsFile;
-    private String grepsFile;
-    private String IssueName;
-    private String IssueSeverity;
-    private String IssueConfidence;
-    private String IssueDetail;
-    private String RemediationDetail;
-    private String IssueBackground;
-    private String RemediationBackground;
-    private List<Headers> Header;
-    private List<String> VariationAttributes;
-    private List<Integer> InsertionPointType;
-    Boolean Scanas;
-    int Scantype;
-    private boolean pathDiscovery;
+    private String payloadsFile = "";
+    private String grepsFile = "";
+    private String IssueName = "";
+    private String IssueSeverity = "";
+    private String IssueConfidence = "";
+    private String IssueDetail = "";
+    private String RemediationDetail = "";
+    private String IssueBackground = "";
+    private String RemediationBackground = "";
+    private List<Headers> Header = new ArrayList();
+    private List<String> VariationAttributes = new ArrayList();
+    private List<Integer> InsertionPointType = new ArrayList();
+    private Boolean Scanas = false;
+    private int Scantype = 0;
+    private boolean pathDiscovery = false;
 
     public ProfilesProperties() {
         super();
     }
 
+    public String getProfileName() {
+        return ProfileName;
+    }
+    
     public String getName() {
         return Name;
     }
+  
 
     public List<Headers> getHeader() {
         return Header;
@@ -166,9 +176,17 @@ public class ProfilesProperties {
     public String getContentType() {
         return ContentType;
     }
-
-    public String getTime() {
-        return TimeOut;
+    
+    public String getHttpResponseCode() {
+        return HttpResponseCode;
+    }
+    
+    public String getTime1() {
+        return TimeOut1;
+    }
+    
+    public String getTime2() {
+        return TimeOut2;
     }
 
     public boolean getIsTime() {
@@ -222,7 +240,11 @@ public class ProfilesProperties {
     public int getMatchType() {
         return MatchType;
     }
-
+    
+    public int getScope() {
+        return Scope;
+    }
+        
     public int getRedirection() {
         return RedirType;
     }
@@ -260,10 +282,10 @@ public class ProfilesProperties {
     }
 
     //Set functions
-    public void setName(String name) {
-        Name = name;
+    public void setProfileName(String profilename) {
+        ProfileName = profilename;
     }
-
+    
     public void setHeader(List<Headers> header) {
         Header = header;
     }
@@ -357,8 +379,12 @@ public class ProfilesProperties {
         IsContentType = iscontenttype;
     }
 
-    public void setTime(String timeout) {
-        TimeOut = timeout;
+    public void setTime1(String timeout1) {
+        TimeOut1 = timeout1;
+    }
+    
+    public void setTime2(String timeout2) {
+        TimeOut2 = timeout2;
     }
 
     public void setIsTime(boolean istime) {
@@ -368,7 +394,11 @@ public class ProfilesProperties {
     public void setContentLength(String contentlength) {
         contentLength = contentlength;
     }
-
+    
+    public void setHttpResponseCode(String httpresponsecode) {
+        HttpResponseCode = httpresponsecode;
+    }
+    
     public void setIsContentLength(boolean iscontentlength) {
         iscontentLength = iscontentlength;
     }
@@ -412,6 +442,10 @@ public class ProfilesProperties {
     public void setMatchType(int matchtype) {
         MatchType = matchtype;
     }
+    
+    public void setScope(int scope) {
+        Scope = scope;
+    }
 
     public void setRedirType(int redirtype) {
         RedirType = redirtype;
@@ -448,4 +482,5 @@ public class ProfilesProperties {
     public void setRemediationBackground(String remediationbackground) {
         RemediationBackground = remediationbackground;
     }
+    
 }

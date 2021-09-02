@@ -1,4 +1,9 @@
 ##  Changelog
+**4.0.0 20210902**
+* Burp Bounty Pro 1.6 core
+* Quick issue alert
+* More options for create profiles
+
 **3.6.0 20201005**
 * Fixed bug with Match And Replace
 * Fixed bug with content-type detection
