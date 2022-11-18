@@ -10,10 +10,7 @@
     "UrlEncode": false,
     "CharsToUrlEncode": "",
     "Grep": [
-      "true,,(([a-z0-9]+)(_|-){1,}){1,}((key|pass|credentials|auth|cred|creds|secret|password|access|token|passwd|db|api|admin|private|bash)(\\\\s|_|-){0,}){1,}(\u003d|:|is){0,}",
-      "true,Or,(password|pwd|passwd|pass|key|secret|private|access|cred|creds|api|token)((_|-){0,})(\\\\s){0,}(key|pass|pwd|passwd|private|credentials|auth|cred|creds|secret|password|access|token)(\\\\s){0,}(\u003d|:|is){0,}",
-      "true,Or,([a-z0-9]+)((_|-){0,}(\\\\s){0,})(key|pass|credentials|auth|cred|creds|secret|password|access|token|api)(\\\\s){0,}(\u003d|:|is){0,}",
-      "true,Or,(password|pwd|passwd|pass|key|secret|private|access|cred|creds|api|token)(\\\\s){0,}(\u003d|:|is){0,}"
+      "true,,(?i)(([a-z0-9]+)[-|_])?(key|password|passwd|pass|pwd|private|credential|auth|cred|creds|secret|access|token)([-|_][a-z]+)?(\\s)*(:|\u003d)+"
     ],
     "Tags": [
       "token",
